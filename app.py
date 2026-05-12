@@ -138,33 +138,50 @@ def index():
 
 @app.route('/api/sensor', methods=['GET', 'POST'])
 def terima_sensor():
-    """Terima data dari ESP32 atau form manual"""
-    data = request.get_json()
-    if not data:
-        return jsonify({'error': 'Data tidak valid'}), 400
+    """Terima data dari ESP32 dengan Sistem Kebal Error (Anti-Crash)"""
+    try:
+        # 1. Tambahkan force=True agar Flask tetap membaca JSON walau ESP32 lupa kirim header
+        data = request.get_json(force=True)
+        if not data:
+            return jsonify({'error': 'Data tidak valid atau kosong'}), 400
 
-    status, rules, rekomendasi = forward_chaining(data)
-    sumber = data.get('sumber', 'manual')
+        # 2. Paksa semua nilai menjadi angka (float) agar forward_chaining aman dari crash
+        data['suhu_prod'] = float(data.get('suhu_prod', 0))
+        data['suhu_cool'] = float(data.get('suhu_cool', 0))
+        data['ph'] = float(data.get('ph', 0))
+        data['tds'] = float(data.get('tds', 0))
 
-    conn = get_db()
-    with conn.cursor() as c:
-        # Menggunakan %s untuk mencegah SQL Injection di MySQL
-        c.execute('''
-            INSERT INTO log_sensor (suhu_prod, suhu_cool, ph, tds, status, rules_aktif, sumber)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
-        ''', (data.get('suhu_prod'), data.get('suhu_cool'),
-              data.get('ph'), data.get('tds'),
-              status, ','.join(rules), sumber))
-        last_id = c.lastrowid # Ambil ID terakhir
-    conn.close()
+        # 3. Jalankan logika sistem pakar
+        status, rules, rekomendasi = forward_chaining(data)
+        sumber = data.get('sumber', 'manual')
 
-    return jsonify({
-        'success': True,
-        'id': last_id,
-        'status': status,
-        'rules': rules,
-        'rekomendasi': rekomendasi
-    }), 201
+        # 4. Simpan ke database
+        conn = get_db()
+        with conn.cursor() as c:
+            # Menggunakan %s untuk mencegah SQL Injection di MySQL
+            c.execute('''
+                INSERT INTO log_sensor (suhu_prod, suhu_cool, ph, tds, status, rules_aktif, sumber)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
+            ''', (data['suhu_prod'], data['suhu_cool'],
+                  data['ph'], data['tds'],
+                  status, ','.join(rules), sumber))
+            last_id = c.lastrowid # Ambil ID terakhir
+        conn.close()
+
+        return jsonify({
+            'success': True,
+            'id': last_id,
+            'status': status,
+            'rules': rules,
+            'rekomendasi': rekomendasi
+        }), 201
+
+    except Exception as e:
+        # 5. X-RAY ERROR: Jika masih crash, server tidak akan mati, 
+        # melainkan akan mengirimkan pesan error ASLINYA kembali ke ESP32!
+        print(f"Error di terima_sensor: {e}")
+        return jsonify({'error': f'Sistem Crash Karena: {str(e)}'}), 500
+
 
 @app.route('/api/simulate', methods=['POST'])
 def auto_simulate():

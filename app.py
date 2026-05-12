@@ -136,7 +136,7 @@ def forward_chaining(d):
 def index():
     return render_template('dashboard.html')
 
-@app.route('/api/sensor', methods=['POST'])
+@app.route('/api/sensor', methods=['GET', 'POST'])
 def terima_sensor():
     """Terima data dari ESP32 atau form manual"""
     data = request.get_json()

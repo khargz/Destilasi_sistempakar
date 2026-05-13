@@ -139,6 +139,17 @@ def index():
 @app.route('/api/sensor', methods=['GET', 'POST'])
 def terima_sensor():
     """Terima data dari ESP32 dengan Sistem Kebal Error (Anti-Crash)"""
+
+    # ✅ FIX: Kalau request GET (misal dari browser/dashboard),
+    # langsung balas tanpa mencoba baca body JSON.
+    # Sebelumnya get_json() dipanggil untuk semua method,
+    # menyebabkan Gunicorn worker hang → timeout → crash terus-menerus.
+    if request.method == 'GET':
+        return jsonify({
+            'status': 'ok',
+            'message': 'Endpoint aktif. Gunakan POST untuk mengirim data sensor.'
+        }), 200
+
     try:
         # 1. Tambahkan force=True agar Flask tetap membaca JSON walau ESP32 lupa kirim header
         data = request.get_json(force=True)
@@ -177,7 +188,7 @@ def terima_sensor():
         }), 201
 
     except Exception as e:
-        # 5. X-RAY ERROR: Jika masih crash, server tidak akan mati, 
+        # 5. X-RAY ERROR: Jika masih crash, server tidak akan mati,
         # melainkan akan mengirimkan pesan error ASLINYA kembali ke ESP32!
         print(f"Error di terima_sensor: {e}")
         return jsonify({'error': f'Sistem Crash Karena: {str(e)}'}), 500
@@ -242,12 +253,12 @@ def get_log():
         c.execute('SELECT * FROM log_sensor ORDER BY id DESC LIMIT %s', (limit,))
         rows = c.fetchall()
     conn.close()
-    
+
     # Format datetime MySQL ke string agar bisa di-JSON-kan
     for r in rows:
         if r.get('waktu'):
             r['waktu'] = str(r['waktu'])
-            
+
     return jsonify(rows)
 
 @app.route('/api/latest')
@@ -258,10 +269,10 @@ def get_latest():
         c.execute('SELECT * FROM log_sensor ORDER BY id DESC LIMIT 1')
         row = c.fetchone()
     conn.close()
-    
+
     if row and row.get('waktu'):
         row['waktu'] = str(row['waktu'])
-        
+
     return jsonify(row if row else {})
 
 @app.route('/api/stats')
@@ -271,13 +282,13 @@ def get_stats():
     with conn.cursor() as c:
         c.execute('SELECT COUNT(*) as n FROM log_sensor')
         total = c.fetchone()['n']
-        
+
         c.execute("SELECT COUNT(*) as n FROM log_sensor WHERE status='normal'")
         normal = c.fetchone()['n']
-        
+
         c.execute("SELECT COUNT(*) as n FROM log_sensor WHERE status='anomali'")
         anomali = c.fetchone()['n']
-        
+
         c.execute("SELECT COUNT(*) as n FROM log_sensor WHERE status='kritis'")
         kritis = c.fetchone()['n']
     conn.close()

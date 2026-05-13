@@ -159,6 +159,18 @@
   }
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
+  /* ── ROLE PILLS pada login hints ── */
+  .role-pills { display:flex;gap:6px;margin-top:10px; }
+  .role-pill {
+    font-family:var(--mono);font-size:9px;padding:3px 8px;border-radius:3px;
+    border:1px solid var(--border);color:var(--text3);cursor:pointer;
+    transition:all .15s;
+  }
+  .role-pill:hover { border-color:rgba(57,208,196,.4);color:var(--teal);background:rgba(57,208,196,.05); }
+  .role-pill.admin { border-color:rgba(57,208,196,.3);color:var(--teal); }
+  .role-pill.operator { border-color:rgba(88,166,255,.3);color:var(--blue); }
+  .role-pill.viewer { border-color:rgba(139,148,158,.3);color:var(--text3); }
+
   /* User badge di topbar */
   .user-badge {
     display:flex;align-items:center;gap:8px;
@@ -173,11 +185,22 @@
     font-family:var(--mono);font-size:9px;font-weight:500;color:var(--teal);
     display:flex;align-items:center;justify-content:center;
   }
+  .user-avatar.op { background:rgba(88,166,255,.1);border-color:rgba(88,166,255,.3);color:var(--blue); }
+  .user-avatar.vw { background:rgba(139,148,158,.1);border-color:rgba(139,148,158,.3);color:var(--text2); }
   .user-name { font-family:var(--mono);font-size:11px;color:var(--text2); }
+
+  /* Role chip di topbar */
+  .role-chip {
+    font-family:var(--mono);font-size:9px;padding:2px 7px;border-radius:3px;
+  }
+  .role-chip.admin { background:rgba(57,208,196,.08);border:1px solid rgba(57,208,196,.25);color:var(--teal); }
+  .role-chip.operator { background:rgba(88,166,255,.08);border:1px solid rgba(88,166,255,.25);color:var(--blue); }
+  .role-chip.viewer { background:rgba(139,148,158,.08);border:1px solid rgba(139,148,158,.25);color:var(--text3); }
+
   .user-menu {
     position:absolute;top:calc(100% + 6px);right:0;
     background:var(--bg2);border:1px solid var(--border);
-    border-radius:7px;padding:6px;min-width:160px;
+    border-radius:7px;padding:6px;min-width:180px;
     display:none;z-index:999;
     box-shadow:0 8px 24px rgba(0,0,0,.4);
     animation:menuDrop .15s ease;
@@ -194,6 +217,38 @@
   .user-menu-sep { height:1px;background:var(--border2);margin:4px 0; }
 
   /* ═══════════════════════════════════════
+     ACCESS DENIED OVERLAY
+  ═══════════════════════════════════════ */
+  .access-denied {
+    display:inline-flex;align-items:center;gap:6px;
+    font-family:var(--mono);font-size:10px;
+    color:var(--red);background:var(--red-dim);
+    border:1px solid rgba(248,81,73,.25);
+    border-radius:4px;padding:3px 8px;
+    cursor:not-allowed;
+  }
+  .locked-panel {
+    position:relative;
+  }
+  .locked-overlay {
+    position:absolute;inset:0;z-index:10;
+    background:rgba(13,17,23,.85);backdrop-filter:blur(2px);
+    border-radius:8px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+  }
+  .locked-overlay-icon { font-size:24px; }
+  .locked-overlay-msg {
+    font-family:var(--mono);font-size:11px;color:var(--text3);text-align:center;
+    line-height:1.6;
+  }
+  .locked-overlay-role {
+    font-family:var(--mono);font-size:10px;
+    color:var(--red);background:var(--red-dim);
+    border:1px solid rgba(248,81,73,.2);
+    border-radius:3px;padding:2px 8px;
+  }
+
+  /* ═══════════════════════════════════════
      DASHBOARD
   ═══════════════════════════════════════ */
   #dashboard-screen { display:none; }
@@ -202,7 +257,7 @@
   .topbar-logo{font-family:var(--mono);font-size:13px;font-weight:500;color:var(--teal);letter-spacing:.04em}
   .topbar-sep{width:1px;height:20px;background:var(--border);margin:0 12px}
   .topbar-title{font-size:13px;color:var(--text2)}
-  .topbar-right{display:flex;align-items:center;gap:12px}
+  .topbar-right{display:flex;align-items:center;gap:10px}
   .live-badge{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;color:var(--green);background:var(--green-dim);border:1px solid rgba(63,185,80,.3);padding:3px 10px;border-radius:4px}
   .live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 1.5s ease-in-out infinite}
   .db-badge{font-family:var(--mono);font-size:11px;padding:3px 10px;border-radius:4px;border:1px solid var(--border)}
@@ -220,9 +275,18 @@
     animation:fadeUp .4s ease;
   }
   @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .welcome-left { display:flex;align-items:center;gap:12px; }
   .welcome-text { font-size:13px;color:var(--text2); }
   .welcome-text span { color:var(--teal);font-weight:500; }
+  .welcome-right { display:flex;align-items:center;gap:10px; }
   .welcome-session { font-family:var(--mono);font-size:10px;color:var(--text3); }
+  .perm-list { display:flex;gap:6px;flex-wrap:wrap; }
+  .perm-tag {
+    font-family:var(--mono);font-size:9px;padding:2px 7px;border-radius:3px;
+    border:1px solid var(--border2);color:var(--text3);
+  }
+  .perm-tag.on { border-color:rgba(63,185,80,.3);color:var(--green);background:var(--green-dim); }
+  .perm-tag.off { border-color:rgba(248,81,73,.2);color:var(--text3);text-decoration:line-through; }
 
   /* STATUS BANNER */
   .status-banner{border:1px solid var(--border);border-radius:8px;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;transition:all .4s}
@@ -377,6 +441,29 @@
   .btn:hover{background:var(--bg3);color:var(--text)}
   .btn.primary{border-color:rgba(57,208,196,.4);color:var(--teal)}
   .btn.primary:hover{background:var(--teal-dim)}
+  .btn.excel {
+    border-color:rgba(63,185,80,.4);color:var(--green);
+    background:var(--green-dim);
+    display:flex;align-items:center;gap:6px;
+  }
+  .btn.excel:hover { background:rgba(63,185,80,.15);border-color:rgba(63,185,80,.6);box-shadow:0 0 12px rgba(63,185,80,.1); }
+  .btn.excel:active { transform:scale(.97); }
+  .btn:disabled, .btn.disabled {
+    opacity:.35;cursor:not-allowed;pointer-events:none;
+  }
+
+  /* DOWNLOAD PROGRESS */
+  .dl-progress {
+    font-family:var(--mono);font-size:10px;color:var(--green);
+    display:flex;align-items:center;gap:6px;
+    animation:fadeIn .2s ease;
+  }
+  .dl-spinner {
+    width:10px;height:10px;border:1.5px solid rgba(63,185,80,.3);
+    border-top-color:var(--green);border-radius:50%;
+    animation:spin .6s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
 
   .footer-note{text-align:center;font-family:var(--mono);font-size:11px;color:var(--text3);padding:16px 0 8px;border-top:1px solid var(--border2);margin-top:8px}
   ::-webkit-scrollbar{width:5px;height:5px}
@@ -390,14 +477,12 @@
     padding:10px 14px;font-family:var(--mono);font-size:11px;
     display:flex;align-items:center;gap:8px;
     box-shadow:0 4px 16px rgba(0,0,0,.4);
-    animation:toastIn .25s ease;max-width:280px;
+    animation:toastIn .25s ease;max-width:300px;
   }
   @keyframes toastIn{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:none}}
   .toast.ok{border-color:rgba(63,185,80,.4);color:var(--green)}
   .toast.warn{border-color:rgba(210,153,34,.4);color:var(--amber)}
   .toast.err{border-color:rgba(248,81,73,.4);color:var(--red)}
-
-
 </style>
 </head>
 <body>
@@ -434,7 +519,12 @@
           <input class="login-input" id="inp-pass" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
           <span class="login-input-icon" id="toggle-eye" onclick="togglePass()" title="Tampilkan password">👁</span>
         </div>
-        <div class="login-hint">Default: admin / admin123 &nbsp;·&nbsp; operator / op2024</div>
+        <!-- Quick-fill pills -->
+        <div class="role-pills">
+          <span class="role-pill admin" onclick="quickFill('admin','admin123')" title="Isi otomatis">👑 admin</span>
+          <span class="role-pill operator" onclick="quickFill('operator','op2024')" title="Isi otomatis">🔧 operator</span>
+          <span class="role-pill viewer" onclick="quickFill('viewer','view2024')" title="Isi otomatis">👁 viewer</span>
+        </div>
       </div>
 
       <button class="login-btn" id="login-btn" onclick="doLogin()">
@@ -443,7 +533,7 @@
     </div>
 
     <div class="login-footer">
-      <div class="login-footer-text">v2.1 · Lab Sistem Pakar</div>
+      <div class="login-footer-text">v2.2 · Lab Sistem Pakar</div>
       <div style="display:flex;align-items:center;gap:6px">
         <div class="login-footer-dot"></div>
         <span class="login-footer-text">Server aktif</span>
@@ -469,11 +559,16 @@
       <div class="user-badge">
         <div class="user-avatar" id="user-avatar">AD</div>
         <div class="user-name" id="user-name-badge">admin</div>
+        <div class="role-chip admin" id="role-chip">ADMIN</div>
         <span style="font-size:9px;color:var(--text3)">▾</span>
         <div class="user-menu">
-          <div class="user-menu-item">
+          <div class="user-menu-item" style="cursor:default">
             <span>👤</span>
             <span id="menu-fullname">Admin</span>
+          </div>
+          <div class="user-menu-item" style="color:var(--text3);font-size:10px;cursor:default">
+            <span>🏷</span>
+            <span id="menu-role-label">administrator</span>
           </div>
           <div class="user-menu-item" style="color:var(--text3);font-size:10px;cursor:default">
             <span>🕐</span>
@@ -498,8 +593,13 @@
 
     <!-- WELCOME BAR -->
     <div class="welcome-bar" id="welcome-bar">
-      <div class="welcome-text">Selamat datang, <span id="welcome-name">Admin</span> 👋 — Sesi dimulai <span id="welcome-time">—</span></div>
-      <div class="welcome-session" id="welcome-session">role: administrator · akses penuh</div>
+      <div class="welcome-left">
+        <div class="welcome-text">Selamat datang, <span id="welcome-name">Admin</span> — Sesi dimulai <span id="welcome-time">—</span></div>
+      </div>
+      <div class="welcome-right">
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-right:6px">HAK AKSES:</div>
+        <div class="perm-list" id="perm-list"></div>
+      </div>
     </div>
 
     <!-- STATUS BANNER -->
@@ -566,6 +666,7 @@
         <div class="panel-body" style="max-height:300px;overflow-y:auto" id="rek-list"></div>
       </div>
 
+      <!-- NOTIF — operator bisa hapus juga (hanya UI lokal) -->
       <div class="panel">
         <div class="panel-header">
           <div class="panel-title">Notifikasi</div>
@@ -578,16 +679,17 @@
     </div>
 
     <!-- LOG + STATISTIK -->
-    <div class="panel" style="margin-bottom:20px">
+    <div class="panel locked-panel" id="panel-log-stat" style="margin-bottom:20px">
       <div class="panel-header">
         <div class="tabs" style="border:none;margin:0">
-          <div class="tab active" onclick="switchTab('log')">Log Riwayat Sensor</div>
-          <div class="tab" onclick="switchTab('statistik')">Statistik Database</div>
+          <div class="tab active" id="tab-btn-log" onclick="switchTab('log')">Log Riwayat Sensor</div>
+          <div class="tab" id="tab-btn-statistik" onclick="switchTab('statistik')">Statistik Database</div>
         </div>
-        <div style="display:flex;gap:8px">
-          <button class="btn" onclick="refreshLog()">↺ refresh</button>
+        <div style="display:flex;align-items:center;gap:8px" id="log-action-bar">
+          <!-- tombol-tombol dirender ulang tiap login sesuai role -->
         </div>
       </div>
+
       <div id="tab-log" class="tab-content active">
         <div class="log-wrap">
           <table>
@@ -600,6 +702,7 @@
           </table>
         </div>
       </div>
+
       <div id="tab-statistik" class="tab-content">
         <div class="panel-body">
           <div class="stat-grid">
@@ -610,10 +713,17 @@
           </div>
         </div>
       </div>
+
+      <!-- locked overlay — ditampilkan untuk viewer -->
+      <div class="locked-overlay" id="locked-overlay" style="display:none">
+        <div class="locked-overlay-icon">🔒</div>
+        <div class="locked-overlay-msg">Akses ditolak<br>Tab ini hanya tersedia untuk Admin & Operator</div>
+        <div class="locked-overlay-role">VIEWER — akses terbatas</div>
+      </div>
     </div>
 
     <div class="footer-note">
-      Data tersimpan di SQLite (data_sensor.db) · Backend Flask & UI Terhubung via Relative Path
+      Data tersimpan di SQLite (data_sensor.db) · Backend Flask · v2.2
     </div>
   </div>
 </div>
@@ -654,32 +764,97 @@
 
 <script>
 // ═══════════════════════════════════════════
-// DATA PENGGUNA (simulasi — di produksi pakai backend)
+// DEFINISI PENGGUNA & HAK AKSES
 // ═══════════════════════════════════════════
 const USERS = {
-  'admin':    { password:'admin123', fullname:'Administrator', role:'administrator · akses penuh',    initials:'AD' },
-  'operator': { password:'op2024',   fullname:'Operator Lab',  role:'operator · akses monitoring',    initials:'OP' },
-  'viewer':   { password:'view2024', fullname:'Viewer',        role:'viewer · hanya baca',             initials:'VW' },
+  'admin': {
+    password: 'admin123',
+    fullname: 'Administrator',
+    initials: 'AD',
+    avatarClass: '',
+    roleLabel: 'Administrator',
+    roleKey: 'admin',
+    chipClass: 'admin',
+    perms: {
+      viewSensor:    true,
+      viewLog:       true,
+      viewStatistik: true,
+      downloadExcel: true,
+      hapusLog:      true,
+      clearNotif:    true,
+    }
+  },
+  'operator': {
+    password: 'op2024',
+    fullname: 'Operator Lab',
+    initials: 'OP',
+    avatarClass: 'op',
+    roleLabel: 'Operator',
+    roleKey: 'operator',
+    chipClass: 'operator',
+    perms: {
+      viewSensor:    true,
+      viewLog:       true,
+      viewStatistik: true,   // ✅ bisa lihat statistik
+      downloadExcel: false,  // ✗ tidak bisa download
+      hapusLog:      false,  // ✗ tidak bisa hapus log
+      clearNotif:    true,
+    }
+  },
+  'viewer': {
+    password: 'view2024',
+    fullname: 'Viewer',
+    initials: 'VW',
+    avatarClass: 'vw',
+    roleLabel: 'Viewer',
+    roleKey: 'viewer',
+    chipClass: 'viewer',
+    perms: {
+      viewSensor:    true,
+      viewLog:       false,  // ✗ tidak bisa lihat log/statistik
+      viewStatistik: false,
+      downloadExcel: false,
+      hapusLog:      false,
+      clearNotif:    true,
+    }
+  },
+};
+
+// Label deskripsi izin untuk welcome bar
+const PERM_LABELS = {
+  viewLog:       'Lihat Log',
+  viewStatistik: 'Statistik',
+  downloadExcel: 'Download XLS',
+  hapusLog:      'Hapus Log',
 };
 
 let currentUser = null;
 let loginTime = null;
+let cachedLogs = []; // simpan log terakhir untuk export
 
 // ═══════════════════════════════════════════
-// LOGIN
+// QUICK FILL LOGIN
 // ═══════════════════════════════════════════
+function quickFill(user, pass) {
+  document.getElementById('inp-user').value = user;
+  document.getElementById('inp-pass').value = pass;
+  document.getElementById('inp-user').focus();
+}
+
 function togglePass() {
   const inp = document.getElementById('inp-pass');
   inp.type = inp.type === 'password' ? 'text' : 'password';
 }
 
+// ═══════════════════════════════════════════
+// LOGIN
+// ═══════════════════════════════════════════
 function doLogin() {
   const u = document.getElementById('inp-user').value.trim();
   const p = document.getElementById('inp-pass').value;
   const err = document.getElementById('login-error');
   const btn = document.getElementById('login-btn');
 
-  // Clear error
   err.style.display = 'none';
   document.getElementById('inp-user').classList.remove('error');
   document.getElementById('inp-pass').classList.remove('error');
@@ -700,25 +875,14 @@ function doLogin() {
     return;
   }
 
-  // Loading state
   btn.classList.add('loading');
   document.getElementById('login-btn-text').textContent = 'MENGAUTENTIKASI...';
 
   setTimeout(() => {
     currentUser = { username: u.toLowerCase(), ...user };
     loginTime = new Date();
+    applyUserUI();
 
-    // Update UI
-    const initials = user.initials;
-    document.getElementById('user-avatar').textContent = initials;
-    document.getElementById('user-name-badge').textContent = u.toLowerCase();
-    document.getElementById('menu-fullname').textContent = user.fullname;
-    document.getElementById('menu-logintime').textContent = loginTime.toLocaleTimeString('id-ID');
-    document.getElementById('welcome-name').textContent = user.fullname;
-    document.getElementById('welcome-time').textContent = loginTime.toLocaleTimeString('id-ID');
-    document.getElementById('welcome-session').textContent = 'role: ' + user.role;
-
-    // Transition
     const ls = document.getElementById('login-screen');
     ls.style.transition = 'opacity .4s';
     ls.style.opacity = '0';
@@ -726,9 +890,88 @@ function doLogin() {
       ls.style.display = 'none';
       document.getElementById('dashboard-screen').style.display = 'block';
       showToast('ok', '✓ Masuk sebagai ' + user.fullname);
+      applyRoleRestrictions();
       checkDB();
     }, 400);
   }, 800);
+}
+
+function applyUserUI() {
+  const u = currentUser;
+
+  // Topbar
+  const av = document.getElementById('user-avatar');
+  av.textContent = u.initials;
+  av.className = 'user-avatar ' + u.avatarClass;
+
+  const chip = document.getElementById('role-chip');
+  chip.textContent = u.roleKey.toUpperCase();
+  chip.className = 'role-chip ' + u.chipClass;
+
+  document.getElementById('user-name-badge').textContent = u.username;
+  document.getElementById('menu-fullname').textContent = u.fullname;
+  document.getElementById('menu-role-label').textContent = u.roleLabel;
+  document.getElementById('menu-logintime').textContent = loginTime.toLocaleTimeString('id-ID');
+
+  // Welcome bar
+  document.getElementById('welcome-name').textContent = u.fullname;
+  document.getElementById('welcome-time').textContent = loginTime.toLocaleTimeString('id-ID');
+
+  // Perm tags
+  const pl = document.getElementById('perm-list');
+  pl.innerHTML = Object.entries(PERM_LABELS).map(([key, label]) => {
+    const on = u.perms[key];
+    return `<span class="perm-tag ${on ? 'on' : 'off'}" title="${on ? 'Diizinkan' : 'Tidak diizinkan'}">${on ? '✓' : '✗'} ${label}</span>`;
+  }).join('');
+}
+
+function applyRoleRestrictions() {
+  const perms = currentUser.perms;
+
+  // === Log & Statistik panel ===
+  const lockedOverlay = document.getElementById('locked-overlay');
+  if (!perms.viewLog && !perms.viewStatistik) {
+    lockedOverlay.style.display = 'flex';
+  } else {
+    lockedOverlay.style.display = 'none';
+  }
+
+  // Sembunyikan tab statistik jika tidak punya akses
+  const tabStat = document.getElementById('tab-btn-statistik');
+  if (!perms.viewStatistik) {
+    tabStat.style.display = 'none';
+  } else {
+    tabStat.style.display = '';
+  }
+
+  // === Action bar di header log panel ===
+  renderLogActionBar();
+}
+
+function renderLogActionBar() {
+  const bar = document.getElementById('log-action-bar');
+  const perms = currentUser.perms;
+  let html = '';
+
+  // Tombol download Excel — HANYA admin
+  if (perms.downloadExcel) {
+    html += `
+      <button class="btn excel" id="btn-excel" onclick="downloadExcel()">
+        <span>⬇</span> Download Excel
+      </button>`;
+  }
+
+  // Tombol refresh — semua yang punya viewLog
+  if (perms.viewLog) {
+    html += `<button class="btn" onclick="refreshLog()">↺ refresh</button>`;
+  }
+
+  // Tombol hapus log — HANYA admin
+  if (perms.hapusLog) {
+    html += `<button class="btn" style="border-color:rgba(248,81,73,.3);color:var(--red)" onclick="hapusLog()">🗑 hapus log</button>`;
+  }
+
+  bar.innerHTML = html;
 }
 
 function doLogout() {
@@ -744,12 +987,122 @@ function doLogout() {
   document.getElementById('login-btn-text').textContent = 'MASUK →';
   document.getElementById('login-error').style.display = 'none';
   currentUser = null;
+  cachedLogs = [];
+  localNotifs.length = 0;
+}
+
+// ═══════════════════════════════════════════
+// DOWNLOAD EXCEL  (SheetJS / xlsx)
+// ═══════════════════════════════════════════
+async function downloadExcel() {
+  if (!currentUser || !currentUser.perms.downloadExcel) {
+    showToast('err', '✗ Akses ditolak — hanya admin');
+    return;
+  }
+
+  const btn = document.getElementById('btn-excel');
+  if (btn) {
+    btn.innerHTML = '<div class="dl-spinner"></div> Menyiapkan...';
+    btn.disabled = true;
+  }
+
+  try {
+    // Pastikan SheetJS sudah loaded
+    if (typeof XLSX === 'undefined') {
+      await loadSheetJS();
+    }
+
+    // Gunakan cachedLogs; jika kosong, generate data demo
+    let rows = cachedLogs.length > 0 ? cachedLogs : generateDemoLogs();
+
+    // Header worksheet
+    const wsData = [
+      ['ID', 'Waktu', 'Suhu Pemanas (°C)', 'Suhu Pendingin (°C)', 'pH', 'TDS (ppm)', 'Status', 'Rule Aktif'],
+      ...rows.map(r => [
+        r.id,
+        r.waktu,
+        r.suhu_prod,
+        r.suhu_cool,
+        r.ph,
+        r.tds,
+        r.status,
+        r.rules_aktif || '—'
+      ])
+    ];
+
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+    // Lebar kolom
+    ws['!cols'] = [
+      {wch:6},{wch:22},{wch:20},{wch:22},{wch:8},{wch:10},{wch:12},{wch:30}
+    ];
+
+    // Style header (hanya xlsx mendukung style via SheetJS Pro; di versi community kita pakai trik manual)
+    XLSX.utils.book_append_sheet(wb, ws, 'Log Sensor');
+
+    // Sheet info ekspor
+    const infoData = [
+      ['LAPORAN SISTEM PAKAR DISTILASI MINYAK KAYU PUTIH'],
+      [''],
+      ['Diekspor oleh', currentUser.fullname + ' (' + currentUser.roleLabel + ')'],
+      ['Waktu ekspor', new Date().toLocaleString('id-ID')],
+      ['Total baris data', rows.length],
+    ];
+    const wsInfo = XLSX.utils.aoa_to_sheet(infoData);
+    wsInfo['!cols'] = [{wch:22},{wch:40}];
+    XLSX.utils.book_append_sheet(wb, wsInfo, 'Info Ekspor');
+
+    // Download
+    const filename = `log_sensor_${new Date().toISOString().slice(0,19).replace(/[:T]/g,'-')}.xlsx`;
+    XLSX.writeFile(wb, filename);
+
+    showToast('ok', `✓ Berhasil download ${rows.length} baris → ${filename}`);
+  } catch(e) {
+    console.error(e);
+    showToast('err', '✗ Gagal membuat file Excel: ' + e.message);
+  } finally {
+    if (btn) {
+      btn.innerHTML = '<span>⬇</span> Download Excel';
+      btn.disabled = false;
+    }
+  }
+}
+
+function loadSheetJS() {
+  return new Promise((resolve, reject) => {
+    if (typeof XLSX !== 'undefined') { resolve(); return; }
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+    s.onload = resolve;
+    s.onerror = () => reject(new Error('Gagal memuat library SheetJS'));
+    document.head.appendChild(s);
+  });
+}
+
+// Data demo jika DB tidak tersambung
+function generateDemoLogs() {
+  const statuses = ['normal','normal','normal','anomali','kritis'];
+  const now = Date.now();
+  return Array.from({length:20}, (_,i) => {
+    const st = statuses[Math.floor(Math.random()*statuses.length)];
+    return {
+      id: 100-i,
+      waktu: new Date(now - i*3000).toLocaleString('id-ID'),
+      suhu_prod: (95 + Math.random()*15 - 5).toFixed(1),
+      suhu_cool: (28 + Math.random()*10 - 5).toFixed(1),
+      ph: (6.2 + Math.random()*1.2 - 0.4).toFixed(2),
+      tds: Math.round(150 + Math.random()*200 - 50),
+      status: st,
+      rules_aktif: st==='normal' ? 'R01,R05,R08,R11' : st==='anomali' ? 'R02,R09' : 'R04,R14',
+    };
+  });
 }
 
 // ═══════════════════════════════════════════
 // TOAST
 // ═══════════════════════════════════════════
-function showToast(type, msg, duration=3000) {
+function showToast(type, msg, duration=3500) {
   const wrap = document.getElementById('toast-wrap');
   const t = document.createElement('div');
   t.className = 'toast ' + type;
@@ -796,11 +1149,11 @@ function openModal(param) {
 
   document.getElementById('modal-overlay').classList.add('open');
 
-  // Draw chart
   if (modalChart) { modalChart.destroy(); modalChart = null; }
   const canvas = document.getElementById('modal-chart');
   const ctx = canvas.getContext('2d');
-  const color = colOf(paramSt(param, RULES.filter(r => r.cond({sp,sc,ph,tds}))));
+  const fired = RULES.filter(r => r.cond({sp,sc,ph,tds}));
+  const color = colOf(paramSt(param, fired));
 
   modalChart = new Chart(ctx, {
     type: 'line',
@@ -828,41 +1181,30 @@ function openModal(param) {
   });
 }
 
-function closeModal() {
-  document.getElementById('modal-overlay').classList.remove('open');
-}
+function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); }
 document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); });
 
 // ═══════════════════════════════════════════
-// THEME TOGGLE (light mode sederhana)
+// THEME TOGGLE
 // ═══════════════════════════════════════════
 let lightMode = false;
 function toggleTheme() {
   lightMode = !lightMode;
+  const v = (k,v) => document.documentElement.style.setProperty(k,v);
   if (lightMode) {
-    document.documentElement.style.setProperty('--bg','#f0f2f5');
-    document.documentElement.style.setProperty('--bg2','#ffffff');
-    document.documentElement.style.setProperty('--bg3','#f5f7fa');
-    document.documentElement.style.setProperty('--border','#d0d7de');
-    document.documentElement.style.setProperty('--border2','#e5eaef');
-    document.documentElement.style.setProperty('--text','#1f2328');
-    document.documentElement.style.setProperty('--text2','#57606a');
-    document.documentElement.style.setProperty('--text3','#8c959f');
+    v('--bg','#f0f2f5'); v('--bg2','#ffffff'); v('--bg3','#f5f7fa');
+    v('--border','#d0d7de'); v('--border2','#e5eaef');
+    v('--text','#1f2328'); v('--text2','#57606a'); v('--text3','#8c959f');
   } else {
-    document.documentElement.style.setProperty('--bg','#0d1117');
-    document.documentElement.style.setProperty('--bg2','#161b22');
-    document.documentElement.style.setProperty('--bg3','#1c2330');
-    document.documentElement.style.setProperty('--border','#30363d');
-    document.documentElement.style.setProperty('--border2','#21262d');
-    document.documentElement.style.setProperty('--text','#e6edf3');
-    document.documentElement.style.setProperty('--text2','#8b949e');
-    document.documentElement.style.setProperty('--text3','#484f58');
+    v('--bg','#0d1117'); v('--bg2','#161b22'); v('--bg3','#1c2330');
+    v('--border','#30363d'); v('--border2','#21262d');
+    v('--text','#e6edf3'); v('--text2','#8b949e'); v('--text3','#484f58');
   }
   showToast('ok', lightMode ? '☀ Mode terang aktif' : '🌙 Mode gelap aktif');
 }
 
 // ═══════════════════════════════════════════
-// KODE DASHBOARD (Dengan perbaikan Bug Cache Browser)
+// DASHBOARD — SENSOR & FORWARD CHAINING
 // ═══════════════════════════════════════════
 const API = '/api';
 let dbOk = false;
@@ -893,10 +1235,20 @@ const localNotifs=[];
 
 setInterval(()=>{ document.getElementById('clock').textContent=new Date().toLocaleTimeString('id-ID'); },1000);
 
-function switchTab(t){
-  document.querySelectorAll('.tab').forEach(el=>el.classList.toggle('active',el.textContent.toLowerCase().includes(t==='log'?'log':'statistik')));
-  document.getElementById('tab-log').classList.toggle('active',t==='log');
-  document.getElementById('tab-statistik').classList.toggle('active',t==='statistik');
+function switchTab(t) {
+  // Cek izin statistik
+  if (t==='statistik' && currentUser && !currentUser.perms.viewStatistik) {
+    showToast('err','✗ Akses ditolak — fitur statistik untuk Admin & Operator');
+    return;
+  }
+  document.querySelectorAll('.tab').forEach(el => {
+    el.classList.toggle('active',
+      (t==='log' && el.id==='tab-btn-log') ||
+      (t==='statistik' && el.id==='tab-btn-statistik')
+    );
+  });
+  document.getElementById('tab-log').classList.toggle('active', t==='log');
+  document.getElementById('tab-statistik').classList.toggle('active', t==='statistik');
   if(t==='statistik') loadStatistik();
 }
 
@@ -952,6 +1304,7 @@ function updRek(fired){
 function updNotif(fired){
   const newOnes=fired.filter(r=>r.status!=='ok'&&!prevFired.find(p=>p.id===r.id));
   newOnes.forEach(r=>{
+    if (!currentUser || !currentUser.perms.clearNotif) return;
     localNotifs.unshift({st:r.status,msg:r.label,time:new Date().toLocaleTimeString('id-ID')});
     if(localNotifs.length>30)localNotifs.pop();
     showToast(r.status==='danger'?'err':'warn', (r.status==='danger'?'🔴 ':'⚠ ')+r.label);
@@ -966,14 +1319,10 @@ function clearNotif(){
   document.getElementById('notif-box').innerHTML='<div style="color:var(--text3);font-size:12px;text-align:center;padding:20px 0">Belum ada notifikasi</div>';
 }
 
-// =========================================================
-// PERBAIKAN UTAMA: Tambahan '?t=' + Date.now() di setiap URL
-// =========================================================
-
 async function fetchLatestData(){
   if(!dbOk)return;
   try{
-    const res=await fetch(API+'/latest?t=' + Date.now());
+    const res=await fetch(API+'/latest');
     const data=await res.json();
     if(Object.keys(data).length>0){
       sp=data.suhu_prod; sc=data.suhu_cool; ph=data.ph; tds=data.tds;
@@ -997,26 +1346,54 @@ async function fetchLatestData(){
 }
 
 async function refreshLog(){
-  if(!dbOk)return;
+  if(!currentUser || !currentUser.perms.viewLog){
+    showToast('err','✗ Akses ditolak — tidak ada izin lihat log');
+    return;
+  }
+  if(!dbOk) {
+    // Demo mode — tampilkan data demo
+    const demo = generateDemoLogs();
+    cachedLogs = demo;
+    renderLogTable(demo);
+    return;
+  }
   try{
-    const res=await fetch(API+'/log?limit=20&t=' + Date.now());
+    const res=await fetch(API+'/log?limit=50');
     const logs=await res.json();
-    const tbody=document.getElementById('log-body');
-    if(!logs||!logs.length){tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:16px">Belum ada log</td></tr>';return;}
-    tbody.innerHTML=logs.map(r=>`
-      <tr>
-        <td>${r.id}</td><td>${r.waktu.split(' ')[1]}</td><td>${r.suhu_prod}° / ${r.suhu_cool}°</td>
-        <td>${r.ph}</td><td>${r.tds}</td>
-        <td><span class="log-status ${r.status}">${r.status}</span></td>
-        <td>${r.rules_aktif||'—'}</td>
-      </tr>`).join('');
-  }catch(e){}
+    cachedLogs = logs || [];
+    renderLogTable(cachedLogs);
+  }catch(e){ showToast('warn','⚠ Gagal memuat log dari server'); }
+}
+
+function renderLogTable(logs) {
+  const tbody=document.getElementById('log-body');
+  if(!logs||!logs.length){
+    tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:16px;color:var(--text3)">Belum ada log</td></tr>';
+    return;
+  }
+  tbody.innerHTML=logs.map(r=>`
+    <tr>
+      <td>${r.id}</td><td>${r.waktu.includes(' ') ? r.waktu.split(' ')[1] : r.waktu}</td>
+      <td>${r.suhu_prod}° / ${r.suhu_cool}°</td>
+      <td>${r.ph}</td><td>${r.tds}</td>
+      <td><span class="log-status ${r.status}">${r.status}</span></td>
+      <td>${r.rules_aktif||'—'}</td>
+    </tr>`).join('');
 }
 
 async function loadStatistik(){
-  if(!dbOk)return;
+  if(!currentUser || !currentUser.perms.viewStatistik) return;
+  if(!dbOk){
+    // Demo stats
+    const demo = generateDemoLogs();
+    document.getElementById('st-total').textContent = demo.length;
+    document.getElementById('st-normal').textContent = demo.filter(r=>r.status==='normal').length;
+    document.getElementById('st-anomali').textContent = demo.filter(r=>r.status==='anomali').length;
+    document.getElementById('st-kritis').textContent = demo.filter(r=>r.status==='kritis').length;
+    return;
+  }
   try{
-    const res=await fetch(API+'/stats?t=' + Date.now());
+    const res=await fetch(API+'/stats');
     const d=await res.json();
     document.getElementById('st-total').textContent=d.total;
     document.getElementById('st-normal').textContent=d.normal;
@@ -1027,7 +1404,7 @@ async function loadStatistik(){
 
 async function checkDB(){
   try{
-    await fetch(API+'/stats?t=' + Date.now());
+    await fetch(API+'/stats',{signal:AbortSignal.timeout(3000)});
     dbOk=true;
     document.getElementById('db-badge').textContent='DB: TERHUBUNG';
     document.getElementById('db-badge').className='db-badge connected';
@@ -1036,14 +1413,30 @@ async function checkDB(){
     dbOk=false;
     document.getElementById('db-badge').textContent='DB: TERPUTUS';
     document.getElementById('db-badge').className='db-badge disconnected';
+    // Tetap load demo data untuk log
+    if (currentUser && currentUser.perms.viewLog) {
+      const demo = generateDemoLogs();
+      cachedLogs = demo;
+      renderLogTable(demo);
+    }
   }
 }
 
 async function hapusLog(){
-  if(!confirm('Hapus semua database?'))return;
-  await fetch(API+'/clear',{method:'DELETE'});
-  fetchLatestData(); refreshLog();
-  showToast('ok','✓ Riwayat log dihapus');
+  if(!currentUser || !currentUser.perms.hapusLog){
+    showToast('err','✗ Akses ditolak — hanya admin yang bisa menghapus log');
+    return;
+  }
+  if(!confirm('Hapus semua database log sensor?')) return;
+  try {
+    await fetch(API+'/clear',{method:'DELETE'});
+    cachedLogs = [];
+    renderLogTable([]);
+    showToast('ok','✓ Riwayat log dihapus');
+    fetchLatestData();
+  } catch(e) {
+    showToast('err','✗ Gagal menghapus log (DB tidak tersambung)');
+  }
 }
 
 // Chart.js untuk modal
@@ -1051,6 +1444,7 @@ const _chartJs = document.createElement('script');
 _chartJs.src = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js';
 document.head.appendChild(_chartJs);
 
+// SheetJS di-load lazy saat pertama download
 setInterval(checkDB, 15000);
 setInterval(fetchLatestData, 3000);
 </script>

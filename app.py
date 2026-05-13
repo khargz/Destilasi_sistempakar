@@ -1,28 +1,28 @@
 # app.py — Lapisan 2: Server Flask + MySQL (Railway)
 # Sistem Pakar Distilasi Minyak Kayu Putih
 # Mode: Dengan dukungan MySQL Database
-
+ 
 from flask import Flask, request, jsonify, render_template
 import random, os
 from urllib.parse import urlparse
 import pymysql
 import pymysql.cursors
-
+ 
 app = Flask(__name__)
-
+ 
 # ─────────────────────────────────────────────
 # DATABASE SETUP (KONEKSI MYSQL)
 # ─────────────────────────────────────────────
-
+ 
 # Mengambil Link dari Railway (otomatis lewat Environment Variable)
 DB_URL = os.environ.get('MYSQL_URL', 'mysql://root:@localhost:3306/railway')
-
+ 
 # Membersihkan format link agar mudah dibaca oleh Python
 if DB_URL.startswith('mysql+pymysql://'):
     DB_URL = DB_URL.replace('mysql+pymysql://', 'mysql://')
-
+ 
 parsed_url = urlparse(DB_URL)
-
+ 
 def get_db():
     """Membuka koneksi ke MySQL"""
     return pymysql.connect(
@@ -34,7 +34,7 @@ def get_db():
         cursorclass=pymysql.cursors.DictCursor, # Agar output berbentuk dictionary
         autocommit=True # Otomatis menyimpan perubahan
     )
-
+ 
 def init_db():
     """Membuat tabel MySQL jika belum ada"""
     conn = get_db()
@@ -53,11 +53,11 @@ def init_db():
             )
         ''')
     conn.close()
-
+ 
 # ─────────────────────────────────────────────
 # SISTEM PAKAR — FORWARD CHAINING
 # ─────────────────────────────────────────────
-
+ 
 RULES = {
     'R01': {'kondisi': 'Suhu produksi normal (90–105°C)',       'aksi': 'Lanjutkan proses'},
     'R02': {'kondisi': 'Suhu produksi terlalu rendah (<90°C)',  'aksi': 'Naikkan suhu pemanas'},
@@ -74,16 +74,16 @@ RULES = {
     'R13': {'kondisi': 'TDS tinggi (300–500 ppm)',              'aksi': 'Kemurnian menurun, periksa proses'},
     'R14': {'kondisi': 'TDS kritis (>500 ppm)',                 'aksi': 'HENTIKAN — kemurnian sangat buruk'},
 }
-
+ 
 def forward_chaining(d):
     sp  = float(d.get('suhu_prod', 0))
     sc  = float(d.get('suhu_cool', 0))
     ph  = float(d.get('ph', 7))
     tds = float(d.get('tds', 0))
-
+ 
     rules_aktif = []
     status = 'normal'
-
+ 
     # Evaluasi suhu produksi
     if sp < 90:
         rules_aktif.append('R02'); status = 'anomali'
@@ -94,7 +94,7 @@ def forward_chaining(d):
         if status == 'normal': status = 'anomali'
     else:
         rules_aktif.append('R01')
-
+ 
     # Evaluasi suhu pendingin
     if sc < 20:
         rules_aktif.append('R06')
@@ -103,7 +103,7 @@ def forward_chaining(d):
         rules_aktif.append('R07'); status = 'kritis'
     else:
         rules_aktif.append('R05')
-
+ 
     # Evaluasi pH
     if ph < 5.5:
         rules_aktif.append('R09')
@@ -113,7 +113,7 @@ def forward_chaining(d):
         if status == 'normal': status = 'anomali'
     else:
         rules_aktif.append('R08')
-
+ 
     # Evaluasi TDS
     if tds < 50:
         rules_aktif.append('R12')
@@ -124,22 +124,22 @@ def forward_chaining(d):
         if status == 'normal': status = 'anomali'
     else:
         rules_aktif.append('R11')
-
+ 
     rekomendasi = [RULES[r]['aksi'] for r in rules_aktif]
     return status, rules_aktif, rekomendasi
-
+ 
 # ─────────────────────────────────────────────
 # ROUTES
 # ─────────────────────────────────────────────
-
+ 
 @app.route('/')
 def index():
     return render_template('dashboard.html')
-
+ 
 @app.route('/api/sensor', methods=['GET', 'POST'])
 def terima_sensor():
     """Terima data dari ESP32 dengan Sistem Kebal Error (Anti-Crash)"""
-
+ 
     # ✅ FIX: Kalau request GET (misal dari browser/dashboard),
     # langsung balas tanpa mencoba baca body JSON.
     # Sebelumnya get_json() dipanggil untuk semua method,
@@ -149,23 +149,23 @@ def terima_sensor():
             'status': 'ok',
             'message': 'Endpoint aktif. Gunakan POST untuk mengirim data sensor.'
         }), 200
-
+ 
     try:
         # 1. Tambahkan force=True agar Flask tetap membaca JSON walau ESP32 lupa kirim header
         data = request.get_json(force=True)
         if not data:
             return jsonify({'error': 'Data tidak valid atau kosong'}), 400
-
+ 
         # 2. Paksa semua nilai menjadi angka (float) agar forward_chaining aman dari crash
         data['suhu_prod'] = float(data.get('suhu_prod', 0))
         data['suhu_cool'] = float(data.get('suhu_cool', 0))
         data['ph'] = float(data.get('ph', 0))
         data['tds'] = float(data.get('tds', 0))
-
+ 
         # 3. Jalankan logika sistem pakar
         status, rules, rekomendasi = forward_chaining(data)
         sumber = data.get('sumber', 'manual')
-
+ 
         # 4. Simpan ke database
         conn = get_db()
         with conn.cursor() as c:
@@ -178,7 +178,7 @@ def terima_sensor():
                   status, ','.join(rules), sumber))
             last_id = c.lastrowid # Ambil ID terakhir
         conn.close()
-
+ 
         return jsonify({
             'success': True,
             'id': last_id,
@@ -186,19 +186,19 @@ def terima_sensor():
             'rules': rules,
             'rekomendasi': rekomendasi
         }), 201
-
+ 
     except Exception as e:
         # 5. X-RAY ERROR: Jika masih crash, server tidak akan mati,
         # melainkan akan mengirimkan pesan error ASLINYA kembali ke ESP32!
         print(f"Error di terima_sensor: {e}")
         return jsonify({'error': f'Sistem Crash Karena: {str(e)}'}), 500
-
-
+ 
+ 
 @app.route('/api/simulate', methods=['POST'])
 def auto_simulate():
     """Generate data sensor acak (realistis untuk distilasi kayu putih)"""
     mode = request.json.get('mode', 'normal') if request.json else 'normal'
-
+ 
     if mode == 'normal':
         data = {
             'suhu_prod': round(random.uniform(92, 104), 1),
@@ -223,9 +223,9 @@ def auto_simulate():
             'tds':       round(random.uniform(510, 700), 1),
             'sumber':    'simulator'
         }
-
+ 
     status, rules, rekomendasi = forward_chaining(data)
-
+ 
     conn = get_db()
     with conn.cursor() as c:
         c.execute('''
@@ -235,7 +235,7 @@ def auto_simulate():
               data['ph'], data['tds'],
               status, ','.join(rules), data['sumber']))
     conn.close()
-
+ 
     return jsonify({
         'success': True,
         'data': data,
@@ -243,7 +243,7 @@ def auto_simulate():
         'rules': rules,
         'rekomendasi': rekomendasi
     })
-
+ 
 @app.route('/api/log')
 def get_log():
     """Ambil data log terbaru"""
@@ -253,14 +253,14 @@ def get_log():
         c.execute('SELECT * FROM log_sensor ORDER BY id DESC LIMIT %s', (limit,))
         rows = c.fetchall()
     conn.close()
-
+ 
     # Format datetime MySQL ke string agar bisa di-JSON-kan
     for r in rows:
         if r.get('waktu'):
             r['waktu'] = str(r['waktu'])
-
+ 
     return jsonify(rows)
-
+ 
 @app.route('/api/latest')
 def get_latest():
     """Ambil 1 data terbaru untuk gauge realtime"""
@@ -269,12 +269,12 @@ def get_latest():
         c.execute('SELECT * FROM log_sensor ORDER BY id DESC LIMIT 1')
         row = c.fetchone()
     conn.close()
-
+ 
     if row and row.get('waktu'):
         row['waktu'] = str(row['waktu'])
-
+ 
     return jsonify(row if row else {})
-
+ 
 @app.route('/api/stats')
 def get_stats():
     """Statistik ringkasan"""
@@ -282,18 +282,18 @@ def get_stats():
     with conn.cursor() as c:
         c.execute('SELECT COUNT(*) as n FROM log_sensor')
         total = c.fetchone()['n']
-
+ 
         c.execute("SELECT COUNT(*) as n FROM log_sensor WHERE status='normal'")
         normal = c.fetchone()['n']
-
+ 
         c.execute("SELECT COUNT(*) as n FROM log_sensor WHERE status='anomali'")
         anomali = c.fetchone()['n']
-
+ 
         c.execute("SELECT COUNT(*) as n FROM log_sensor WHERE status='kritis'")
         kritis = c.fetchone()['n']
     conn.close()
     return jsonify({'total': total, 'normal': normal, 'anomali': anomali, 'kritis': kritis})
-
+ 
 @app.route('/api/clear', methods=['DELETE'])
 def clear_log():
     """Hapus semua log (untuk testing)"""
@@ -302,17 +302,17 @@ def clear_log():
         c.execute('DELETE FROM log_sensor')
     conn.close()
     return jsonify({'success': True, 'message': 'Semua log dihapus'})
-
+ 
 # ─────────────────────────────────────────────
 # MAIN & INISIALISASI (Disiapkan untuk Railway)
 # ─────────────────────────────────────────────
-
+ 
 # Coba inisialisasi tabel database saat aplikasi dinyalakan
 try:
     init_db()
 except Exception as e:
     print(f"Gagal koneksi atau membuat tabel: {e}")
-
+ 
 if __name__ == '__main__':
     # Membaca port yang diberikan oleh environment Railway, fallback ke 5000 jika dijalankan lokal
     port = int(os.environ.get("PORT", 5000))

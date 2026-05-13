@@ -862,7 +862,7 @@ function toggleTheme() {
 }
 
 // ═══════════════════════════════════════════
-// KODE DASHBOARD ORIGINAL (tidak diubah)
+// KODE DASHBOARD (Dengan perbaikan Bug Cache Browser)
 // ═══════════════════════════════════════════
 const API = '/api';
 let dbOk = false;
@@ -966,10 +966,14 @@ function clearNotif(){
   document.getElementById('notif-box').innerHTML='<div style="color:var(--text3);font-size:12px;text-align:center;padding:20px 0">Belum ada notifikasi</div>';
 }
 
+// =========================================================
+// PERBAIKAN UTAMA: Tambahan '?t=' + Date.now() di setiap URL
+// =========================================================
+
 async function fetchLatestData(){
   if(!dbOk)return;
   try{
-    const res=await fetch(API+'/latest');
+    const res=await fetch(API+'/latest?t=' + Date.now());
     const data=await res.json();
     if(Object.keys(data).length>0){
       sp=data.suhu_prod; sc=data.suhu_cool; ph=data.ph; tds=data.tds;
@@ -995,7 +999,7 @@ async function fetchLatestData(){
 async function refreshLog(){
   if(!dbOk)return;
   try{
-    const res=await fetch(API+'/log?limit=20');
+    const res=await fetch(API+'/log?limit=20&t=' + Date.now());
     const logs=await res.json();
     const tbody=document.getElementById('log-body');
     if(!logs||!logs.length){tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:16px">Belum ada log</td></tr>';return;}
@@ -1012,7 +1016,7 @@ async function refreshLog(){
 async function loadStatistik(){
   if(!dbOk)return;
   try{
-    const res=await fetch(API+'/stats');
+    const res=await fetch(API+'/stats?t=' + Date.now());
     const d=await res.json();
     document.getElementById('st-total').textContent=d.total;
     document.getElementById('st-normal').textContent=d.normal;
@@ -1023,7 +1027,7 @@ async function loadStatistik(){
 
 async function checkDB(){
   try{
-    await fetch(API+'/stats',{signal:AbortSignal.timeout(3000)});
+    await fetch(API+'/stats?t=' + Date.now());
     dbOk=true;
     document.getElementById('db-badge').textContent='DB: TERHUBUNG';
     document.getElementById('db-badge').className='db-badge connected';

@@ -1210,9 +1210,9 @@ const API = '/api';
 let dbOk = false;
 
 const RULES = [
-  {id:'R01',cond:d=>d.sp>=90&&d.sp<=105,param:'sp',status:'ok',label:'Suhu pemanas normal',rek:null},
-  {id:'R02',cond:d=>d.sp<90,param:'sp',status:'warn',label:'Suhu pemanas terlalu rendah',rek:{cls:'warn',title:'Naikkan suhu pemanas',desc:'Di bawah 90°C menyebabkan yield rendah.'}},
-  {id:'R03',cond:d=>d.sp>105&&d.sp<=112,param:'sp',status:'warn',label:'Suhu sedikit tinggi',rek:{cls:'warn',title:'Turunkan suhu pemanas',desc:'Di atas 105°C berisiko degradasi senyawa.'}},
+  {id:'R01',cond:d=>d.sp>=88&&d.sp<=98,param:'sp',status:'ok',label:'Suhu pemanas normal',rek:null},
+  {id:'R02',cond:d=>d.sp<80,param:'sp',status:'warn',label:'Suhu pemanas terlalu rendah',rek:{cls:'warn',title:'Naikkan suhu pemanas',desc:'Di bawah 90°C menyebabkan yield rendah.'}},
+  {id:'R03',cond:d=>d.sp>98&&d.sp<=112,param:'sp',status:'warn',label:'Suhu sedikit tinggi',rek:{cls:'warn',title:'Turunkan suhu pemanas',desc:'Di atas 105°C berisiko degradasi senyawa.'}},
   {id:'R04',cond:d=>d.sp>112,param:'sp',status:'danger',label:'KRITIS: Suhu sangat tinggi',rek:{cls:'danger',title:'MATIKAN PEMANAS SEGERA',desc:'Melebihi 112°C. Bahaya.'}},
   {id:'R05',cond:d=>d.sc>=20&&d.sc<=35,param:'sc',status:'ok',label:'Suhu pendingin normal',rek:null},
   {id:'R06',cond:d=>d.sc<20,param:'sc',status:'warn',label:'Suhu pendingin rendah',rek:{cls:'warn',title:'Kurangi aliran air',desc:'Di bawah 20°C menyebabkan minyak bercampur air.'}},

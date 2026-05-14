@@ -619,7 +619,7 @@
       <div class="sensor-card ok" id="card-sp" onclick="openModal('sp')">
         <div class="sc-header"><div class="sc-label">SUHU PEMANAS</div><div class="sc-badge ok" id="badge-sp">NORMAL</div></div>
         <div><span class="sc-value ok" id="val-sp">—</span><span class="sc-unit">°C</span></div>
-        <div class="sc-range">Ideal: 90 – 105 °C</div>
+        <div class="sc-range">Ideal: 88 – 98 °C</div>
         <div class="sc-trend" id="trend-sp"></div>
         <div class="sparkline"><canvas id="spark-sp" width="200" height="36"></canvas></div>
       </div>
@@ -1119,7 +1119,7 @@ function showToast(type, msg, duration=3500) {
 // MODAL SENSOR DETAIL
 // ═══════════════════════════════════════════
 const SENSOR_META = {
-  sp:  { label:'SUHU PEMANAS',  unit:'°C',  min:90,  max:105 },
+  sp:  { label:'SUHU PEMANAS',  unit:'°C',  min:88,  max:98 },
   sc:  { label:'SUHU PENDINGIN',unit:'°C',  min:20,  max:35  },
   ph:  { label:'pH HASIL',      unit:'',    min:5.5, max:7.0 },
   tds: { label:'TDS HASIL',     unit:'ppm', min:50,  max:300 },
@@ -1211,8 +1211,8 @@ let dbOk = false;
 
 const RULES = [
   {id:'R01',cond:d=>d.sp>=88&&d.sp<=98,param:'sp',status:'ok',label:'Suhu pemanas normal',rek:null},
-  {id:'R02',cond:d=>d.sp<80,param:'sp',status:'warn',label:'Suhu pemanas terlalu rendah',rek:{cls:'warn',title:'Naikkan suhu pemanas',desc:'Di bawah 90°C menyebabkan yield rendah.'}},
-  {id:'R03',cond:d=>d.sp>98&&d.sp<=112,param:'sp',status:'warn',label:'Suhu sedikit tinggi',rek:{cls:'warn',title:'Turunkan suhu pemanas',desc:'Di atas 105°C berisiko degradasi senyawa.'}},
+  {id:'R02',cond:d=>d.sp<88,param:'sp',status:'warn',label:'Suhu pemanas terlalu rendah',rek:{cls:'warn',title:'Naikkan suhu pemanas',desc:'Di bawah 88°C menyebabkan yield rendah.'}},
+  {id:'R03',cond:d=>d.sp>98&&d.sp<=112,param:'sp',status:'warn',label:'Suhu sedikit tinggi',rek:{cls:'warn',title:'Turunkan suhu pemanas',desc:'Di atas 98°C berisiko degradasi senyawa.'}},
   {id:'R04',cond:d=>d.sp>112,param:'sp',status:'danger',label:'KRITIS: Suhu sangat tinggi',rek:{cls:'danger',title:'MATIKAN PEMANAS SEGERA',desc:'Melebihi 112°C. Bahaya.'}},
   {id:'R05',cond:d=>d.sc>=20&&d.sc<=35,param:'sc',status:'ok',label:'Suhu pendingin normal',rek:null},
   {id:'R06',cond:d=>d.sc<20,param:'sc',status:'warn',label:'Suhu pendingin rendah',rek:{cls:'warn',title:'Kurangi aliran air',desc:'Di bawah 20°C menyebabkan minyak bercampur air.'}},

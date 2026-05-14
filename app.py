@@ -59,9 +59,9 @@ def init_db():
 # ─────────────────────────────────────────────
  
 RULES = {
-    'R01': {'kondisi': 'Suhu produksi normal (90–105°C)',       'aksi': 'Lanjutkan proses'},
-    'R02': {'kondisi': 'Suhu produksi terlalu rendah (<90°C)',  'aksi': 'Naikkan suhu pemanas'},
-    'R03': {'kondisi': 'Suhu produksi tinggi (105–112°C)',      'aksi': 'Kurangi intensitas pemanas'},
+    'R01': {'kondisi': 'Suhu produksi normal (88–100°C)',       'aksi': 'Lanjutkan proses'},
+    'R02': {'kondisi': 'Suhu produksi terlalu rendah (<80°C)',  'aksi': 'Naikkan suhu pemanas'},
+    'R03': {'kondisi': 'Suhu produksi tinggi (102–112°C)',      'aksi': 'Kurangi intensitas pemanas'},
     'R04': {'kondisi': 'Suhu produksi kritis (>112°C)',         'aksi': 'MATIKAN PEMANAS SEGERA'},
     'R05': {'kondisi': 'Suhu pendingin normal (20–35°C)',       'aksi': 'Pendinginan optimal'},
     'R06': {'kondisi': 'Suhu pendingin terlalu rendah (<20°C)', 'aksi': 'Kurangi aliran air dingin'},

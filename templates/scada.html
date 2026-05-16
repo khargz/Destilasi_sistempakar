@@ -3,282 +3,245 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard Sistem Pakar — Distilasi Minyak Kayu Putih</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<title>EXPERT-SYS | HMI/SCADA Sistem Pakar Distilasi</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;600;700;900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   :root {
-    --bg:#0d1117;--bg2:#161b22;--bg3:#1c2330;
-    --border:#30363d;--border2:#21262d;
-    --text:#e6edf3;--text2:#8b949e;--text3:#484f58;
-    --green:#3fb950;--green-dim:#1a3a22;
-    --amber:#d29922;--amber-dim:#3a2a0a;
-    --red:#f85149;--red-dim:#3a1a1a;
-    --blue:#58a6ff;--blue-dim:#1a2a3a;
-    --teal:#39d0c4;--teal-dim:rgba(57,208,196,.08);
-    --mono:'IBM Plex Mono',monospace;
-    --sans:'IBM Plex Sans',sans-serif;
+    --bg-primary: #0a0c0f; --bg-secondary: #0d1117; --bg-panel: #111820; --bg-card: #141c26;
+    --border: #1e2d3d; --border-bright: #2a3f55;
+    --accent-gold: #f0a500; --accent-gold-dim: #8a5e00;
+    --accent-cyan: #00d4ff; --accent-cyan-dim: #004a5a;
+    --accent-red: #ff3b3b; --accent-green: #00e676; --accent-green-dim: #004d28;
+    --text-primary: #e8edf2; --text-secondary: #8a9bb0; --text-dim: #4a5568;
+    --warn-bg: #1a1200; --warn-border: #3d2900;
+    --panel-shadow: 0 4px 24px rgba(0,0,0,0.6);
+    --glow-gold: 0 0 12px rgba(240,165,0,0.4);
+    --glow-cyan: 0 0 12px rgba(0,212,255,0.3);
+    --glow-red: 0 0 16px rgba(255,59,59,0.5);
+    
+    /* Login Vars */
+    --mono: 'IBM Plex Mono', monospace;
+    --red: #f85149; --red-dim: #3a1a1a; --teal: #39d0c4;
   }
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;min-height:100vh}
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg-primary); color: var(--text-primary); font-family: 'Rajdhani', sans-serif; min-height: 100vh; overflow-x: hidden; }
 
-  /* ═══════════════════════════════════════
-     LOGIN SCREEN (TIDAK ADA PERUBAHAN)
-  ═══════════════════════════════════════ */
-  #login-screen { position:fixed;inset:0;z-index:9999; background:var(--bg); display:flex;align-items:center;justify-content:center; flex-direction:column; }
-  .login-grid-bg { position:absolute;inset:0; background-image: linear-gradient(rgba(57,208,196,.04) 1px, transparent 1px), linear-gradient(90deg, rgba(57,208,196,.04) 1px, transparent 1px); background-size:40px 40px; mask-image:radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%); }
-  .login-glow { position:absolute; width:600px;height:600px; background:radial-gradient(circle, rgba(57,208,196,.07) 0%, transparent 70%); top:50%;left:50%;transform:translate(-50%,-50%); pointer-events:none; }
-  .login-box { position:relative;z-index:1; width:420px; background:var(--bg2); border:1px solid var(--border); border-radius:12px; overflow:hidden; animation:loginSlideIn .5s ease; }
+  /* ═════════ LOGIN SCREEN ═════════ */
+  #login-screen { position:fixed;inset:0;z-index:9999; background:var(--bg-secondary); display:flex;align-items:center;justify-content:center; flex-direction:column; }
+  .login-grid-bg { position:absolute;inset:0; background-image: linear-gradient(rgba(0,212,255,.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,255,.04) 1px, transparent 1px); background-size:40px 40px; mask-image:radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%); }
+  .login-glow { position:absolute; width:600px;height:600px; background:radial-gradient(circle, rgba(0,212,255,.07) 0%, transparent 70%); top:50%;left:50%;transform:translate(-50%,-50%); pointer-events:none; }
+  .login-box { position:relative;z-index:1; width:420px; background:var(--bg-panel); border:1px solid var(--border); border-radius:12px; overflow:hidden; animation:loginSlideIn .5s ease; box-shadow: var(--panel-shadow); }
   @keyframes loginSlideIn { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:none} }
-  .login-header { padding:28px 32px 24px; border-bottom:1px solid var(--border2); background:linear-gradient(to bottom, rgba(57,208,196,.04), transparent); }
+  .login-header { padding:28px 32px 24px; border-bottom:1px solid var(--border); background:linear-gradient(to bottom, rgba(0,212,255,.04), transparent); }
   .login-brand { display:flex;align-items:center;gap:10px;margin-bottom:16px; }
-  .login-logo { width:36px;height:36px;border-radius:8px; border:1px solid rgba(57,208,196,.3); background:rgba(57,208,196,.06); display:flex;align-items:center;justify-content:center; font-family:var(--mono);font-size:11px;font-weight:500;color:var(--teal); letter-spacing:.02em; }
-  .login-brand-name { font-family:var(--mono);font-size:14px;font-weight:500;color:var(--teal); letter-spacing:.06em; }
-  .login-subtitle { font-size:12px;color:var(--text3); font-family:var(--mono); line-height:1.6; }
-  .login-title { font-size:18px;font-weight:500;color:var(--text);margin-bottom:4px; }
+  .login-logo { width:36px;height:36px;border-radius:8px; border:1px solid rgba(0,212,255,.3); background:rgba(0,212,255,.06); display:flex;align-items:center;justify-content:center; font-family:'Orbitron',monospace;font-size:11px;font-weight:700;color:var(--accent-cyan); letter-spacing:.02em; }
+  .login-brand-name { font-family:'Orbitron',monospace;font-size:14px;font-weight:700;color:var(--accent-cyan); letter-spacing:.06em; }
+  .login-subtitle { font-size:12px;color:var(--text-secondary); font-family:var(--mono); line-height:1.6; }
+  .login-title { font-size:18px;font-weight:600;color:var(--text-primary);margin-bottom:4px; font-family:'Rajdhani',sans-serif; }
   .login-body { padding:28px 32px 32px; }
   .login-field { margin-bottom:18px; }
-  .login-label { font-family:var(--mono);font-size:10px;text-transform:uppercase; letter-spacing:.08em;color:var(--text3);margin-bottom:7px;display:block; }
+  .login-label { font-family:var(--mono);font-size:10px;text-transform:uppercase; letter-spacing:.08em;color:var(--text-secondary);margin-bottom:7px;display:block; }
   .login-input-wrap { position:relative; }
-  .login-input { width:100%;background:var(--bg3); border:1px solid var(--border);border-radius:6px; padding:10px 38px 10px 12px; font-family:var(--mono);font-size:13px; color:var(--text);outline:none; transition:border-color .2s, box-shadow .2s; }
-  .login-input:focus { border-color:rgba(57,208,196,.5); box-shadow:0 0 0 3px rgba(57,208,196,.08); }
-  .login-input.error { border-color:rgba(248,81,73,.5); }
-  .login-input-icon { position:absolute;right:11px;top:50%;transform:translateY(-50%); font-size:15px;color:var(--text3);cursor:pointer;user-select:none; transition:color .2s; }
-  .login-input-icon:hover { color:var(--text2); }
-  .login-hint { font-family:var(--mono);font-size:10px;color:var(--text3); margin-top:5px; }
+  .login-input { width:100%;background:var(--bg-card); border:1px solid var(--border);border-radius:6px; padding:10px 38px 10px 12px; font-family:var(--mono);font-size:13px; color:var(--text-primary);outline:none; transition:all .2s; }
+  .login-input:focus { border-color:var(--accent-cyan); box-shadow:0 0 0 3px rgba(0,212,255,.08); }
+  .login-input.error { border-color:var(--red); }
+  .login-input-icon { position:absolute;right:11px;top:50%;transform:translateY(-50%); font-size:15px;color:var(--text-dim);cursor:pointer;user-select:none; }
+  .login-input-icon:hover { color:var(--text-secondary); }
   .login-error { background:var(--red-dim);border:1px solid rgba(248,81,73,.3); border-radius:5px;padding:8px 12px; font-family:var(--mono);font-size:11px;color:var(--red); margin-bottom:16px;display:none; animation:shake .3s ease; }
   @keyframes shake { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-6px)} 40%,80%{transform:translateX(6px)} }
-  .login-btn { width:100%;padding:11px; background:rgba(57,208,196,.1); border:1px solid rgba(57,208,196,.35); border-radius:6px;color:var(--teal); font-family:var(--mono);font-size:12px;font-weight:500; letter-spacing:.06em;text-transform:uppercase; cursor:pointer;transition:all .2s; position:relative;overflow:hidden; }
-  .login-btn:hover { background:rgba(57,208,196,.18); border-color:rgba(57,208,196,.6); box-shadow:0 0 20px rgba(57,208,196,.12); }
-  .login-btn:active { transform:scale(.98); }
+  .login-btn { width:100%;padding:11px; background:rgba(0,212,255,.1); border:1px solid rgba(0,212,255,.35); border-radius:6px;color:var(--accent-cyan); font-family:'Orbitron',monospace;font-size:12px;font-weight:600; letter-spacing:.06em;text-transform:uppercase; cursor:pointer;transition:all .2s; }
+  .login-btn:hover { background:rgba(0,212,255,.18); border-color:var(--accent-cyan); box-shadow:var(--glow-cyan); }
   .login-btn.loading { pointer-events:none;opacity:.7; }
-  .login-footer { padding:14px 32px;border-top:1px solid var(--border2); background:rgba(0,0,0,.2); display:flex;align-items:center;justify-content:space-between; }
-  .login-footer-text { font-family:var(--mono);font-size:10px;color:var(--text3); }
-  .login-footer-dot { width:6px;height:6px;border-radius:50%;background:var(--green); animation:pulse 1.5s ease-in-out infinite; }
-  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+  .login-footer { padding:14px 32px;border-top:1px solid var(--border); background:rgba(0,0,0,.2); display:flex;align-items:center;justify-content:space-between; }
+  .login-footer-text { font-family:var(--mono);font-size:10px;color:var(--text-dim); }
   .role-pills { display:flex;gap:6px;margin-top:10px; }
-  .role-pill { font-family:var(--mono);font-size:9px;padding:3px 8px;border-radius:3px; border:1px solid var(--border);color:var(--text3);cursor:pointer; transition:all .15s; }
-  .role-pill:hover { border-color:rgba(57,208,196,.4);color:var(--teal);background:rgba(57,208,196,.05); }
-  .role-pill.admin { border-color:rgba(57,208,196,.3);color:var(--teal); }
-  .role-pill.operator { border-color:rgba(88,166,255,.3);color:var(--blue); }
-  .role-pill.viewer { border-color:rgba(139,148,158,.3);color:var(--text3); }
-  .user-badge { display:flex;align-items:center;gap:8px; background:var(--bg3);border:1px solid var(--border); border-radius:6px;padding:4px 10px;cursor:pointer; transition:all .2s;position:relative; }
-  .user-badge:hover { border-color:var(--border2);background:var(--bg2); }
-  .user-avatar { width:22px;height:22px;border-radius:50%; background:rgba(57,208,196,.15);border:1px solid rgba(57,208,196,.3); font-family:var(--mono);font-size:9px;font-weight:500;color:var(--teal); display:flex;align-items:center;justify-content:center; }
-  .user-avatar.op { background:rgba(88,166,255,.1);border-color:rgba(88,166,255,.3);color:var(--blue); }
-  .user-avatar.vw { background:rgba(139,148,158,.1);border-color:rgba(139,148,158,.3);color:var(--text2); }
-  .user-name { font-family:var(--mono);font-size:11px;color:var(--text2); }
-  .role-chip { font-family:var(--mono);font-size:9px;padding:2px 7px;border-radius:3px; }
-  .role-chip.admin { background:rgba(57,208,196,.08);border:1px solid rgba(57,208,196,.25);color:var(--teal); }
-  .role-chip.operator { background:rgba(88,166,255,.08);border:1px solid rgba(88,166,255,.25);color:var(--blue); }
-  .role-chip.viewer { background:rgba(139,148,158,.08);border:1px solid rgba(139,148,158,.25);color:var(--text3); }
-  .user-menu { position:absolute;top:calc(100% + 6px);right:0; background:var(--bg2);border:1px solid var(--border); border-radius:7px;padding:6px;min-width:180px; display:none;z-index:999; box-shadow:0 8px 24px rgba(0,0,0,.4); animation:menuDrop .15s ease; }
-  @keyframes menuDrop{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+  .role-pill { font-family:var(--mono);font-size:9px;padding:3px 8px;border-radius:3px; border:1px solid var(--border);color:var(--text-secondary);cursor:pointer; transition:all .15s; }
+  .role-pill:hover { border-color:var(--accent-cyan);color:var(--accent-cyan);background:rgba(0,212,255,.05); }
+
+  /* ═════════ TOPBAR & NAV ═════════ */
+  #dashboard-screen { display:none; }
+  .topbar { background: #080b0f; border-bottom: 1px solid var(--border); height: 44px; display: flex; align-items: center; padding: 0 16px; gap: 12px; position: sticky; top: 0; z-index: 100; }
+  .topbar-logo { font-family: 'Orbitron', monospace; font-size: 13px; font-weight: 900; color: var(--accent-gold); letter-spacing: 2px; text-shadow: var(--glow-gold); }
+  .topbar-sep { color: var(--border-bright); font-size: 18px; }
+  .topbar-title { font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--text-secondary); letter-spacing: 1px; }
+  .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+  .status-badge { display: flex; align-items: center; gap: 6px; background: rgba(0,230,118,0.08); border: 1px solid var(--accent-green-dim); border-radius: 3px; padding: 3px 10px; font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--accent-green); transition:all 0.3s;}
+  .status-badge.disconnected { background: var(--red-dim); border-color: rgba(248,81,73,0.3); color: var(--red); }
+  .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent-green); box-shadow: 0 0 8px var(--accent-green); animation: pulse 1.5s infinite; }
+  .status-badge.disconnected .status-dot { background: var(--red); box-shadow: 0 0 8px var(--red); }
+  .topbar-time { font-family: 'Share Tech Mono', monospace; font-size: 12px; color: var(--accent-cyan); letter-spacing: 1px; }
+  
+  /* User Menu (from old code) */
+  .user-badge { display:flex;align-items:center;gap:8px; font-size:12px; color:var(--text-secondary); cursor:pointer; position:relative; padding: 4px 8px; border:1px solid transparent; border-radius:4px; transition:all .2s;}
+  .user-badge:hover { border-color:var(--border); background:var(--bg-panel); }
+  .user-badge span { background: var(--accent-gold); color: #000; font-family: 'Orbitron', monospace; font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 2px; }
+  .user-badge span.operator { background: var(--accent-cyan); }
+  .user-badge span.viewer { background: var(--text-dim); color: #fff; }
+  .user-menu { position:absolute;top:calc(100% + 6px);right:0; background:var(--bg-panel);border:1px solid var(--border); border-radius:4px;padding:6px;min-width:180px; display:none;z-index:999; box-shadow:var(--panel-shadow); }
   .user-badge:hover .user-menu { display:block; }
-  .user-menu-item { padding:8px 10px;border-radius:5px;cursor:pointer; font-family:var(--mono);font-size:11px;color:var(--text2); display:flex;align-items:center;gap:8px;transition:background .15s; }
-  .user-menu-item:hover { background:var(--bg3);color:var(--text); }
+  .user-menu-item { padding:8px 10px;border-radius:3px;cursor:pointer; font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-secondary); display:flex;align-items:center;gap:8px;transition:background .15s; }
+  .user-menu-item:hover { background:var(--bg-card);color:var(--text-primary); }
   .user-menu-item.danger:hover { background:var(--red-dim);color:var(--red); }
-  .user-menu-sep { height:1px;background:var(--border2);margin:4px 0; }
-  .access-denied { display:inline-flex;align-items:center;gap:6px; font-family:var(--mono);font-size:10px; color:var(--red);background:var(--red-dim); border:1px solid rgba(248,81,73,.25); border-radius:4px;padding:3px 8px; cursor:not-allowed; }
-  .locked-panel { position:relative; }
-  .locked-overlay { position:absolute;inset:0;z-index:10; background:rgba(13,17,23,.85);backdrop-filter:blur(2px); border-radius:8px; display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px; }
+  .user-menu-sep { height:1px;background:var(--border);margin:4px 0; }
+
+  .nav-bar { background: var(--bg-secondary); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 16px; gap: 0; height: 38px; }
+  .nav-item { font-family: 'Rajdhani', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-dim); padding: 0 18px; height: 38px; display: flex; align-items: center; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; gap: 7px; }
+  .nav-item:hover { color: var(--text-secondary); }
+  .nav-item.active { color: var(--accent-gold); border-bottom-color: var(--accent-gold); text-shadow: var(--glow-gold); }
+  .nav-right { margin-left: auto; display: flex; gap: 6px; }
+  .nav-btn { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--text-secondary); background: transparent; border: 1px solid var(--border); padding: 4px 12px; cursor: pointer; transition: all 0.2s; border-radius: 2px; }
+  .nav-btn:hover { color: var(--accent-cyan); border-color: var(--accent-cyan); }
+  .nav-btn.danger { color: var(--red); border-color: rgba(248,81,73,.3); }
+  .nav-btn.danger:hover { background: var(--red-dim); border-color: var(--red); }
+  .page { display: none; } .page.active { display: block; animation: fadeIn .4s ease; }
+
+  /* ═════════ DASHBOARD SCADA ═════════ */
+  .anomaly-banner { background: var(--warn-bg); border: 1px solid var(--warn-border); border-left: 3px solid var(--accent-gold); margin: 10px 14px; padding: 10px 16px; display: flex; align-items: center; gap: 16px; border-radius: 2px; transition:all 0.4s;}
+  .anomaly-banner.normal { background: rgba(0,230,118,0.05); border-color: rgba(0,230,118,0.2); border-left-color: var(--accent-green); }
+  .anomaly-banner.kritis { background: var(--red-dim); border-color: rgba(255,59,59,0.3); border-left-color: var(--accent-red); animation: banner-pulse 2s infinite; }
+  @keyframes banner-pulse { 0%,100% { border-left-color: var(--accent-red); } 50% { border-left-color: transparent; } }
+  
+  .banner-title { font-family: 'Orbitron', monospace; font-size: 11px; font-weight: 700; color: var(--accent-gold); letter-spacing: 2px; white-space: nowrap; }
+  .anomaly-banner.normal .banner-title { color: var(--accent-green); }
+  .anomaly-banner.kritis .banner-title { color: var(--accent-red); }
+  .banner-sep { width: 1px; height: 24px; background: var(--border); }
+  .banner-msg { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--text-secondary); flex: 1; }
+  .banner-time { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--text-dim); white-space: nowrap; }
+  .banner-conn { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--accent-green); }
+  .banner-conn.err { color: var(--red); }
+
+  .dashboard-grid { display: grid; grid-template-columns: 1fr 320px; gap: 10px; padding: 0 14px 14px; }
+  .plant-panel { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 3px; position: relative; overflow: hidden; min-height: 520px; }
+  .plant-container { width: 100%; height: 100%; min-height: 520px; display: flex; align-items: center; justify-content: center; padding: 20px; background: radial-gradient(ellipse at 40% 50%, #0e1820 0%, #060a0d 100%); }
+  
+  .sensor-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; }
+  .sensor-card { position: absolute; background: rgba(10,16,22,0.92); border: 1px solid var(--border-bright); border-radius: 3px; padding: 8px 12px; min-width: 140px; pointer-events: all; backdrop-filter: blur(4px); cursor: pointer; transition: transform 0.2s; }
+  .sensor-card:hover { transform: translateY(-2px); border-color: var(--accent-cyan); box-shadow: var(--glow-cyan); }
+  .sensor-card.warning { border-color: var(--accent-gold-dim); background: rgba(15,10,0,0.92); }
+  .sensor-card.danger { border-color: var(--accent-red); background: var(--red-dim); }
+  
+  .sensor-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+  .sensor-label { font-family: 'Share Tech Mono', monospace; font-size: 9px; color: var(--text-dim); letter-spacing: 1.5px; }
+  .warn-tag { font-family: 'Share Tech Mono', monospace; font-size: 8px; background: var(--accent-gold); color: #000; padding: 1px 5px; border-radius: 1px; font-weight: 700; }
+  .ok-tag { font-family: 'Share Tech Mono', monospace; font-size: 8px; background: var(--accent-green); color: #000; padding: 1px 5px; border-radius: 1px; }
+  .danger-tag { font-family: 'Share Tech Mono', monospace; font-size: 8px; background: var(--accent-red); color: #fff; padding: 1px 5px; border-radius: 1px; }
+  
+  .sensor-value { font-family: 'Orbitron', monospace; font-size: 28px; font-weight: 700; color: var(--accent-cyan); line-height: 1; transition: color 0.3s; }
+  .sensor-value.warning { color: var(--accent-gold); }
+  .sensor-value.danger { color: var(--accent-red); text-shadow: var(--glow-red); }
+  .sensor-unit { font-family: 'Share Tech Mono', monospace; font-size: 12px; color: var(--text-secondary); margin-left: 2px; }
+  .sensor-ideal { font-family: 'Share Tech Mono', monospace; font-size: 9px; color: var(--text-dim); margin-top: 2px; }
+  .sensor-bar { width: 100%; height: 3px; background: var(--border); border-radius: 2px; margin-top: 5px; overflow: hidden; }
+  .sensor-bar-fill { height: 100%; background: var(--accent-cyan); border-radius: 2px; transition: width 1s ease, background 0.3s; }
+  .sensor-bar-fill.warning { background: var(--accent-gold); }
+  .sensor-bar-fill.danger { background: var(--accent-red); }
+
+  .card-sp { top: 12%; left: 2%; } .card-sc { top: 12%; right: 2%; } .card-ph { top: 50%; right: 2%; } .card-tds { bottom: 10%; right: 2%; }
+
+  .sidebar { display: flex; flex-direction: column; gap: 10px; }
+  .panel { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 3px; overflow: hidden; display: flex; flex-direction: column;}
+  .panel-header { background: rgba(255,255,255,0.02); border-bottom: 1px solid var(--border); padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; }
+  .panel-title { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--text-secondary); letter-spacing: 2px; }
+  .panel-count { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--accent-gold); }
+  .panel-body { padding: 10px 12px; flex: 1; overflow-y: auto;}
+
+  .rule-item { border: 1px solid var(--border); border-radius: 2px; padding: 7px 10px; margin-bottom: 6px; background: var(--bg-card); display: flex; gap: 10px; align-items: flex-start; animation: fadeIn .3s ease; }
+  .rule-num { font-family: 'Share Tech Mono', monospace; font-size: 9px; color: var(--accent-cyan); background: var(--accent-cyan-dim); padding: 1px 5px; border-radius: 1px; white-space: nowrap; margin-top: 1px; }
+  .rule-text { flex: 1; }
+  .rule-condition { font-family: 'Share Tech Mono', monospace; font-size: 9px; color: var(--text-dim); margin-bottom: 2px; }
+  .rule-result { font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 600; color: var(--accent-gold); }
+
+  .action-item { border-left: 2px solid var(--accent-gold); padding: 6px 10px; margin-bottom: 6px; background: var(--bg-card); border-radius: 0 2px 2px 0; }
+  .action-item.secondary { border-left-color: var(--accent-cyan); }
+  .action-item.danger { border-left-color: var(--accent-red); }
+  .action-item.ok { border-left-color: var(--accent-green); }
+  .action-title { font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 700; color: var(--accent-gold); margin-bottom: 2px; }
+  .action-item.secondary .action-title { color: var(--accent-cyan); }
+  .action-item.danger .action-title { color: var(--accent-red); }
+  .action-item.ok .action-title { color: var(--accent-green); }
+  .action-desc { font-family: 'Share Tech Mono', monospace; font-size: 9px; color: var(--text-dim); line-height: 1.4; }
+
+  .notif-item { display: flex; gap: 10px; align-items: flex-start; padding: 6px 0; border-bottom: 1px solid var(--border); }
+  .notif-item:last-child { border-bottom: none; }
+  .notif-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent-gold); margin-top: 3px; flex-shrink: 0; box-shadow: var(--glow-gold); animation: pulse 2s infinite; }
+  .notif-dot.danger { background: var(--accent-red); box-shadow: var(--glow-red); }
+  .notif-title { font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 600; color: var(--text-primary); }
+  .notif-time { font-family: 'Share Tech Mono', monospace; font-size: 9px; color: var(--text-dim); }
+
+  .grid-bg { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-image: linear-gradient(rgba(30,45,61,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(30,45,61,0.3) 1px, transparent 1px); background-size: 40px 40px; pointer-events: none; opacity: 0.5; }
+  .corner-deco { position: absolute; font-family: 'Share Tech Mono', monospace; font-size: 9px; color: var(--text-dim); letter-spacing: 1px; }
+  .corner-tl { top: 8px; left: 10px; } .corner-tr { top: 8px; right: 10px; } .corner-bl { bottom: 8px; left: 10px; } .corner-br { bottom: 8px; right: 10px; }
+  
+  .sys-overview { background: var(--bg-secondary); border-top: 1px solid var(--border); padding: 8px 14px; display: flex; align-items: center; gap: 20px; margin: 0 14px 14px; border-radius: 2px; border: 1px solid var(--border); }
+  .sys-label { font-family: 'Share Tech Mono', monospace; font-size: 9px; color: var(--text-dim); letter-spacing: 2px; }
+  .sys-item { display: flex; align-items: center; gap: 6px; font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--text-secondary); }
+  .sys-item-val { color: var(--accent-cyan); font-weight: bold; }
+  .sys-sep { width: 1px; height: 16px; background: var(--border); }
+
+  /* ═════════ STATISTIK PAGE ═════════ */
+  .stats-grid { padding: 14px; display: flex; flex-direction: column; gap: 14px; position:relative; }
+  .chart-panel { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 3px; overflow: hidden; }
+  .chart-header { background: rgba(255,255,255,0.02); border-bottom: 1px solid var(--border); padding: 10px 16px; display: flex; align-items: center; gap: 16px; }
+  .chart-title { font-family: 'Orbitron', monospace; font-size: 11px; font-weight: 600; color: var(--text-secondary); letter-spacing: 2px; }
+  .chart-legend { display: flex; gap: 16px; margin-left: auto; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--text-secondary); }
+  .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .chart-body { padding: 16px; height: 280px; }
+  .chart-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+  .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .stat-card { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 3px; padding: 14px 16px; text-align:center; }
+  .stat-card-label { font-family: 'Share Tech Mono', monospace; font-size: 9px; color: var(--text-dim); letter-spacing: 1.5px; margin-bottom: 6px; }
+  .stat-card-value { font-family: 'Orbitron', monospace; font-size: 24px; font-weight: 700; color: var(--accent-cyan); }
+  .stat-card-unit { font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--text-dim); margin-left: 3px; }
+  .stat-card-sub { font-family: 'Share Tech Mono', monospace; font-size: 9px; color: var(--text-dim); margin-top: 4px; }
+
+  .log-table-wrap { overflow-x: auto; max-height: 360px; overflow-y: auto; }
+  .log-table { width: 100%; border-collapse: collapse; font-family: 'Share Tech Mono', monospace; font-size: 11px; }
+  .log-table thead { background: var(--bg-secondary); position: sticky; top: 0; z-index: 2; }
+  .log-table th { padding: 8px 12px; text-align: left; color: var(--text-dim); letter-spacing: 1px; font-size: 9px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  .log-table td { padding: 7px 12px; border-bottom: 1px solid rgba(30,45,61,0.5); color: var(--text-secondary); white-space: nowrap; }
+  .log-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .log-table .td-time { color: var(--accent-cyan); }
+  .log-table .td-val { color: var(--text-primary); font-weight: bold; }
+  .badge-warn { background: rgba(240,165,0,0.15); color: var(--accent-gold); border: 1px solid var(--accent-gold-dim); padding: 1px 6px; border-radius: 2px; font-size: 9px; }
+  .badge-ok { background: rgba(0,230,118,0.1); color: var(--accent-green); border: 1px solid var(--accent-green-dim); padding: 1px 6px; border-radius: 2px; font-size: 9px; }
+  .badge-danger { background: var(--red-dim); color: var(--red); border: 1px solid rgba(248,81,73,.3); padding: 1px 6px; border-radius: 2px; font-size: 9px; }
+
+  /* Locked Overlay */
+  .locked-overlay { position:absolute;inset:0;z-index:10; background:rgba(10,12,15,.85);backdrop-filter:blur(3px); border-radius:3px; display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px; }
   .locked-overlay-icon { font-size:24px; }
-  .locked-overlay-msg { font-family:var(--mono);font-size:11px;color:var(--text3);text-align:center; line-height:1.6; }
+  .locked-overlay-msg { font-family:var(--mono);font-size:11px;color:var(--text-secondary);text-align:center; line-height:1.6; }
   .locked-overlay-role { font-family:var(--mono);font-size:10px; color:var(--red);background:var(--red-dim); border:1px solid rgba(248,81,73,.2); border-radius:3px;padding:2px 8px; }
 
-  /* ═══════════════════════════════════════
-     DASHBOARD UMUM
-  ═══════════════════════════════════════ */
-  #dashboard-screen { display:none; }
-  .topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 24px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
-  .topbar-logo{font-family:var(--mono);font-size:13px;font-weight:500;color:var(--teal);letter-spacing:.04em}
-  .topbar-sep{width:1px;height:20px;background:var(--border);margin:0 12px}
-  .topbar-title{font-size:13px;color:var(--text2)}
-  .topbar-right{display:flex;align-items:center;gap:10px}
-  .live-badge{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;color:var(--green);background:var(--green-dim);border:1px solid rgba(63,185,80,.3);padding:3px 10px;border-radius:4px}
-  .live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 1.5s ease-in-out infinite}
-  .db-badge{font-family:var(--mono);font-size:11px;padding:3px 10px;border-radius:4px;border:1px solid var(--border)}
-  .db-badge.connected{color:var(--green);background:var(--green-dim);border-color:rgba(63,185,80,.3)}
-  .db-badge.disconnected{color:var(--red);background:var(--red-dim);border-color:rgba(248,81,73,.3)}
-  .clock{font-family:var(--mono);font-size:12px;color:var(--text3)}
-  .main{padding:20px 24px;max-width:1400px;margin:0 auto}
-
-  .welcome-bar { background:var(--bg2);border:1px solid var(--border);border-radius:8px; padding:12px 20px;margin-bottom:16px; display:flex;align-items:center;justify-content:space-between; animation:fadeUp .4s ease; }
-  @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-  .welcome-left { display:flex;align-items:center;gap:12px; }
-  .welcome-text { font-size:13px;color:var(--text2); }
-  .welcome-text span { color:var(--teal);font-weight:500; }
-  .welcome-right { display:flex;align-items:center;gap:10px; }
-  .perm-list { display:flex;gap:6px;flex-wrap:wrap; }
-  .perm-tag { font-family:var(--mono);font-size:9px;padding:2px 7px;border-radius:3px; border:1px solid var(--border2);color:var(--text3); }
-  .perm-tag.on { border-color:rgba(63,185,80,.3);color:var(--green);background:var(--green-dim); }
-  .perm-tag.off { border-color:rgba(248,81,73,.2);color:var(--text3);text-decoration:line-through; }
-
-  .status-banner{border:1px solid var(--border);border-radius:8px;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;transition:all .4s}
-  .status-banner.normal{background:var(--green-dim);border-color:rgba(63,185,80,.4)}
-  .status-banner.anomali{background:var(--amber-dim);border-color:rgba(210,153,34,.4)}
-  .status-banner.kritis{background:var(--red-dim);border-color:rgba(248,81,73,.4)}
-  .banner-status{font-size:15px;font-weight:600;margin-bottom:2px}
-  .banner-status.normal{color:var(--green)}
-  .banner-status.anomali{color:var(--amber)}
-  .banner-status.kritis{color:var(--red)}
-  .banner-desc{font-size:12px;color:var(--text2)}
-  .banner-right{text-align:right}
-  .banner-time{font-family:var(--mono);font-size:11px;color:var(--text3)}
-  .banner-saved{font-family:var(--mono);font-size:10px;margin-top:4px}
-  .banner-saved.ok{color:var(--green)}
-  .banner-saved.err{color:var(--red)}
-
-  /* ═══════════════════════════════════════
-     SCADA VIEW (TAMPILAN BARU)
-  ═══════════════════════════════════════ */
-  .scada-layout { display: grid; grid-template-columns: 1fr 340px; gap: 16px; margin-bottom: 20px; align-items: stretch; }
-  .scada-view {
-    position: relative;
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 480px;
-    overflow: hidden;
-  }
-  .scada-image { width: 100%; max-width: 750px; height: auto; display: block; opacity: 0.85; }
-  .scada-panels { display: flex; flex-direction: column; gap: 16px; }
-
-  /* OVERLAY SENSOR TAGS PADA SCADA */
-  .sensor-tag {
-    position: absolute;
-    background: rgba(22, 27, 34, 0.85);
-    border: 1px solid var(--border);
-    padding: 10px 14px;
-    border-radius: 6px;
-    min-width: 120px;
-    backdrop-filter: blur(4px);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    border-left: 3px solid transparent;
-  }
-  .sensor-tag:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.4); border-color: rgba(57,208,196,0.4); }
-  .sensor-tag.ok { border-left-color: var(--green); }
-  .sensor-tag.warn { border-color: rgba(210,153,34,0.6); box-shadow: 0 0 15px rgba(210,153,34,0.2); border-left-color: var(--amber); }
-  .sensor-tag.danger { border-color: rgba(248,81,73,0.6); box-shadow: 0 0 15px rgba(248,81,73,0.2); border-left-color: var(--red); }
-  
-  .tag-label { font-size: 10px; color: var(--text3); font-family: var(--mono); letter-spacing: 0.05em; margin-bottom: 6px; display:flex; justify-content: space-between; align-items:center; text-transform: uppercase;}
-  .tag-value { font-family: var(--mono); font-size: 24px; font-weight: 500; line-height: 1; color: var(--text); }
-  .tag-value.warn { color: var(--amber); }
-  .tag-value.danger { color: var(--red); }
-  .tag-unit { font-size: 12px; font-weight: normal; color: var(--text3); margin-left: 2px; }
-  .tag-status-text { font-size: 10px; margin-top: 6px; font-weight: 500;}
-  .tag-status-text.warn { color: var(--amber); }
-  .tag-status-text.danger { color: var(--red); }
-
-  /* PANEL SIDEBAR */
-  .panel{background:var(--bg2);border:1px solid var(--border);border-radius:8px;overflow:hidden; display:flex; flex-direction:column;}
-  .panel-header{padding:12px 16px;border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between}
-  .panel-title{font-size:12px;font-weight:500;color:var(--text2);font-family:var(--mono);letter-spacing:.04em;text-transform:uppercase}
-  .panel-body{padding:16px; flex:1;}
-
-  /* FORWARD CHAINING */
-  .fc-item{display:flex;gap:12px;padding:8px 0;border-bottom:1px solid var(--border2);animation:fadeIn .3s ease}
-  .fc-item:last-child{border-bottom:none}
-  @keyframes fadeIn{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:none}}
-  .fc-num{width:20px;height:20px;border-radius:3px;font-family:var(--mono);font-size:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
-  .fc-num.ok{background:var(--green-dim);color:var(--green)}
-  .fc-num.warn{background:var(--amber-dim);color:var(--amber)}
-  .fc-num.danger{background:var(--red-dim);color:var(--red)}
-  .fc-rule{font-size:11px;font-family:var(--mono);color:var(--text3);margin-bottom:2px}
-  .fc-result{font-size:13px;color:var(--text)}
-  .fc-result span.ok{color:var(--green);font-weight:500}
-  .fc-result span.warn{color:var(--amber);font-weight:500}
-  .fc-result span.danger{color:var(--red);font-weight:500}
-
-  /* REKOMENDASI */
-  .rek-item{padding:10px 14px;border-radius:6px;margin-bottom:8px;border-left:3px solid transparent;transition:background .2s;cursor:default}
-  .rek-item:hover{filter:brightness(1.1)}
-  .rek-item.ok{background:rgba(63,185,80,.07);border-color:var(--green)}
-  .rek-item.warn{background:rgba(210,153,34,.08);border-color:var(--amber)}
-  .rek-item.danger{background:rgba(248,81,73,.08);border-color:var(--red)}
-  .rek-title{font-weight:500;margin-bottom:3px;font-size:13px}
-  .rek-item.ok .rek-title{color:var(--green)}
-  .rek-item.warn .rek-title{color:var(--amber)}
-  .rek-item.danger .rek-title{color:var(--red)}
-  .rek-desc{color:var(--text2);font-size:12px;line-height:1.5}
-
-  /* NOTIF */
-  .notif-item{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--border2)}
-  .notif-item:last-child{border-bottom:none}
-  .notif-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:4px}
-  .notif-dot.warn{background:var(--amber)}
-  .notif-dot.danger{background:var(--red)}
-  .notif-msg{font-size:12px;color:var(--text);line-height:1.5}
-  .notif-time{font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:2px}
-
-  /* TABS, LOG & STATISTIK */
-  .tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:0}
-  .tab{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.04em;padding:10px 16px;cursor:pointer;color:var(--text3);border-bottom:2px solid transparent;transition:all .2s}
-  .tab:hover{color:var(--text2)}
-  .tab.active{color:var(--teal);border-bottom-color:var(--teal)}
-  .tab-content{display:none}
-  .tab-content.active{display:block}
-  .log-wrap{overflow-x:auto;max-height:360px;overflow-y:auto}
-  table{width:100%;border-collapse:collapse;font-size:12px}
-  th{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--text3);padding:8px 12px;border-bottom:1px solid var(--border);text-align:left;position:sticky;top:0;background:var(--bg2)}
-  td{padding:7px 12px;border-bottom:1px solid var(--border2);color:var(--text2);font-family:var(--mono)}
-  tr:hover td{background:rgba(255,255,255,.02)}
-  .log-status{display:inline-block;padding:2px 7px;border-radius:3px;font-size:10px}
-  .log-status.normal{background:var(--green-dim);color:var(--green)}
-  .log-status.anomali{background:var(--amber-dim);color:var(--amber)}
-  .log-status.kritis{background:var(--red-dim);color:var(--red)}
-  .stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
-  .stat-card{background:var(--bg3);border-radius:6px;padding:12px;text-align:center}
-  .stat-val{font-family:var(--mono);font-size:24px;font-weight:500;color:var(--text)}
-  .stat-label{font-size:11px;color:var(--text3);margin-top:4px}
-  .stat-val.normal{color:var(--green)}
-  .stat-val.anomali{color:var(--amber)}
-  .stat-val.kritis{color:var(--red)}
-
-  /* BUTTONS & MODALS */
-  .btn{font-family:var(--mono);font-size:11px;padding:5px 12px;border-radius:4px;border:1px solid var(--border);background:none;color:var(--text2);cursor:pointer;transition:all .2s}
-  .btn:hover{background:var(--bg3);color:var(--text)}
-  .btn.primary{border-color:rgba(57,208,196,.4);color:var(--teal)}
-  .btn.primary:hover{background:var(--teal-dim)}
-  .btn.excel { border-color:rgba(63,185,80,.4);color:var(--green); background:var(--green-dim); display:flex;align-items:center;gap:6px; }
-  .btn.excel:hover { background:rgba(63,185,80,.15);border-color:rgba(63,185,80,.6);box-shadow:0 0 12px rgba(63,185,80,.1); }
-  .btn:disabled{opacity:.35;cursor:not-allowed;}
-  .dl-spinner { width:10px;height:10px;border:1.5px solid rgba(63,185,80,.3); border-top-color:var(--green);border-radius:50%; animation:spin .6s linear infinite; }
-  @keyframes spin{to{transform:rotate(360deg)}}
-  .footer-note{text-align:center;font-family:var(--mono);font-size:11px;color:var(--text3);padding:16px 0 8px;border-top:1px solid var(--border2);margin-top:8px}
-
-  /* MODAL */
-  .modal-overlay { position:fixed;inset:0;z-index:500; background:rgba(0,0,0,.6);backdrop-filter:blur(4px); display:none;align-items:center;justify-content:center; }
-  .modal-overlay.open { display:flex; }
-  .modal-box { background:var(--bg2);border:1px solid var(--border); border-radius:10px;width:460px;max-width:90vw; animation:modalIn .2s ease; }
-  @keyframes modalIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
-  .modal-header { padding:16px 20px;border-bottom:1px solid var(--border2); display:flex;align-items:center;justify-content:space-between; }
-  .modal-title { font-family:var(--mono);font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--teal); }
-  .modal-close { width:24px;height:24px;border-radius:4px; background:transparent;border:1px solid var(--border); color:var(--text3);cursor:pointer;font-size:14px; display:flex;align-items:center;justify-content:center; transition:all .15s; }
-  .modal-close:hover { background:var(--bg3);color:var(--text); }
+  /* ═════════ MODAL & TOAST ═════════ */
+  .modal-overlay { position:fixed;inset:0;z-index:500; background:rgba(0,0,0,.7);backdrop-filter:blur(4px); display:none;align-items:center;justify-content:center; }
+  .modal-overlay.open { display:flex; animation: fadeIn .2s ease; }
+  .modal-box { background:var(--bg-panel);border:1px solid var(--border); border-radius:4px;width:460px;max-width:90vw; box-shadow: var(--panel-shadow); }
+  .modal-header { padding:16px 20px;border-bottom:1px solid var(--border); display:flex;align-items:center;justify-content:space-between; }
+  .modal-title { font-family: 'Orbitron', monospace; font-size:12px; color:var(--accent-cyan); letter-spacing: 1px; }
+  .modal-close { width:24px;height:24px;border-radius:2px; background:transparent;border:1px solid var(--border); color:var(--text-secondary);cursor:pointer;font-size:14px; display:flex;align-items:center;justify-content:center; transition:all .15s; }
+  .modal-close:hover { background:var(--bg-card);color:var(--text-primary); }
   .modal-body { padding:20px; }
   .modal-stat-row { display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px; }
-  .modal-stat { background:var(--bg3);border-radius:6px;padding:12px;text-align:center; }
-  .modal-stat-val { font-family:var(--mono);font-size:20px;font-weight:500; }
-  .modal-stat-lbl { font-size:10px;color:var(--text3);margin-top:4px;font-family:var(--mono); }
+  .modal-stat { background:var(--bg-card);border:1px solid var(--border);border-radius:3px;padding:12px;text-align:center; }
+  .modal-stat-val { font-family:'Orbitron',monospace;font-size:20px;font-weight:700; color:var(--accent-cyan); }
+  .modal-stat-lbl { font-size:9px;color:var(--text-dim);margin-top:4px;font-family:'Share Tech Mono',monospace; letter-spacing:1px; }
   .modal-chart-wrap { height:120px;margin-top:8px; }
 
-  /* TOAST */
   .toast-wrap { position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px; }
-  .toast { background:var(--bg2);border:1px solid var(--border);border-radius:7px; padding:10px 14px;font-family:var(--mono);font-size:11px; display:flex;align-items:center;gap:8px; box-shadow:0 4px 16px rgba(0,0,0,.4); animation:toastIn .25s ease;max-width:300px; }
+  .toast { background:var(--bg-panel);border:1px solid var(--border);border-radius:3px; padding:10px 14px;font-family:'Share Tech Mono',monospace;font-size:11px; display:flex;align-items:center;gap:8px; box-shadow:var(--panel-shadow); animation:toastIn .25s ease;max-width:300px; color:var(--text-primary); }
   @keyframes toastIn{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:none}}
-  .toast.ok{border-color:rgba(63,185,80,.4);color:var(--green)}
-  .toast.warn{border-color:rgba(210,153,34,.4);color:var(--amber)}
-  .toast.err{border-color:rgba(248,81,73,.4);color:var(--red)}
+  .toast.ok{border-left:3px solid var(--accent-green);}
+  .toast.warn{border-left:3px solid var(--accent-gold);}
+  .toast.err{border-left:3px solid var(--accent-red);}
 
-  ::-webkit-scrollbar{width:5px;height:5px}
-  ::-webkit-scrollbar-track{background:transparent}
-  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+  @keyframes fadeIn { from{opacity:0;transform:translateY(5px)} to{opacity:1;transform:none} }
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: var(--bg-secondary); }
+  ::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 3px; }
 </style>
 </head>
 <body>
@@ -311,9 +274,9 @@
           <span class="login-input-icon" id="toggle-eye" onclick="togglePass()" title="Tampilkan password">👁</span>
         </div>
         <div class="role-pills">
-          <span class="role-pill admin" onclick="quickFill('admin','admin123')" title="Isi otomatis">👑 admin</span>
-          <span class="role-pill operator" onclick="quickFill('operator','op2024')" title="Isi otomatis">🔧 operator</span>
-          <span class="role-pill viewer" onclick="quickFill('viewer','view2024')" title="Isi otomatis">👁 viewer</span>
+          <span class="role-pill" onclick="quickFill('admin','admin123')" title="Isi otomatis">👑 admin</span>
+          <span class="role-pill" onclick="quickFill('operator','op2024')" title="Isi otomatis">🔧 operator</span>
+          <span class="role-pill" onclick="quickFill('viewer','view2024')" title="Isi otomatis">👁 viewer</span>
         </div>
       </div>
       <button class="login-btn" id="login-btn" onclick="doLogin()">
@@ -321,9 +284,9 @@
       </button>
     </div>
     <div class="login-footer">
-      <div class="login-footer-text">v2.2 · Lab Sistem Pakar</div>
+      <div class="login-footer-text">v2.3 · SCADA Edition</div>
       <div style="display:flex;align-items:center;gap:6px">
-        <div class="login-footer-dot"></div>
+        <div class="status-dot"></div>
         <span class="login-footer-text">Server aktif</span>
       </div>
     </div>
@@ -333,26 +296,24 @@
 <div id="dashboard-screen">
 
   <div class="topbar">
-    <div style="display:flex;align-items:center">
-      <div class="topbar-logo">EXPERT-SYS</div>
-      <div class="topbar-sep"></div>
-      <div class="topbar-title">Sistem Pakar Forward Chaining — Distilasi Minyak Kayu Putih</div>
-    </div>
+    <div class="topbar-logo">EXPERT-SYS</div>
+    <div class="topbar-sep">|</div>
+    <div class="topbar-title">DASHBOARD UTAMA · HMI/SCADA · WEB-BASED · SISTEM PAKAR DISTILASI</div>
     <div class="topbar-right">
-      <div class="db-badge disconnected" id="db-badge">DB: menghubungkan...</div>
-      <div class="live-badge"><div class="live-dot"></div>LIVE</div>
-      <div class="clock" id="clock">--:--:--</div>
-      <div class="user-badge">
-        <div class="user-avatar" id="user-avatar">AD</div>
-        <div class="user-name" id="user-name-badge">admin</div>
-        <div class="role-chip admin" id="role-chip">ADMIN</div>
-        <span style="font-size:9px;color:var(--text3)">▾</span>
+      <div class="status-badge disconnected" id="db-badge">
+        <div class="status-dot"></div> <span id="db-text">DB: menghubungkan...</span>
+      </div>
+      <div class="status-badge" style="color:var(--accent-cyan);background:rgba(0,212,255,0.06);border-color:var(--accent-cyan-dim)">
+        <div class="status-dot" style="background:var(--accent-cyan);box-shadow:0 0 8px var(--accent-cyan)"></div> LIVE
+      </div>
+      <div class="topbar-time" id="topbar-time">--:--:--</div>
+      
+      <div class="user-badge" id="user-badge">
+        <span id="role-chip">ADMIN</span> <span id="user-name-badge" style="background:none;color:var(--text-secondary);font-size:12px;font-family:'Rajdhani',sans-serif">admin</span> ▾
         <div class="user-menu">
           <div class="user-menu-item" style="cursor:default"><span>👤</span><span id="menu-fullname">Admin</span></div>
-          <div class="user-menu-item" style="color:var(--text3);font-size:10px;cursor:default"><span>🏷</span><span id="menu-role-label">administrator</span></div>
-          <div class="user-menu-item" style="color:var(--text3);font-size:10px;cursor:default"><span>🕐</span><span id="menu-logintime">—</span></div>
-          <div class="user-menu-sep"></div>
-          <div class="user-menu-item" onclick="toggleTheme()"><span>🌓</span><span>Ganti Tema</span></div>
+          <div class="user-menu-item" style="cursor:default"><span>🏷</span><span id="menu-role-label">administrator</span></div>
+          <div class="user-menu-item" style="cursor:default"><span>🕐</span><span id="menu-logintime">—</span></div>
           <div class="user-menu-sep"></div>
           <div class="user-menu-item danger" onclick="doLogout()"><span>⏻</span><span>Keluar</span></div>
         </div>
@@ -360,132 +321,202 @@
     </div>
   </div>
 
-  <div class="main">
-    <div class="welcome-bar" id="welcome-bar">
-      <div class="welcome-left">
-        <div class="welcome-text">Selamat datang, <span id="welcome-name">Admin</span> — Sesi dimulai <span id="welcome-time">—</span></div>
+  <div class="nav-bar">
+    <div class="nav-item active" onclick="switchPage('dashboard')" id="nav-dashboard"><span class="nav-icon">⬡</span> DASHBOARD UTAMA</div>
+    <div class="nav-item" onclick="switchPage('statistik')" id="nav-statistik"><span class="nav-icon">◈</span> STATISTIK &amp; LOG</div>
+    <div class="nav-right" id="nav-action-bar">
       </div>
-      <div class="welcome-right">
-        <div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-right:6px">HAK AKSES:</div>
-        <div class="perm-list" id="perm-list"></div>
-      </div>
-    </div>
+  </div>
 
-    <div class="status-banner normal" id="status-banner">
-      <div>
-        <div class="banner-status normal" id="banner-status">DISTILASI BERJALAN NORMAL</div>
-        <div class="banner-desc" id="banner-desc">Semua parameter dalam batas ideal</div>
+  <div class="page active" id="page-dashboard">
+    <div style="padding:8px 14px 0;display:flex;align-items:center;justify-content:space-between;">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-secondary)">
+        Selamat datang, <span id="welcome-name" style="color:var(--accent-gold)">Admin</span> — Sesi dimulai <span id="session-start" style="color:var(--accent-gold)">--:--:--</span>
       </div>
-      <div class="banner-right">
-        <div class="banner-time" id="banner-time">—</div>
-        <div class="banner-saved" id="banner-saved"></div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim); display:flex; align-items:center; gap:6px;">
+        HAK AKSES: <span id="perm-list" style="display:flex;gap:8px;color:var(--text-secondary)"></span>
       </div>
     </div>
 
-    <div class="scada-layout">
-      
-      <div class="scada-view">
-        <img src="{{ url_for('static', filename='plant destilasi.png') }}" class="scada-image" alt="HMI Plant Destilasi">
-        
-        <div class="sensor-tag ok" id="tag-sp" style="top: 25%; left: 15%;" onclick="openModal('sp')">
-            <div class="tag-label">SUHU BOILER <span id="trend-sp"></span></div>
-            <div class="tag-value ok" id="val-sp">— <span class="tag-unit">°C</span></div>
-            <div class="tag-status-text" id="status-txt-sp"></div>
-        </div>
-        
-        <div class="sensor-tag ok" id="tag-sc" style="top: 30%; left: 60%;" onclick="openModal('sc')">
-            <div class="tag-label">SUHU PENDINGIN <span id="trend-sc"></span></div>
-            <div class="tag-value ok" id="val-sc">— <span class="tag-unit">°C</span></div>
-            <div class="tag-status-text" id="status-txt-sc"></div>
+    <div class="anomaly-banner normal" id="status-banner">
+      <div class="banner-title" id="banner-status">DISTILASI BERJALAN NORMAL</div>
+      <div class="banner-sep"></div>
+      <div class="banner-msg" id="banner-desc">Semua parameter dalam batas ideal</div>
+      <div style="margin-left:auto;display:flex;gap:20px;align-items:center">
+        <div class="banner-time" id="banner-time">Update: --:--:--</div>
+        <div class="banner-conn" id="banner-saved">✓ Terhubung ke DB</div>
+      </div>
+    </div>
+
+    <div class="dashboard-grid">
+      <div class="plant-panel">
+        <div class="grid-bg"></div>
+        <div class="corner-deco corner-tl">PLANT VIEW ● DISTILASI</div>
+        <div class="corner-deco corner-tr" id="plant-time">--:--:--</div>
+        <div class="corner-deco corner-bl">UNIT: °C / ppm</div>
+        <div class="corner-deco corner-br">REV 2.3</div>
+
+        <div class="plant-container">
+          <svg viewBox="0 0 700 460" style="width:100%;max-width:660px;height:auto" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="metalGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#3a4a5a"/><stop offset="40%" stop-color="#5a6a7a"/><stop offset="100%" stop-color="#1e2a36"/></linearGradient>
+              <linearGradient id="metalGrad2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#2a3a4a"/><stop offset="50%" stop-color="#4a5a6a"/><stop offset="100%" stop-color="#1a2530"/></linearGradient>
+              <linearGradient id="woodGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#5a3a1a"/><stop offset="100%" stop-color="#3a2010"/></linearGradient>
+              <linearGradient id="tankGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#4a5e70"/><stop offset="60%" stop-color="#6a7e90"/><stop offset="100%" stop-color="#2a3e50"/></linearGradient>
+              <linearGradient id="panelGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1a2430"/><stop offset="100%" stop-color="#0e1620"/></linearGradient>
+              <filter id="glow"><feGaussianBlur stdDeviation="3" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+              <filter id="softShadow"><feDropShadow dx="2" dy="4" stdDeviation="4" flood-opacity="0.5"/></filter>
+            </defs>
+            <rect x="80" y="360" width="520" height="14" rx="3" fill="url(#woodGrad)" filter="url(#softShadow)"/><rect x="90" y="374" width="500" height="60" rx="2" fill="url(#woodGrad)"/><rect x="100" y="370" width="498" height="6" rx="1" fill="#7a5a2a" opacity="0.3"/><rect x="110" y="434" width="16" height="26" rx="2" fill="#3a2010"/><rect x="576" y="434" width="16" height="26" rx="2" fill="#3a2010"/>
+            <rect x="185" y="200" width="140" height="165" rx="8" fill="url(#tankGrad)" filter="url(#softShadow)"/><rect x="192" y="207" width="126" height="151" rx="6" fill="url(#metalGrad)" opacity="0.7"/><rect x="197" y="210" width="18" height="140" rx="4" fill="white" opacity="0.04"/><circle cx="260" cy="220" r="16" fill="#1a2530" stroke="#3a4a5a" stroke-width="1.5"/><circle cx="260" cy="220" r="12" fill="#0e1820" stroke="#2a3a4a" stroke-width="1"/><line x1="260" y1="220" x2="267" y2="213" stroke="var(--accent-gold)" stroke-width="1.5" stroke-linecap="round"/><text x="260" y="244" text-anchor="middle" font-family="Share Tech Mono" font-size="6" fill="#4a5568">PSI</text><rect x="185" y="280" width="140" height="5" rx="0" fill="#2a3a4a" opacity="0.6"/><rect x="185" y="320" width="140" height="5" rx="0" fill="#2a3a4a" opacity="0.6"/>
+            <rect x="430" y="120" width="110" height="130" rx="6" fill="url(#tankGrad)" filter="url(#softShadow)"/><rect x="436" y="126" width="98" height="118" rx="5" fill="url(#metalGrad2)" opacity="0.8"/><rect x="442" y="130" width="14" height="106" rx="3" fill="white" opacity="0.04"/><rect x="440" y="115" width="90" height="12" rx="4" fill="#3a4a5a"/><circle cx="485" cy="121" r="8" fill="#1a2530" stroke="#2a3a4a" stroke-width="1"/><rect x="474" y="250" width="18" height="20" rx="2" fill="#2a3a4a"/><circle cx="483" cy="274" r="5" fill="#1a2530" stroke="#3a4a5a" stroke-width="1.5"/>
+            <path d="M260 200 L260 160 L430 155" stroke="#4a5a6a" stroke-width="10" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M260 200 L260 160 L430 155" stroke="#2a3a4a" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path class="flow-line" d="M270 175 L400 168" stroke="var(--accent-cyan)" stroke-width="1" fill="none" opacity="0.5"/>
+            <path d="M185 340 L160 340 L160 360" stroke="#4a5a6a" stroke-width="8" fill="none" stroke-linecap="round"/><path d="M185 340 L160 340 L160 360" stroke="#2a3a4a" stroke-width="5" fill="none" stroke-linecap="round"/>
+            <path d="M485 250 L550 280 L570 360" stroke="#4a5a6a" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M485 250 L550 280 L570 360" stroke="#2a3a4a" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path class="flow-line" d="M490 255 L555 290" stroke="var(--accent-cyan)" stroke-width="1" fill="none" opacity="0.6"/>
+            <path d="M430 200 L395 200" stroke="#4a5a6a" stroke-width="8" fill="none" stroke-linecap="round"/><path d="M430 200 L395 200" stroke="#2a3a4a" stroke-width="5" fill="none" stroke-linecap="round"/><path class="flow-line" d="M425 200 L400 200" stroke="#3a8aaa" stroke-width="1.5" fill="none" opacity="0.7"/><circle cx="380" cy="200" r="7" fill="#2a3a4a" stroke="#4a5a6a" stroke-width="1.5"/><line x1="375" y1="196" x2="385" y2="204" stroke="#f0a500" stroke-width="2"/><line x1="375" y1="204" x2="385" y2="196" stroke="#f0a500" stroke-width="2"/>
+            <rect x="200" y="356" width="110" height="12" rx="2" fill="#1a2530" stroke="#2a3a4a" stroke-width="1"/><rect x="205" y="358" width="100" height="8" rx="1" fill="#0e1820"/><ellipse cx="220" cy="357" rx="4" ry="6" fill="#ff6600" opacity="0.7" filter="url(#glow)"/><ellipse cx="236" cy="355" rx="3" ry="8" fill="#ff4400" opacity="0.8" filter="url(#glow)"/><ellipse cx="252" cy="357" rx="4" ry="6" fill="#ff6600" opacity="0.7" filter="url(#glow)"/><ellipse cx="268" cy="355" rx="3" ry="7" fill="#ff5500" opacity="0.75" filter="url(#glow)"/><ellipse cx="284" cy="357" rx="4" ry="5" fill="#ff6600" opacity="0.65" filter="url(#glow)"/><ellipse cx="300" cy="355" rx="3" ry="7" fill="#ff4400" opacity="0.8" filter="url(#glow)"/>
+            <circle cx="165" cy="305" r="12" fill="#ff3b3b"/><circle cx="165" cy="305" r="8" fill="#ff6666" opacity="0.6"/>
+            <rect x="90" y="195" width="75" height="160" rx="4" fill="url(#panelGrad)" stroke="#2a3a4a" stroke-width="1.5" filter="url(#softShadow)"/><circle cx="112" cy="230" r="9" fill="#1a0a0a" stroke="#3a1a1a" stroke-width="1.5"/><circle cx="112" cy="230" r="6" fill="#cc2222"/><circle cx="133" cy="230" r="9" fill="#1a0a0a" stroke="#3a1a1a" stroke-width="1.5"/><circle cx="133" cy="230" r="6" fill="#cc2222"/><circle cx="112" cy="252" r="9" fill="#1a0a0a" stroke="#3a1a1a" stroke-width="1.5"/><circle cx="112" cy="252" r="6" fill="#cc2222"/><circle cx="133" cy="252" r="9" fill="#1a0a0a" stroke="#3a1a1a" stroke-width="1.5"/><circle cx="133" cy="252" r="6" fill="#cc2222"/><rect x="97" y="270" width="62" height="40" rx="2" fill="#001a10" stroke="#003320" stroke-width="1"/><text x="128" y="284" text-anchor="middle" font-family="Share Tech Mono" font-size="7" fill="#00ee66">T: OK</text><text x="128" y="296" text-anchor="middle" font-family="Share Tech Mono" font-size="6" fill="#00aa44">pH: OK</text><text x="128" y="306" text-anchor="middle" font-family="Share Tech Mono" font-size="6" fill="#00aa44">TDS: OK</text><text x="128" y="346" text-anchor="middle" font-family="Share Tech Mono" font-size="8" fill="#3a4a5a">CONTROL</text>
+            <rect x="545" y="340" width="60" height="60" rx="3" fill="url(#metalGrad2)" stroke="#3a4a5a" stroke-width="1.5"/><rect x="548" y="343" width="54" height="54" rx="2" fill="#0e1820"/><rect x="550" y="345" width="50" height="20" rx="1" fill="#001520" opacity="0.5"/><ellipse cx="575" cy="345" rx="27" ry="5" fill="#1a2a3a" stroke="#3a4a5a" stroke-width="1"/><text x="575" y="375" text-anchor="middle" font-family="Share Tech Mono" font-size="7" fill="#3a8aaa">OUTPUT</text>
+            <rect x="415" y="160" width="15" height="80" rx="3" fill="#2a3a4a"/><rect x="417" y="162" width="11" height="76" rx="2" fill="#1a2a3a"/><path class="flow-line" d="M422 165 L422 235" stroke="#3a8aaa" stroke-width="1.5" fill="none" opacity="0.7"/><polygon points="422,140 418,155 426,155" fill="#3a8aaa" opacity="0.7"/><text x="410" y="136" text-anchor="middle" font-family="Share Tech Mono" font-size="8" fill="#3a6a8a">AIR↑</text>
+            <line x1="255" y1="235" x2="220" y2="290" stroke="#f0a500" stroke-width="1" stroke-dasharray="2,2" opacity="0.4"/><circle cx="220" cy="290" r="3" fill="var(--accent-gold)" opacity="0.6"/><line x1="485" y1="180" x2="540" y2="210" stroke="#00d4ff" stroke-width="1" stroke-dasharray="2,2" opacity="0.4"/><circle cx="540" cy="210" r="3" fill="var(--accent-cyan)" opacity="0.6"/>
+            <polygon points="298,155 286,160 286,150" fill="var(--accent-cyan)" opacity="0.5"/><polygon points="360,153 348,158 348,148" fill="var(--accent-cyan)" opacity="0.5"/>
+            <text x="350" y="450" text-anchor="middle" font-family="Rajdhani" font-size="11" fill="#2a3a4a" letter-spacing="3">UNIT DISTILASI MINYAK ATSIRI</text>
+          </svg>
         </div>
 
-        <div class="sensor-tag ok" id="tag-ph" style="top: 65%; left: 70%;" onclick="openModal('ph')">
-            <div class="tag-label">pH HASIL <span id="trend-ph"></span></div>
-            <div class="tag-value ok" id="val-ph">—</div>
-            <div class="tag-status-text" id="status-txt-ph"></div>
-        </div>
-
-        <div class="sensor-tag ok" id="tag-tds" style="top: 80%; left: 70%;" onclick="openModal('tds')">
-            <div class="tag-label">TDS HASIL <span id="trend-tds"></span></div>
-            <div class="tag-value ok" id="val-tds">— <span class="tag-unit">ppm</span></div>
-            <div class="tag-status-text" id="status-txt-tds"></div>
+        <div class="sensor-overlay">
+          <div class="sensor-card card-sp" id="tag-sp" onclick="openModal('sp')">
+            <div class="sensor-card-header"><div class="sensor-label">SUHU BOILER <span id="trend-sp"></span></div><div class="ok-tag" id="status-txt-sp">NORMAL</div></div>
+            <div><span class="sensor-value" id="val-sp">—</span><span class="sensor-unit">°C</span></div>
+            <div class="sensor-ideal">Ideal: 88 – 98 °C</div>
+            <div class="sensor-bar"><div class="sensor-bar-fill" id="bar-sp" style="width:0%"></div></div>
+          </div>
+          <div class="sensor-card card-sc" id="tag-sc" onclick="openModal('sc')">
+            <div class="sensor-card-header"><div class="sensor-label">SUHU PENDINGIN <span id="trend-sc"></span></div><div class="ok-tag" id="status-txt-sc">NORMAL</div></div>
+            <div><span class="sensor-value" id="val-sc">—</span><span class="sensor-unit">°C</span></div>
+            <div class="sensor-ideal">Ideal: 20 – 35 °C</div>
+            <div class="sensor-bar"><div class="sensor-bar-fill" id="bar-sc" style="width:0%"></div></div>
+          </div>
+          <div class="sensor-card card-ph" id="tag-ph" onclick="openModal('ph')">
+            <div class="sensor-card-header"><div class="sensor-label">pH HASIL <span id="trend-ph"></span></div><div class="ok-tag" id="status-txt-ph">NORMAL</div></div>
+            <div><span class="sensor-value" id="val-ph">—</span></div>
+            <div class="sensor-ideal">Ideal: 5.5 – 7.0</div>
+            <div class="sensor-bar"><div class="sensor-bar-fill" id="bar-ph" style="width:0%"></div></div>
+          </div>
+          <div class="sensor-card card-tds" id="tag-tds" onclick="openModal('tds')">
+            <div class="sensor-card-header"><div class="sensor-label">TDS HASIL <span id="trend-tds"></span></div><div class="ok-tag" id="status-txt-tds">NORMAL</div></div>
+            <div><span class="sensor-value" id="val-tds">—</span><span class="sensor-unit">ppm</span></div>
+            <div class="sensor-ideal">Ideal: 50 – 300 ppm</div>
+            <div class="sensor-bar"><div class="sensor-bar-fill" id="bar-tds" style="width:0%"></div></div>
+          </div>
         </div>
       </div>
 
-      <div class="scada-panels">
+      <div class="sidebar">
         <div class="panel" style="max-height: 250px;">
-          <div class="panel-header">
-            <div class="panel-title">Forward Chaining — Rule Aktif</div>
-            <div id="fc-count" style="font-family:var(--mono);font-size:10px;color:var(--text3)">—</div>
-          </div>
-          <div class="panel-body" style="padding:8px 16px; overflow-y:auto" id="fc-trace"></div>
+          <div class="panel-header"><div class="panel-title">FORWARD CHAINING · RULE AKTIF</div><div class="panel-count" id="fc-count">—</div></div>
+          <div class="panel-body" id="fc-trace"></div>
         </div>
-
         <div class="panel" style="max-height: 250px;">
-          <div class="panel-header">
-            <div class="panel-title">Rekomendasi Tindakan</div>
-            <div id="rek-count" style="font-family:var(--mono);font-size:10px;color:var(--text3)">—</div>
-          </div>
-          <div class="panel-body" style="overflow-y:auto" id="rek-list"></div>
+          <div class="panel-header"><div class="panel-title">REKOMENDASI TINDAKAN</div><div class="panel-count" id="rek-count">—</div></div>
+          <div class="panel-body" id="rek-list"></div>
         </div>
-
         <div class="panel" style="max-height: 200px;">
-          <div class="panel-header">
-            <div class="panel-title">Notifikasi</div>
-            <button class="btn" onclick="clearNotif()">hapus</button>
-          </div>
-          <div class="panel-body" style="padding:8px 16px; overflow-y:auto" id="notif-box">
-            <div style="color:var(--text3);font-size:12px;text-align:center;padding:20px 0">Belum ada notifikasi</div>
-          </div>
+          <div class="panel-header"><div class="panel-title">NOTIFIKASI</div><button class="clear-btn" onclick="clearNotif()">hapus</button></div>
+          <div class="panel-body" id="notif-box"></div>
         </div>
       </div>
-
     </div>
 
-    <div class="panel locked-panel" id="panel-log-stat" style="margin-bottom:20px">
-      <div class="panel-header">
-        <div class="tabs" style="border:none;margin:0">
-          <div class="tab active" id="tab-btn-log" onclick="switchTab('log')">Log Riwayat Sensor</div>
-          <div class="tab" id="tab-btn-statistik" onclick="switchTab('statistik')">Statistik Database</div>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px" id="log-action-bar"></div>
+    <div class="sys-overview">
+      <div class="sys-label">SYSTEM OVERVIEW</div>
+      <div class="sys-sep"></div>
+      <div class="sys-item">Session Uptime: <span class="sys-item-val" id="uptime">00:00:00</span></div>
+      <div class="sys-sep"></div>
+      <div class="sys-item">Data Record: <span class="sys-item-val" id="dp-count">0</span></div>
+      <div class="sys-sep"></div>
+      <div class="sys-item">Anomali Terakhir: <span class="sys-item-val" style="color:var(--accent-red)" id="anomali-count">0</span></div>
+      <div class="sys-sep"></div>
+      <div class="sys-item">Mode: <span class="sys-item-val" style="color:var(--accent-green)">LIVE MONITORING</span></div>
+    </div>
+  </div>
+
+  <div class="page" id="page-statistik">
+    <div class="stats-grid">
+      
+      <div class="locked-overlay" id="locked-overlay" style="display:none">
+        <div class="locked-overlay-icon">🔒</div>
+        <div class="locked-overlay-msg">Akses ditolak<br>Halaman Statistik & Log hanya tersedia untuk Admin & Operator</div>
+        <div class="locked-overlay-role">VIEWER — akses terbatas</div>
       </div>
 
-      <div id="tab-log" class="tab-content active">
-        <div class="log-wrap">
-          <table>
+      <div class="stat-row">
+        <div class="stat-card" style="border-top:2px solid var(--accent-gold)">
+          <div class="stat-card-label">TOTAL DATA LOG</div>
+          <div><span class="stat-card-value" style="color:var(--accent-gold)" id="st-total">0</span></div>
+          <div class="stat-card-sub">Record tersimpan</div>
+        </div>
+        <div class="stat-card" style="border-top:2px solid var(--accent-green)">
+          <div class="stat-card-label">STATUS NORMAL</div>
+          <div><span class="stat-card-value" style="color:var(--accent-green)" id="st-normal">0</span></div>
+          <div class="stat-card-sub">Kondisi ideal</div>
+        </div>
+        <div class="stat-card" style="border-top:2px solid var(--accent-gold-dim)">
+          <div class="stat-card-label">STATUS ANOMALI</div>
+          <div><span class="stat-card-value" style="color:var(--accent-gold-dim)" id="st-anomali">0</span></div>
+          <div class="stat-card-sub">Peringatan sistem</div>
+        </div>
+        <div class="stat-card" style="border-top:2px solid var(--accent-red)">
+          <div class="stat-card-label">STATUS KRITIS</div>
+          <div><span class="stat-card-value" style="color:var(--accent-red)" id="st-kritis">0</span></div>
+          <div class="stat-card-sub">Tindakan darurat</div>
+        </div>
+      </div>
+
+      <div class="chart-panel">
+        <div class="chart-header">
+          <div class="chart-title">GRAFIK SUHU (TERBARU)</div>
+          <div class="chart-legend">
+            <div class="legend-item"><div class="legend-dot" style="background:var(--accent-gold)"></div>Suhu Pemanas (°C)</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--accent-cyan)"></div>Suhu Pendingin (°C)</div>
+          </div>
+        </div>
+        <div class="chart-body"><canvas id="chart-temp"></canvas></div>
+      </div>
+
+      <div class="chart-row-2">
+        <div class="chart-panel">
+          <div class="chart-header"><div class="chart-title">GRAFIK pH</div><div class="chart-legend"><div class="legend-item"><div class="legend-dot" style="background:#aa55ff"></div>pH Hasil</div></div></div>
+          <div class="chart-body" style="height:200px"><canvas id="chart-ph"></canvas></div>
+        </div>
+        <div class="chart-panel">
+          <div class="chart-header"><div class="chart-title">GRAFIK TDS</div><div class="chart-legend"><div class="legend-item"><div class="legend-dot" style="background:var(--accent-green)"></div>TDS (ppm)</div></div></div>
+          <div class="chart-body" style="height:200px"><canvas id="chart-tds"></canvas></div>
+        </div>
+      </div>
+
+      <div class="log-panel">
+        <div class="log-header">
+          <div class="log-title">LOG DATA SENSOR</div>
+          <div style="display:flex;gap:8px;margin-left:auto" id="log-action-bar-inner">
+            <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);display:flex;align-items:center;gap:4px">
+              Menampilkan <span id="log-count" style="color:var(--accent-cyan)">0</span> data terbaru
+            </div>
+          </div>
+        </div>
+        <div class="log-table-wrap">
+          <table class="log-table">
             <thead>
-              <tr><th>#</th><th>Waktu</th><th>Suhu P/C</th><th>pH</th><th>TDS</th><th>Status</th><th>Rule Aktif</th></tr>
+              <tr><th>#</th><th>TIMESTAMP</th><th>SUHU PEMANAS (°C)</th><th>SUHU PENDINGIN (°C)</th><th>pH HASIL</th><th>TDS (ppm)</th><th>STATUS SYSTEM</th><th>RULE AKTIF</th></tr>
             </thead>
-            <tbody id="log-body">
-              <tr><td colspan="7" style="text-align:center;color:var(--text3);padding:20px">Memuat data dari database...</td></tr>
-            </tbody>
+            <tbody id="log-body"><tr><td colspan="8" style="text-align:center;color:var(--text-dim);padding:20px">Memuat data dari database...</td></tr></tbody>
           </table>
         </div>
       </div>
-
-      <div id="tab-statistik" class="tab-content">
-        <div class="panel-body">
-          <div class="stat-grid">
-            <div class="stat-card"><div class="stat-val" id="st-total">—</div><div class="stat-label">Total Log</div></div>
-            <div class="stat-card"><div class="stat-val normal" id="st-normal">—</div><div class="stat-label">Normal</div></div>
-            <div class="stat-card"><div class="stat-val anomali" id="st-anomali">—</div><div class="stat-label">Anomali</div></div>
-            <div class="stat-card"><div class="stat-val kritis" id="st-kritis">—</div><div class="stat-label">Kritis</div></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="locked-overlay" id="locked-overlay" style="display:none">
-        <div class="locked-overlay-icon">🔒</div>
-        <div class="locked-overlay-msg">Akses ditolak<br>Tab ini hanya tersedia untuk Admin & Operator</div>
-        <div class="locked-overlay-role">VIEWER — akses terbatas</div>
-      </div>
-    </div>
-
-    <div class="footer-note">
-      Data tersimpan di SQLite (data_sensor.db) · Backend Flask · v2.3 HMI Edition
     </div>
   </div>
+
 </div>
 
 <div class="modal-overlay" id="modal-overlay" onclick="if(event.target===this)closeModal()">
@@ -500,9 +531,9 @@
         <div class="modal-stat"><div class="modal-stat-val" id="modal-min">—</div><div class="modal-stat-lbl">Min (20 data)</div></div>
         <div class="modal-stat"><div class="modal-stat-val" id="modal-max">—</div><div class="modal-stat-lbl">Max (20 data)</div></div>
       </div>
-      <div style="font-family:var(--mono);font-size:11px;color:var(--text3);margin-bottom:8px">Grafik riwayat 20 data terakhir</div>
+      <div style="font-family:var(--mono);font-size:11px;color:var(--text-secondary);margin-bottom:8px">Grafik riwayat 20 data terakhir</div>
       <div class="modal-chart-wrap"><canvas id="modal-chart" height="120"></canvas></div>
-      <div style="margin-top:14px;padding:10px 12px;background:var(--bg3);border-radius:6px;font-family:var(--mono);font-size:11px;color:var(--text2)" id="modal-status-line">—</div>
+      <div style="margin-top:14px;padding:10px 12px;background:var(--bg-panel);border:1px solid var(--border);border-radius:3px;font-family:var(--mono);font-size:11px;color:var(--text-primary)" id="modal-status-line">—</div>
     </div>
   </div>
 </div>
@@ -511,16 +542,17 @@
 
 <script>
 // ═══════════════════════════════════════════
-// LOGIKA SISTEM TETAP SAMA
+// LOGIKA SISTEM UTAMA (INTEGRASI)
 // ═══════════════════════════════════════════
 const USERS = {
-  'admin': { password: 'admin123', fullname: 'Administrator', initials: 'AD', avatarClass: '', roleLabel: 'Administrator', roleKey: 'admin', chipClass: 'admin', perms: { viewSensor: true, viewLog: true, viewStatistik: true, downloadExcel: true, hapusLog: true, clearNotif: true, } },
-  'operator': { password: 'op2024', fullname: 'Operator Lab', initials: 'OP', avatarClass: 'op', roleLabel: 'Operator', roleKey: 'operator', chipClass: 'operator', perms: { viewSensor: true, viewLog: true, viewStatistik: true, downloadExcel: false, hapusLog: false, clearNotif: true, } },
-  'viewer': { password: 'view2024', fullname: 'Viewer', initials: 'VW', avatarClass: 'vw', roleLabel: 'Viewer', roleKey: 'viewer', chipClass: 'viewer', perms: { viewSensor: true, viewLog: false, viewStatistik: false, downloadExcel: false, hapusLog: false, clearNotif: true, } },
+  'admin': { password: 'admin123', fullname: 'Administrator', initials: 'AD', avatarClass: '', roleLabel: 'Administrator', roleKey: 'admin', chipClass: 'admin', perms: { viewSensor: true, viewLog: true, viewStatistik: true, downloadExcel: true, hapusLog: true, clearNotif: true } },
+  'operator': { password: 'op2024', fullname: 'Operator Lab', initials: 'OP', avatarClass: 'operator', roleLabel: 'Operator', roleKey: 'operator', chipClass: 'operator', perms: { viewSensor: true, viewLog: true, viewStatistik: true, downloadExcel: false, hapusLog: false, clearNotif: true } },
+  'viewer': { password: 'view2024', fullname: 'Viewer', initials: 'VW', avatarClass: 'viewer', roleLabel: 'Viewer', roleKey: 'viewer', chipClass: 'viewer', perms: { viewSensor: true, viewLog: false, viewStatistik: false, downloadExcel: false, hapusLog: false, clearNotif: true } },
 };
 
-const PERM_LABELS = { viewLog: 'Lihat Log', viewStatistik: 'Statistik', downloadExcel: 'Download XLS', hapusLog: 'Hapus Log', };
+const PERM_LABELS = { viewLog: 'Lihat Log', viewStatistik: 'Statistik', downloadExcel: 'Download XLS', hapusLog: 'Hapus Log' };
 let currentUser = null, loginTime = null, cachedLogs = [];
+let charts = {};
 
 function quickFill(user, pass) { document.getElementById('inp-user').value = user; document.getElementById('inp-pass').value = pass; document.getElementById('inp-user').focus(); }
 function togglePass() { const inp = document.getElementById('inp-pass'); inp.type = inp.type === 'password' ? 'text' : 'password'; }
@@ -532,38 +564,49 @@ function doLogin() {
   if (!u || !p) { err.textContent = '⚠ Username dan password harus diisi'; err.style.display = 'block'; return; }
   const user = USERS[u.toLowerCase()];
   if (!user || user.password !== p) { err.textContent = '⚠ Username atau password salah'; err.style.display = 'block'; document.getElementById('inp-user').classList.add('error'); document.getElementById('inp-pass').classList.add('error'); document.getElementById('inp-pass').value = ''; return; }
+  
   btn.classList.add('loading'); document.getElementById('login-btn-text').textContent = 'MENGAUTENTIKASI...';
   setTimeout(() => {
     currentUser = { username: u.toLowerCase(), ...user }; loginTime = new Date(); applyUserUI();
     const ls = document.getElementById('login-screen'); ls.style.transition = 'opacity .4s'; ls.style.opacity = '0';
-    setTimeout(() => { ls.style.display = 'none'; document.getElementById('dashboard-screen').style.display = 'block'; showToast('ok', '✓ Masuk sebagai ' + user.fullname); applyRoleRestrictions(); checkDB(); }, 400);
+    setTimeout(() => { ls.style.display = 'none'; document.getElementById('dashboard-screen').style.display = 'block'; showToast('ok', '✓ Masuk sebagai ' + user.fullname); applyRoleRestrictions(); checkDB(); initCharts(); setInterval(updateUptime, 1000);}, 400);
   }, 800);
 }
 
 function applyUserUI() {
   const u = currentUser;
-  const av = document.getElementById('user-avatar'); av.textContent = u.initials; av.className = 'user-avatar ' + u.avatarClass;
-  const chip = document.getElementById('role-chip'); chip.textContent = u.roleKey.toUpperCase(); chip.className = 'role-chip ' + u.chipClass;
+  const chip = document.getElementById('role-chip'); chip.textContent = u.roleKey.toUpperCase(); chip.className = u.avatarClass;
   document.getElementById('user-name-badge').textContent = u.username; document.getElementById('menu-fullname').textContent = u.fullname; document.getElementById('menu-role-label').textContent = u.roleLabel; document.getElementById('menu-logintime').textContent = loginTime.toLocaleTimeString('id-ID');
-  document.getElementById('welcome-name').textContent = u.fullname; document.getElementById('welcome-time').textContent = loginTime.toLocaleTimeString('id-ID');
+  document.getElementById('welcome-name').textContent = u.fullname; document.getElementById('session-start').textContent = loginTime.toLocaleTimeString('id-ID');
   const pl = document.getElementById('perm-list');
-  pl.innerHTML = Object.entries(PERM_LABELS).map(([key, label]) => { const on = u.perms[key]; return `<span class="perm-tag ${on ? 'on' : 'off'}" title="${on ? 'Diizinkan' : 'Tidak diizinkan'}">${on ? '✓' : '✗'} ${label}</span>`; }).join('');
+  pl.innerHTML = Object.entries(PERM_LABELS).map(([key, label]) => { const on = u.perms[key]; return `<span style="opacity:${on?1:0.3}">${on ? '✓' : '✗'} ${label}</span>`; }).join(' &nbsp; ');
 }
 
 function applyRoleRestrictions() {
   const perms = currentUser.perms;
   const lockedOverlay = document.getElementById('locked-overlay');
   lockedOverlay.style.display = (!perms.viewLog && !perms.viewStatistik) ? 'flex' : 'none';
-  document.getElementById('tab-btn-statistik').style.display = !perms.viewStatistik ? 'none' : '';
   renderLogActionBar();
 }
 
 function renderLogActionBar() {
-  const bar = document.getElementById('log-action-bar'); const perms = currentUser.perms; let html = '';
-  if (perms.downloadExcel) html += `<button class="btn excel" id="btn-excel" onclick="downloadExcel()"><span>⬇</span> Download Excel</button>`;
-  if (perms.viewLog) html += `<button class="btn" onclick="refreshLog()">↺ refresh</button>`;
-  if (perms.hapusLog) html += `<button class="btn" style="border-color:rgba(248,81,73,.3);color:var(--red)" onclick="hapusLog()">🗑 hapus log</button>`;
-  bar.innerHTML = html;
+  const bar = document.getElementById('nav-action-bar'); const innerBar = document.getElementById('log-action-bar-inner'); 
+  const perms = currentUser.perms; let topHtml = '', innerHtml = '';
+  
+  if (perms.downloadExcel) {
+      topHtml += `<button class="nav-btn" onclick="downloadExcel()">⬇ Download XLS</button>`;
+      innerHtml += `<button class="nav-btn" onclick="downloadExcel()" style="color:var(--accent-green);border-color:var(--accent-green-dim)">⬇ XLS</button>`;
+  }
+  if (perms.viewLog) {
+      topHtml += `<button class="nav-btn" onclick="refreshLog()">↺ Refresh</button>`;
+      innerHtml += `<button class="nav-btn" onclick="refreshLog()">↺ Refresh</button>`;
+  }
+  if (perms.hapusLog) {
+      innerHtml += `<button class="nav-btn danger" onclick="hapusLog()">🗑 Hapus</button>`;
+  }
+  
+  bar.innerHTML = topHtml;
+  innerBar.innerHTML += innerHtml;
 }
 
 function doLogout() {
@@ -574,33 +617,7 @@ function doLogout() {
   document.getElementById('inp-user').value = ''; document.getElementById('inp-pass').value = '';
   document.getElementById('login-btn').classList.remove('loading'); document.getElementById('login-btn-text').textContent = 'MASUK →';
   document.getElementById('login-error').style.display = 'none';
-  currentUser = null; cachedLogs = []; localNotifs.length = 0;
-}
-
-async function downloadExcel() {
-  if (!currentUser || !currentUser.perms.downloadExcel) { showToast('err', '✗ Akses ditolak — hanya admin'); return; }
-  const btn = document.getElementById('btn-excel'); if (btn) { btn.innerHTML = '<div class="dl-spinner"></div> Menyiapkan...'; btn.disabled = true; }
-  try {
-    if (typeof XLSX === 'undefined') await loadSheetJS();
-    let rows = cachedLogs.length > 0 ? cachedLogs : generateDemoLogs();
-    const wsData = [ ['ID', 'Waktu', 'Suhu Pemanas (°C)', 'Suhu Pendingin (°C)', 'pH', 'TDS (ppm)', 'Status', 'Rule Aktif'], ...rows.map(r => [ r.id, r.waktu, r.suhu_prod, r.suhu_cool, r.ph, r.tds, r.status, r.rules_aktif || '—' ]) ];
-    const wb = XLSX.utils.book_new(); const ws = XLSX.utils.aoa_to_sheet(wsData); ws['!cols'] = [ {wch:6},{wch:22},{wch:20},{wch:22},{wch:8},{wch:10},{wch:12},{wch:30} ];
-    XLSX.utils.book_append_sheet(wb, ws, 'Log Sensor');
-    const infoData = [ ['LAPORAN SISTEM PAKAR DISTILASI MINYAK KAYU PUTIH'], [''], ['Diekspor oleh', currentUser.fullname + ' (' + currentUser.roleLabel + ')'], ['Waktu ekspor', new Date().toLocaleString('id-ID')], ['Total baris data', rows.length], ];
-    const wsInfo = XLSX.utils.aoa_to_sheet(infoData); wsInfo['!cols'] = [{wch:22},{wch:40}]; XLSX.utils.book_append_sheet(wb, wsInfo, 'Info Ekspor');
-    const filename = `log_sensor_${new Date().toISOString().slice(0,19).replace(/[:T]/g,'-')}.xlsx`;
-    XLSX.writeFile(wb, filename); showToast('ok', `✓ Berhasil download ${rows.length} baris → ${filename}`);
-  } catch(e) { console.error(e); showToast('err', '✗ Gagal membuat file Excel: ' + e.message); } finally { if (btn) { btn.innerHTML = '<span>⬇</span> Download Excel'; btn.disabled = false; } }
-}
-
-function loadSheetJS() { return new Promise((resolve, reject) => { if (typeof XLSX !== 'undefined') { resolve(); return; } const s = document.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'; s.onload = resolve; s.onerror = () => reject(new Error('Gagal memuat library SheetJS')); document.head.appendChild(s); }); }
-
-function generateDemoLogs() {
-  const statuses = ['normal','normal','normal','anomali','kritis'], now = Date.now();
-  return Array.from({length:20}, (_,i) => {
-    const st = statuses[Math.floor(Math.random()*statuses.length)];
-    return { id: 100-i, waktu: new Date(now - i*3000).toLocaleString('id-ID'), suhu_prod: (95 + Math.random()*15 - 5).toFixed(1), suhu_cool: (28 + Math.random()*10 - 5).toFixed(1), ph: (6.2 + Math.random()*1.2 - 0.4).toFixed(2), tds: Math.round(150 + Math.random()*200 - 50), status: st, rules_aktif: st==='normal' ? 'R01,R05,R08,R11' : st==='anomali' ? 'R02,R09' : 'R04,R14', };
-  });
+  currentUser = null; cachedLogs = []; localNotifs.length = 0; switchPage('dashboard');
 }
 
 function showToast(type, msg, duration=3500) {
@@ -608,35 +625,123 @@ function showToast(type, msg, duration=3500) {
   setTimeout(() => { t.style.transition = 'opacity .3s, transform .3s'; t.style.opacity = '0'; t.style.transform = 'translateX(16px)'; setTimeout(() => t.remove(), 300); }, duration);
 }
 
-const SENSOR_META = { sp: { label:'SUHU PEMANAS', unit:'°C', min:88, max:98 }, sc: { label:'SUHU PENDINGIN',unit:'°C', min:20, max:35 }, ph: { label:'pH HASIL', unit:'', min:5.5, max:7.0 }, tds: { label:'TDS HASIL', unit:'ppm', min:50, max:300 }, };
+// ════════ UI UPDATES SCADA ════════
+const SENSOR_META = { sp: { label:'SUHU PEMANAS', unit:'°C', min:88, max:98, maxScale:120 }, sc: { label:'SUHU PENDINGIN',unit:'°C', min:20, max:35, maxScale:60 }, ph: { label:'pH HASIL', unit:'', min:5.5, max:7.0, maxScale:14 }, tds: { label:'TDS HASIL', unit:'ppm', min:50, max:300, maxScale:600 }, };
 let modalChart = null;
 
-function openModal(param) {
-  const meta = SENSOR_META[param]; const data = hist[param];
-  if (!data || data.length < 2) { showToast('warn','⚠ Belum cukup data untuk ditampilkan'); return; }
-  document.getElementById('modal-title').textContent = 'DETAIL — ' + meta.label;
-  const cur = data[data.length-1], mn = Math.min(...data), mx = Math.max(...data), fix = param==='tds' ? 0 : param==='ph' ? 2 : 1;
-  document.getElementById('modal-cur').textContent = cur.toFixed(fix) + meta.unit; document.getElementById('modal-min').textContent = mn.toFixed(fix) + meta.unit; document.getElementById('modal-max').textContent = mx.toFixed(fix) + meta.unit;
-  const inRange = cur >= meta.min && cur <= meta.max;
-  const statusTxt = inRange ? `✓ Nilai ${cur.toFixed(fix)}${meta.unit} — dalam rentang ideal [${meta.min}–${meta.max}${meta.unit}]` : `⚠ Nilai ${cur.toFixed(fix)}${meta.unit} — di luar rentang ideal [${meta.min}–${meta.max}${meta.unit}]`;
-  const statusEl = document.getElementById('modal-status-line'); statusEl.textContent = statusTxt; statusEl.style.color = inRange ? 'var(--green)' : 'var(--amber)';
-  document.getElementById('modal-overlay').classList.add('open');
-  if (modalChart) { modalChart.destroy(); modalChart = null; }
-  const canvas = document.getElementById('modal-chart'), ctx = canvas.getContext('2d'), fired = RULES.filter(r => r.cond({sp,sc,ph,tds})), color = colOf(paramSt(param, fired));
-  modalChart = new Chart(ctx, { type: 'line', data: { labels: data.map((_,i) => i===data.length-1 ? 'now' : -(data.length-1-i)+'s'), datasets: [{ data, borderColor: color, backgroundColor: color+'18', borderWidth: 1.5, pointRadius: 2, pointBackgroundColor: color, tension: 0.4, fill: true, }] }, options: { responsive:true, maintainAspectRatio:false, animation:{duration:400}, plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label: ctx => ctx.parsed.y.toFixed(fix)+meta.unit } } }, scales:{ x:{ grid:{color:'rgba(255,255,255,.04)'}, ticks:{color:'#484f58',font:{size:9}} }, y:{ grid:{color:'rgba(255,255,255,.04)'}, ticks:{color:'#484f58',font:{size:9}} } } } });
+function updCard(id,val,st,disp,prev){
+  const card = document.getElementById('tag-'+id);
+  if(card) card.className = 'sensor-card card-'+id + (st==='ok'?'':' '+st);
+  
+  const ve = document.getElementById('val-'+id);
+  if(ve) ve.className = 'sensor-value ' + st;
+  if(ve) ve.textContent = disp;
+
+  const statusTxt = document.getElementById('status-txt-'+id);
+  if(statusTxt) {
+      statusTxt.className = (st==='ok'?'ok-tag':st==='warn'?'warn-tag':'danger-tag');
+      statusTxt.textContent = st==='ok'?'NORMAL':st==='warn'?'PERINGATAN':'KRITIS';
+  }
+  
+  const bar = document.getElementById('bar-'+id);
+  if(bar) {
+      bar.className = 'sensor-bar-fill ' + st;
+      let pct = (val / SENSOR_META[id].maxScale) * 100;
+      bar.style.width = Math.min(100, Math.max(0, pct)) + '%';
+  }
+  
+  const d=val-prev,arr=d>0.05?'↑':d<-0.05?'↓':'→';
+  const te=document.getElementById('trend-'+id);
+  if(te) {
+      te.textContent=arr+' '+Math.abs(d).toFixed(1); 
+      te.style.color=colOf(st);
+  }
 }
 
-function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); }
-document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); });
-
-let lightMode = false;
-function toggleTheme() {
-  lightMode = !lightMode; const v = (k,v) => document.documentElement.style.setProperty(k,v);
-  if (lightMode) { v('--bg','#f0f2f5'); v('--bg2','#ffffff'); v('--bg3','#f5f7fa'); v('--border','#d0d7de'); v('--border2','#e5eaef'); v('--text','#1f2328'); v('--text2','#57606a'); v('--text3','#8c959f'); } 
-  else { v('--bg','#0d1117'); v('--bg2','#161b22'); v('--bg3','#1c2330'); v('--border','#30363d'); v('--border2','#21262d'); v('--text','#e6edf3'); v('--text2','#8b949e'); v('--text3','#484f58'); }
-  showToast('ok', lightMode ? '☀ Mode terang aktif' : '🌙 Mode gelap aktif');
+function updBanner(ov,fired){
+  const b=document.getElementById('status-banner'); b.className='anomaly-banner '+(ov==='normal'?'normal':ov==='anomali'?'anomali':'kritis');
+  const s=document.getElementById('banner-status'); s.textContent=ov==='normal'?'DISTILASI BERJALAN NORMAL':ov==='anomali'?'ANOMALI TERDETEKSI':'KONDISI KRITIS — TINDAKAN SEGERA';
+  const issues=fired.filter(r=>r.status!=='ok'); document.getElementById('banner-desc').textContent=issues.length?issues.map(r=>r.label).join(' · '):'Semua parameter dalam batas ideal';
+  document.getElementById('banner-time').textContent='Update: '+new Date().toLocaleTimeString('id-ID');
+  document.getElementById('anomali-count').textContent = issues.length;
 }
 
+function updFC(fired){
+  document.getElementById('fc-trace').innerHTML=fired.map(r=> 
+    `<div class="rule-item">
+        <div class="rule-num">${r.id.replace('R','')}</div>
+        <div class="rule-text">
+            <div class="rule-condition">IF kondisi_${r.param} THEN</div>
+            <div class="rule-result" style="color:${r.status==='ok'?'var(--accent-green)':r.status==='warn'?'var(--accent-gold)':'var(--accent-red)'}">${r.label}</div>
+        </div>
+    </div>`
+  ).join('');
+  document.getElementById('fc-count').textContent=fired.length+' rule aktif';
+}
+
+function updRek(fired){
+  const reks=fired.filter(r=>r.rek).map(r=>r.rek);
+  document.getElementById('rek-list').innerHTML=reks.length?reks.map((r,i)=>
+    `<div class="action-item ${i%2!==0?'secondary':''} ${r.cls}">
+        <div class="action-title">${r.title}</div>
+        <div class="action-desc">${r.desc}</div>
+    </div>`
+  ).join('') : `<div class="action-item ok"><div class="action-title">Sistem Optimal</div><div class="action-desc">Tidak ada tindakan koreksi diperlukan.</div></div>`;
+  document.getElementById('rek-count').textContent=reks.length?reks.length+' tindakan':'Semua Normal';
+}
+
+function updNotif(fired){
+  const newOnes=fired.filter(r=>r.status!=='ok'&&!prevFired.find(p=>p.id===r.id));
+  newOnes.forEach(r=>{
+    if (!currentUser || !currentUser.perms.clearNotif) return;
+    localNotifs.unshift({st:r.status,msg:r.label,time:new Date().toLocaleTimeString('id-ID')}); if(localNotifs.length>30)localNotifs.pop();
+    showToast(r.status==='danger'?'err':'warn', (r.status==='danger'?'🔴 ':'⚠ ')+r.label);
+  });
+  document.getElementById('notif-box').innerHTML=localNotifs.length?localNotifs.map(n=> 
+    `<div class="notif-item"><div class="notif-dot ${n.st}"></div><div><div class="notif-title">${n.msg}</div><div class="notif-time">${n.time}</div></div></div>` 
+  ).join(''):`<div style="color:var(--text-dim);font-size:10px;text-align:center;padding:20px 0;font-family:'Share Tech Mono',monospace">Belum ada notifikasi</div>`;
+}
+
+function clearNotif(){ localNotifs.length=0; document.getElementById('notif-box').innerHTML=`<div style="color:var(--text-dim);font-size:10px;text-align:center;padding:20px 0;font-family:'Share Tech Mono',monospace">Belum ada notifikasi</div>`; }
+
+// ════════ CHARTS & STATS ════════
+function initCharts() {
+  const chartDefaults = { responsive: true, maintainAspectRatio: false, animation: { duration: 600 }, plugins: { legend: { display: false }, tooltip: { backgroundColor: '#0d1117', borderColor: '#1e2d3d', borderWidth: 1, titleColor: '#8a9bb0', bodyColor: '#e8edf2', titleFont: { family: 'Share Tech Mono', size: 10 }, bodyFont: { family: 'Orbitron', size: 12 } } }, scales: { x: { ticks: { color: '#4a5568', font: { family: 'Share Tech Mono', size: 9 }, maxTicksLimit: 12 }, grid: { color: '#1e2d3d' } }, y: { ticks: { color: '#4a5568', font: { family: 'Share Tech Mono', size: 9 } }, grid: { color: '#1e2d3d' } } } };
+  
+  charts.temp = new Chart(document.getElementById('chart-temp'), { type: 'line', data: { labels: [], datasets: [ { label: 'Suhu Pemanas', data: [], borderColor: '#f0a500', backgroundColor: 'rgba(240,165,0,0.08)', borderWidth: 1.5, pointRadius: 0, fill: true, tension: 0.4 }, { label: 'Suhu Pendingin', data: [], borderColor: '#00d4ff', backgroundColor: 'rgba(0,212,255,0.06)', borderWidth: 1.5, pointRadius: 0, fill: true, tension: 0.4 } ] }, options: chartDefaults });
+  charts.ph = new Chart(document.getElementById('chart-ph'), { type: 'line', data: { labels: [], datasets: [{ label: 'pH', data: [], borderColor: '#aa55ff', backgroundColor: 'rgba(170,85,255,0.08)', borderWidth: 1.5, pointRadius: 0, fill: true, tension: 0.4 }] }, options: chartDefaults });
+  charts.tds = new Chart(document.getElementById('chart-tds'), { type: 'line', data: { labels: [], datasets: [{ label: 'TDS (ppm)', data: [], borderColor: '#00e676', backgroundColor: 'rgba(0,230,118,0.07)', borderWidth: 1.5, pointRadius: 0, fill: true, tension: 0.4 }] }, options: chartDefaults });
+}
+
+function updateCharts(logs) {
+    if(!charts.temp || !logs.length) return;
+    const rev = [...logs].reverse(); 
+    const lbls = rev.map(r => r.waktu.split(' ')[1] || r.waktu);
+    charts.temp.data.labels = lbls;
+    charts.temp.data.datasets[0].data = rev.map(r => r.suhu_prod);
+    charts.temp.data.datasets[1].data = rev.map(r => r.suhu_cool);
+    charts.temp.update();
+
+    charts.ph.data.labels = lbls;
+    charts.ph.data.datasets[0].data = rev.map(r => r.ph);
+    charts.ph.update();
+
+    charts.tds.data.labels = lbls;
+    charts.tds.data.datasets[0].data = rev.map(r => r.tds);
+    charts.tds.update();
+}
+
+function renderLogTable(logs) {
+  const tbody=document.getElementById('log-body');
+  document.getElementById('log-count').textContent = logs.length;
+  if(!logs||!logs.length){ tbody.innerHTML='<tr><td colspan="8" style="text-align:center;padding:16px;color:var(--text-dim)">Belum ada log</td></tr>'; return; }
+  tbody.innerHTML=logs.map(r=> {
+      let stColor = r.status==='normal'?'badge-ok':r.status==='anomali'?'badge-warn':'badge-danger';
+      return `<tr> <td>${r.id}</td><td class="td-time">${r.waktu}</td> <td class="td-val">${r.suhu_prod}</td> <td class="td-val">${r.suhu_cool}</td> <td class="td-val">${r.ph}</td><td class="td-val">${r.tds}</td> <td><span class="${stColor}">${r.status.toUpperCase()}</span></td> <td style="font-size:9px">${r.rules_aktif||'—'}</td> </tr>`;
+  }).join('');
+}
+
+// ════════ PYTHON DB INTEGRATION ════════
 const API = '/api'; let dbOk = false;
 const RULES = [
   {id:'R01',cond:d=>d.sp>=88&&d.sp<=98,param:'sp',status:'ok',label:'Suhu pemanas normal',rek:null},
@@ -655,80 +760,34 @@ const RULES = [
   {id:'R14',cond:d=>d.tds>500,param:'tds',status:'danger',label:'KRITIS: TDS sangat tinggi',rek:{cls:'danger',title:'HENTIKAN PROSES',desc:'Indikasi kontaminasi serius.'}},
 ];
 
-let sp=0,sc=0,ph=0,tds=0, prevSp=0,prevSc=0,prevPh=0,prevTds=0;
+let sp=0,sc=0,ph=0,tds=0, prevSp=0,prevSc=0,prevPh=0,prevTds=0, totalPoints=0;
 const hist={sp:[],sc:[],ph:[],tds:[]}; const MAX_H=20; let prevFired=[]; const localNotifs=[];
-setInterval(()=>{ document.getElementById('clock').textContent=new Date().toLocaleTimeString('id-ID'); },1000);
+setInterval(()=>{ 
+    const t = new Date().toLocaleTimeString('id-ID');
+    document.getElementById('topbar-time').textContent=t; 
+    document.getElementById('plant-time').textContent=t; 
+},1000);
 
-function switchTab(t) {
+function updateUptime() {
+    if(!loginTime) return;
+    const elapsed = Math.floor((new Date() - loginTime) / 1000);
+    const h = Math.floor(elapsed/3600).toString().padStart(2,'0');
+    const m = Math.floor((elapsed%3600)/60).toString().padStart(2,'0');
+    const s = (elapsed%60).toString().padStart(2,'0');
+    document.getElementById('uptime').textContent = `${h}:${m}:${s}`;
+}
+
+function switchPage(t) {
   if (t==='statistik' && currentUser && !currentUser.perms.viewStatistik) { showToast('err','✗ Akses ditolak — fitur statistik untuk Admin & Operator'); return; }
-  document.querySelectorAll('.tab').forEach(el => { el.classList.toggle('active', (t==='log' && el.id==='tab-btn-log') || (t==='statistik' && el.id==='tab-btn-statistik') ); });
-  document.getElementById('tab-log').classList.toggle('active', t==='log'); document.getElementById('tab-statistik').classList.toggle('active', t==='statistik');
-  if(t==='statistik') loadStatistik();
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + t).classList.add('active');
+  document.getElementById('nav-' + t).classList.add('active');
+  if(t==='statistik') { loadStatistik(); refreshLog(); }
 }
 
-function colOf(s){return s==='ok'?'#3fb950':s==='warn'?'#d29922':'#f85149';}
+function colOf(s){return s==='ok'?'#00e676':s==='warn'?'#f0a500':'#ff3b3b';}
 function paramSt(param,fired){const r=fired.find(f=>f.param===param);return r?r.status:'ok';}
-
-// ════════ LOKASI PERUBAHAN FUNGSI UPDATE UI UNTUK SCADA ════════
-function updCard(id,val,st,disp,prev){
-  // Update Overlay Box
-  const tag = document.getElementById('tag-'+id);
-  if(tag) tag.className = 'sensor-tag ' + st;
-  
-  // Update Nilai & Satuan
-  const ve = document.getElementById('val-'+id);
-  if(ve) {
-      const unit = id==='sp'||id==='sc'?'<span class="tag-unit">°C</span>':id==='tds'?'<span class="tag-unit">ppm</span>':'';
-      ve.className = 'tag-value ' + st;
-      ve.innerHTML = disp + ' ' + unit;
-  }
-
-  // Update Label Peringatan Kecil
-  const statusTxt = document.getElementById('status-txt-'+id);
-  if(statusTxt) {
-      statusTxt.className = 'tag-status-text ' + st;
-      statusTxt.textContent = st==='ok'?'':st==='warn'?'⚠ PERINGATAN':'🔴 KRITIS';
-  }
-  
-  // Update Panah Trend
-  const d=val-prev,arr=d>0.05?'↑':d<-0.05?'↓':'→';
-  const te=document.getElementById('trend-'+id);
-  if(te) {
-      te.textContent=arr+' '+Math.abs(d).toFixed(1); 
-      te.style.color=colOf(st);
-  }
-}
-
-function updBanner(ov,fired){
-  const b=document.getElementById('status-banner'); b.className='status-banner '+(ov==='normal'?'normal':ov==='anomali'?'anomali':'kritis');
-  const s=document.getElementById('banner-status'); s.className='banner-status '+(ov==='normal'?'normal':ov==='anomali'?'anomali':'kritis');
-  s.textContent=ov==='normal'?'DISTILASI BERJALAN NORMAL':ov==='anomali'?'ANOMALI TERDETEKSI':'KONDISI KRITIS — TINDAKAN SEGERA DIPERLUKAN';
-  const issues=fired.filter(r=>r.status!=='ok'); document.getElementById('banner-desc').textContent=issues.length?issues.map(r=>r.label).join(' · '):'Semua parameter dalam batas ideal';
-  document.getElementById('banner-time').textContent='Update: '+new Date().toLocaleTimeString('id-ID');
-}
-
-function updFC(fired){
-  document.getElementById('fc-trace').innerHTML=fired.map(r=> `<div class="fc-item"><div class="fc-num ${r.status}">${r.id}</div><div><div class="fc-rule">IF kondisi_${r.param} → THEN</div><div class="fc-result"><span class="${r.status}">${r.label}</span></div></div></div>` ).join('');
-  document.getElementById('fc-count').textContent=fired.length+' rule aktif';
-}
-
-function updRek(fired){
-  const reks=fired.filter(r=>r.rek).map(r=>r.rek);
-  document.getElementById('rek-list').innerHTML=reks.length?reks.map(r=>`<div class="rek-item ${r.cls}"><div class="rek-title">${r.title}</div><div class="rek-desc">${r.desc}</div></div>`).join('') :`<div class="rek-item ok"><div class="rek-title">Tidak ada tindakan koreksi</div><div class="rek-desc">Semua parameter optimal.</div></div>`;
-  document.getElementById('rek-count').textContent=reks.length?reks.length+' tindakan':'semua normal';
-}
-
-function updNotif(fired){
-  const newOnes=fired.filter(r=>r.status!=='ok'&&!prevFired.find(p=>p.id===r.id));
-  newOnes.forEach(r=>{
-    if (!currentUser || !currentUser.perms.clearNotif) return;
-    localNotifs.unshift({st:r.status,msg:r.label,time:new Date().toLocaleTimeString('id-ID')}); if(localNotifs.length>30)localNotifs.pop();
-    showToast(r.status==='danger'?'err':'warn', (r.status==='danger'?'🔴 ':'⚠ ')+r.label);
-  });
-  document.getElementById('notif-box').innerHTML=localNotifs.length?localNotifs.map(n=> `<div class="notif-item"><div class="notif-dot ${n.st}"></div><div><div class="notif-msg">${n.msg}</div><div class="notif-time">${n.time}</div></div></div>` ).join(''):`<div style="color:var(--text3);font-size:12px;text-align:center;padding:20px 0">Belum ada notifikasi</div>`;
-}
-
-function clearNotif(){ localNotifs.length=0; document.getElementById('notif-box').innerHTML='<div style="color:var(--text3);font-size:12px;text-align:center;padding:20px 0">Belum ada notifikasi</div>'; }
 
 async function fetchLatestData(){
   if(!dbOk)return;
@@ -740,22 +799,17 @@ async function fetchLatestData(){
       const fired=RULES.filter(r=>r.cond({sp,sc,ph,tds})); const ov=data.status;
       updCard('sp',sp,paramSt('sp',fired),sp.toFixed(1),prevSp); updCard('sc',sc,paramSt('sc',fired),sc.toFixed(1),prevSc); updCard('ph',ph,paramSt('ph',fired),ph.toFixed(2),prevPh); updCard('tds',tds,paramSt('tds',fired),Math.round(tds),prevTds);
       updBanner(ov,fired); updFC(fired); updRek(fired); updNotif(fired);
-      document.getElementById('banner-saved').textContent='✓ Tersambung ke Python DB'; document.getElementById('banner-saved').className='banner-saved ok';
+      document.getElementById('banner-saved').textContent='✓ Terhubung ke DB'; document.getElementById('banner-saved').className='banner-conn';
       prevSp=sp; prevSc=sc; prevPh=ph; prevTds=tds; prevFired=fired;
+      totalPoints++; document.getElementById('dp-count').textContent = totalPoints;
     }
   }catch(e){}
 }
 
 async function refreshLog(){
   if(!currentUser || !currentUser.perms.viewLog){ showToast('err','✗ Akses ditolak — tidak ada izin lihat log'); return; }
-  if(!dbOk) { const demo = generateDemoLogs(); cachedLogs = demo; renderLogTable(demo); return; }
-  try{ const res=await fetch(API+'/log?limit=50'); const logs=await res.json(); cachedLogs = logs || []; renderLogTable(cachedLogs); }catch(e){ showToast('warn','⚠ Gagal memuat log dari server'); }
-}
-
-function renderLogTable(logs) {
-  const tbody=document.getElementById('log-body');
-  if(!logs||!logs.length){ tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:16px;color:var(--text3)">Belum ada log</td></tr>'; return; }
-  tbody.innerHTML=logs.map(r=>` <tr> <td>${r.id}</td><td>${r.waktu}</td> <td>${r.suhu_prod}° / ${r.suhu_cool}°</td> <td>${r.ph}</td><td>${r.tds}</td> <td><span class="log-status ${r.status}">${r.status}</span></td> <td>${r.rules_aktif||'—'}</td> </tr>`).join('');
+  if(!dbOk) { const demo = generateDemoLogs(); cachedLogs = demo; renderLogTable(demo); updateCharts(demo); return; }
+  try{ const res=await fetch(API+'/log?limit=50'); const logs=await res.json(); cachedLogs = logs || []; renderLogTable(cachedLogs); updateCharts(cachedLogs); }catch(e){ showToast('warn','⚠ Gagal memuat log dari server'); }
 }
 
 async function loadStatistik(){
@@ -768,19 +822,61 @@ async function loadStatistik(){
 
 async function checkDB(){
   try{
-    await fetch(API+'/stats',{signal:AbortSignal.timeout(3000)}); dbOk=true; document.getElementById('db-badge').textContent='DB: TERHUBUNG'; document.getElementById('db-badge').className='db-badge connected'; fetchLatestData(); refreshLog();
+    await fetch(API+'/stats',{signal:AbortSignal.timeout(3000)}); dbOk=true; document.getElementById('db-badge').className='status-badge'; document.getElementById('db-text').textContent='DB: TERHUBUNG'; fetchLatestData(); refreshLog();
   }catch(e){
-    dbOk=false; document.getElementById('db-badge').textContent='DB: TERPUTUS'; document.getElementById('db-badge').className='db-badge disconnected'; if (currentUser && currentUser.perms.viewLog) { const demo = generateDemoLogs(); cachedLogs = demo; renderLogTable(demo); }
+    dbOk=false; document.getElementById('db-badge').className='status-badge disconnected'; document.getElementById('db-text').textContent='DB: TERPUTUS'; if (currentUser && currentUser.perms.viewLog) { const demo = generateDemoLogs(); cachedLogs = demo; renderLogTable(demo); updateCharts(demo); }
   }
 }
 
 async function hapusLog(){
   if(!currentUser || !currentUser.perms.hapusLog){ showToast('err','✗ Akses ditolak — hanya admin yang bisa menghapus log'); return; }
   if(!confirm('Hapus semua database log sensor?')) return;
-  try { await fetch(API+'/clear',{method:'DELETE'}); cachedLogs = []; renderLogTable([]); showToast('ok','✓ Riwayat log dihapus'); fetchLatestData(); } catch(e) { showToast('err','✗ Gagal menghapus log (DB tidak tersambung)'); }
+  try { await fetch(API+'/clear',{method:'DELETE'}); cachedLogs = []; renderLogTable([]); updateCharts([]); showToast('ok','✓ Riwayat log dihapus'); fetchLatestData(); loadStatistik(); } catch(e) { showToast('err','✗ Gagal menghapus log (DB tidak tersambung)'); }
 }
 
-const _chartJs = document.createElement('script'); _chartJs.src = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js'; document.head.appendChild(_chartJs);
+async function downloadExcel() {
+  if (!currentUser || !currentUser.perms.downloadExcel) { showToast('err', '✗ Akses ditolak — hanya admin'); return; }
+  try {
+    if (typeof XLSX === 'undefined') await loadSheetJS();
+    let rows = cachedLogs.length > 0 ? cachedLogs : generateDemoLogs();
+    const wsData = [ ['ID', 'Waktu', 'Suhu Pemanas (°C)', 'Suhu Pendingin (°C)', 'pH', 'TDS (ppm)', 'Status', 'Rule Aktif'], ...rows.map(r => [ r.id, r.waktu, r.suhu_prod, r.suhu_cool, r.ph, r.tds, r.status, r.rules_aktif || '—' ]) ];
+    const wb = XLSX.utils.book_new(); const ws = XLSX.utils.aoa_to_sheet(wsData); ws['!cols'] = [ {wch:6},{wch:22},{wch:20},{wch:22},{wch:8},{wch:10},{wch:12},{wch:30} ];
+    XLSX.utils.book_append_sheet(wb, ws, 'Log Sensor');
+    const infoData = [ ['LAPORAN SISTEM PAKAR DISTILASI MINYAK KAYU PUTIH'], [''], ['Diekspor oleh', currentUser.fullname + ' (' + currentUser.roleLabel + ')'], ['Waktu ekspor', new Date().toLocaleString('id-ID')], ['Total baris data', rows.length], ];
+    const wsInfo = XLSX.utils.aoa_to_sheet(infoData); wsInfo['!cols'] = [{wch:22},{wch:40}]; XLSX.utils.book_append_sheet(wb, wsInfo, 'Info Ekspor');
+    const filename = `log_sensor_${new Date().toISOString().slice(0,19).replace(/[:T]/g,'-')}.xlsx`;
+    XLSX.writeFile(wb, filename); showToast('ok', `✓ Berhasil download ${rows.length} baris → ${filename}`);
+  } catch(e) { console.error(e); showToast('err', '✗ Gagal membuat file Excel: ' + e.message); }
+}
+
+function loadSheetJS() { return new Promise((resolve, reject) => { if (typeof XLSX !== 'undefined') { resolve(); return; } const s = document.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'; s.onload = resolve; s.onerror = () => reject(new Error('Gagal memuat library SheetJS')); document.head.appendChild(s); }); }
+
+function generateDemoLogs() {
+  const statuses = ['normal','normal','normal','anomali','kritis'], now = Date.now();
+  return Array.from({length:20}, (_,i) => {
+    const st = statuses[Math.floor(Math.random()*statuses.length)];
+    return { id: 100-i, waktu: new Date(now - i*3000).toLocaleString('id-ID'), suhu_prod: (95 + Math.random()*15 - 5).toFixed(1), suhu_cool: (28 + Math.random()*10 - 5).toFixed(1), ph: (6.2 + Math.random()*1.2 - 0.4).toFixed(2), tds: Math.round(150 + Math.random()*200 - 50), status: st, rules_aktif: st==='normal' ? 'R01,R05,R08,R11' : st==='anomali' ? 'R02,R09' : 'R04,R14', };
+  });
+}
+
+function openModal(param) {
+  const meta = SENSOR_META[param]; const data = hist[param];
+  if (!data || data.length < 2) { showToast('warn','⚠ Belum cukup data untuk ditampilkan'); return; }
+  document.getElementById('modal-title').textContent = 'DETAIL — ' + meta.label;
+  const cur = data[data.length-1], mn = Math.min(...data), mx = Math.max(...data), fix = param==='tds' ? 0 : param==='ph' ? 2 : 1;
+  document.getElementById('modal-cur').textContent = cur.toFixed(fix) + meta.unit; document.getElementById('modal-min').textContent = mn.toFixed(fix) + meta.unit; document.getElementById('modal-max').textContent = mx.toFixed(fix) + meta.unit;
+  const inRange = cur >= meta.min && cur <= meta.max;
+  const statusTxt = inRange ? `✓ Nilai ${cur.toFixed(fix)}${meta.unit} — dalam rentang ideal [${meta.min}–${meta.max}${meta.unit}]` : `⚠ Nilai ${cur.toFixed(fix)}${meta.unit} — di luar rentang ideal [${meta.min}–${meta.max}${meta.unit}]`;
+  const statusEl = document.getElementById('modal-status-line'); statusEl.textContent = statusTxt; statusEl.style.color = inRange ? 'var(--accent-green)' : 'var(--accent-gold)';
+  document.getElementById('modal-overlay').classList.add('open');
+  if (modalChart) { modalChart.destroy(); modalChart = null; }
+  const canvas = document.getElementById('modal-chart'), ctx = canvas.getContext('2d'), fired = RULES.filter(r => r.cond({sp,sc,ph,tds})), color = colOf(paramSt(param, fired));
+  modalChart = new Chart(ctx, { type: 'line', data: { labels: data.map((_,i) => i===data.length-1 ? 'now' : -(data.length-1-i)+'s'), datasets: [{ data, borderColor: color, backgroundColor: color+'18', borderWidth: 1.5, pointRadius: 2, pointBackgroundColor: color, tension: 0.4, fill: true, }] }, options: { responsive:true, maintainAspectRatio:false, animation:{duration:400}, plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label: ctx => ctx.parsed.y.toFixed(fix)+meta.unit } } }, scales:{ x:{ grid:{color:'rgba(255,255,255,.04)'}, ticks:{color:'#4a5568',font:{size:9}} }, y:{ grid:{color:'rgba(255,255,255,.04)'}, ticks:{color:'#4a5568',font:{size:9}} } } } });
+}
+
+function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); }
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); });
+
 setInterval(checkDB, 15000); setInterval(fetchLatestData, 3000);
 </script>
 </body>

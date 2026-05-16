@@ -138,12 +138,44 @@
   .sensor-bar-fill.warning { background: var(--accent-gold); }
   .sensor-bar-fill.danger { background: var(--accent-red); }
 
-  /* KORDINAT POSISI KOTAK SENSOR - SILAKAN UBAH ANGKA INI JIKA KURANG PAS */
-  .card-sp { top: 12%; left: 2%; } 
-  .card-sc { top: 12%; right: 2%; } 
-  .card-ph { top: 50%; right: 2%; } 
-  .card-tds { bottom: 10%; right: 2%; }
+  /* ═════════ KONEKTOR GARIS (POINTERS) ═════════ */
+  .connector { position: absolute; pointer-events: none; transition: all 0.3s ease; opacity: 0.8; z-index: -1; }
+  .connector-dot { position: absolute; width: 6px; height: 6px; border-radius: 50%; transition: all 0.3s ease; z-index: 0; }
 
+  /* Warna Default (OK) */
+  .sensor-card .connector { border-color: var(--accent-cyan); }
+  .sensor-card .connector-dot { background: var(--accent-cyan); box-shadow: 0 0 8px var(--accent-cyan); }
+
+  /* Warna Peringatan */
+  .sensor-card.warn .connector { border-color: var(--accent-gold); }
+  .sensor-card.warn .connector-dot { background: var(--accent-gold); box-shadow: 0 0 8px var(--accent-gold); }
+
+  /* Warna Kritis */
+  .sensor-card.danger .connector { border-color: var(--accent-red); }
+  .sensor-card.danger .connector-dot { background: var(--accent-red); box-shadow: 0 0 8px var(--accent-red); }
+
+  /* =========================================================================
+     PENGATURAN KORDINAT DAN ARAH GARIS
+     - Ubah nilai "right", "left", "bottom" di bawah untuk mengatur panjang garis
+     - Ubah persentase "top" atau "left" di HTML untuk menggeser kotak secara utuh
+     ========================================================================= */
+  .card-sp { top: 12%; left: 2%; } 
+  .card-sp .connector-h { top: 50%; right: -100px; width: 100px; height: 1px; border-top: 2px solid; }
+  .card-sp .connector-dot { top: calc(50% - 3px); right: -100px; }
+
+  .card-sc { top: 12%; right: 2%; } 
+  .card-sc .connector-h { top: 50%; left: -100px; width: 100px; height: 1px; border-top: 2px solid; }
+  .card-sc .connector-dot { top: calc(50% - 3px); left: -100px; }
+
+  .card-ph { top: 50%; right: 2%; } 
+  .card-ph .connector-v { bottom: -60px; left: 50%; width: 1px; height: 60px; border-left: 2px solid; }
+  .card-ph .connector-dot { bottom: -60px; left: calc(50% - 3px); }
+
+  .card-tds { bottom: 10%; right: 2%; }
+  .card-tds .connector-h { top: 50%; left: -120px; width: 120px; height: 1px; border-top: 2px solid; }
+  .card-tds .connector-dot { top: calc(50% - 3px); left: -120px; }
+
+  /* ═════════ SIDEBAR PANELS ═════════ */
   .sidebar { display: flex; flex-direction: column; gap: 10px; }
   .panel { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 3px; overflow: hidden; display: flex; flex-direction: column;}
   .panel-header { background: rgba(255,255,255,0.02); border-bottom: 1px solid var(--border); padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; }
@@ -366,24 +398,28 @@
 
         <div class="sensor-overlay">
           <div class="sensor-card card-sp" id="tag-sp" onclick="openModal('sp')">
+            <div class="connector connector-h"></div><div class="connector-dot"></div>
             <div class="sensor-card-header"><div class="sensor-label">SUHU BOILER <span id="trend-sp"></span></div><div class="ok-tag" id="status-txt-sp">NORMAL</div></div>
             <div><span class="sensor-value" id="val-sp">—</span><span class="sensor-unit">°C</span></div>
             <div class="sensor-ideal">Ideal: 88 – 98 °C</div>
             <div class="sensor-bar"><div class="sensor-bar-fill" id="bar-sp" style="width:0%"></div></div>
           </div>
           <div class="sensor-card card-sc" id="tag-sc" onclick="openModal('sc')">
+            <div class="connector connector-h"></div><div class="connector-dot"></div>
             <div class="sensor-card-header"><div class="sensor-label">SUHU PENDINGIN <span id="trend-sc"></span></div><div class="ok-tag" id="status-txt-sc">NORMAL</div></div>
             <div><span class="sensor-value" id="val-sc">—</span><span class="sensor-unit">°C</span></div>
             <div class="sensor-ideal">Ideal: 20 – 35 °C</div>
             <div class="sensor-bar"><div class="sensor-bar-fill" id="bar-sc" style="width:0%"></div></div>
           </div>
           <div class="sensor-card card-ph" id="tag-ph" onclick="openModal('ph')">
+            <div class="connector connector-v"></div><div class="connector-dot"></div>
             <div class="sensor-card-header"><div class="sensor-label">pH HASIL <span id="trend-ph"></span></div><div class="ok-tag" id="status-txt-ph">NORMAL</div></div>
             <div><span class="sensor-value" id="val-ph">—</span></div>
             <div class="sensor-ideal">Ideal: 5.5 – 7.0</div>
             <div class="sensor-bar"><div class="sensor-bar-fill" id="bar-ph" style="width:0%"></div></div>
           </div>
           <div class="sensor-card card-tds" id="tag-tds" onclick="openModal('tds')">
+            <div class="connector connector-h"></div><div class="connector-dot"></div>
             <div class="sensor-card-header"><div class="sensor-label">TDS HASIL <span id="trend-tds"></span></div><div class="ok-tag" id="status-txt-tds">NORMAL</div></div>
             <div><span class="sensor-value" id="val-tds">—</span><span class="sensor-unit">ppm</span></div>
             <div class="sensor-ideal">Ideal: 50 – 300 ppm</div>
@@ -588,7 +624,7 @@ function renderLogActionBar() {
   }
   
   bar.innerHTML = topHtml;
-  innerBar.innerHTML = innerHtml; // PERBAIKAN: Menggunakan = (bukan +=) agar tidak numpuk
+  innerBar.innerHTML = innerHtml; // PERBAIKAN: Menggunakan '=' agar tombol tidak menumpuk saat di-klik berulang-ulang
 }
 
 function doLogout() {

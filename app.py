@@ -132,9 +132,17 @@ def forward_chaining(d):
 # ROUTES
 # ─────────────────────────────────────────────
  
+# --- INI PINTU UTAMA (Dashboard Lama) ---
 @app.route('/')
 def index():
-    return render_template('dashboard.html')
+    # Ini akan memanggil file dashboard Anda yang lama
+    return render_template('dashboard.html') 
+
+# --- INI PINTU BARU (Dashboard SCADA) ---
+@app.route('/scada')
+def scada_view():
+    # Ini akan memanggil file scada.html yang baru kita buat
+    return render_template('scada.html')
  
 @app.route('/api/sensor', methods=['GET', 'POST'])
 def terima_sensor():

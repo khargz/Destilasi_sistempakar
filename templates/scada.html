@@ -73,7 +73,7 @@
   .status-badge.disconnected .status-dot { background: var(--red); box-shadow: 0 0 8px var(--red); }
   .topbar-time { font-family: 'Share Tech Mono', monospace; font-size: 12px; color: var(--accent-cyan); letter-spacing: 1px; }
   
-  /* User Menu (from old code) */
+  /* User Menu */
   .user-badge { display:flex;align-items:center;gap:8px; font-size:12px; color:var(--text-secondary); cursor:pointer; position:relative; padding: 4px 8px; border:1px solid transparent; border-radius:4px; transition:all .2s;}
   .user-badge:hover { border-color:var(--border); background:var(--bg-panel); }
   .user-badge span { background: var(--accent-gold); color: #000; font-family: 'Orbitron', monospace; font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 2px; }
@@ -138,7 +138,11 @@
   .sensor-bar-fill.warning { background: var(--accent-gold); }
   .sensor-bar-fill.danger { background: var(--accent-red); }
 
-  .card-sp { top: 12%; left: 2%; } .card-sc { top: 12%; right: 2%; } .card-ph { top: 50%; right: 2%; } .card-tds { bottom: 10%; right: 2%; }
+  /* KORDINAT POSISI KOTAK SENSOR - SILAKAN UBAH ANGKA INI JIKA KURANG PAS */
+  .card-sp { top: 12%; left: 2%; } 
+  .card-sc { top: 12%; right: 2%; } 
+  .card-ph { top: 50%; right: 2%; } 
+  .card-tds { bottom: 10%; right: 2%; }
 
   .sidebar { display: flex; flex-direction: column; gap: 10px; }
   .panel { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 3px; overflow: hidden; display: flex; flex-direction: column;}
@@ -357,32 +361,7 @@
         <div class="corner-deco corner-br">REV 2.3</div>
 
         <div class="plant-container">
-          <svg viewBox="0 0 700 460" style="width:100%;max-width:660px;height:auto" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <linearGradient id="metalGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#3a4a5a"/><stop offset="40%" stop-color="#5a6a7a"/><stop offset="100%" stop-color="#1e2a36"/></linearGradient>
-              <linearGradient id="metalGrad2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#2a3a4a"/><stop offset="50%" stop-color="#4a5a6a"/><stop offset="100%" stop-color="#1a2530"/></linearGradient>
-              <linearGradient id="woodGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#5a3a1a"/><stop offset="100%" stop-color="#3a2010"/></linearGradient>
-              <linearGradient id="tankGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#4a5e70"/><stop offset="60%" stop-color="#6a7e90"/><stop offset="100%" stop-color="#2a3e50"/></linearGradient>
-              <linearGradient id="panelGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1a2430"/><stop offset="100%" stop-color="#0e1620"/></linearGradient>
-              <filter id="glow"><feGaussianBlur stdDeviation="3" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-              <filter id="softShadow"><feDropShadow dx="2" dy="4" stdDeviation="4" flood-opacity="0.5"/></filter>
-            </defs>
-            <rect x="80" y="360" width="520" height="14" rx="3" fill="url(#woodGrad)" filter="url(#softShadow)"/><rect x="90" y="374" width="500" height="60" rx="2" fill="url(#woodGrad)"/><rect x="100" y="370" width="498" height="6" rx="1" fill="#7a5a2a" opacity="0.3"/><rect x="110" y="434" width="16" height="26" rx="2" fill="#3a2010"/><rect x="576" y="434" width="16" height="26" rx="2" fill="#3a2010"/>
-            <rect x="185" y="200" width="140" height="165" rx="8" fill="url(#tankGrad)" filter="url(#softShadow)"/><rect x="192" y="207" width="126" height="151" rx="6" fill="url(#metalGrad)" opacity="0.7"/><rect x="197" y="210" width="18" height="140" rx="4" fill="white" opacity="0.04"/><circle cx="260" cy="220" r="16" fill="#1a2530" stroke="#3a4a5a" stroke-width="1.5"/><circle cx="260" cy="220" r="12" fill="#0e1820" stroke="#2a3a4a" stroke-width="1"/><line x1="260" y1="220" x2="267" y2="213" stroke="var(--accent-gold)" stroke-width="1.5" stroke-linecap="round"/><text x="260" y="244" text-anchor="middle" font-family="Share Tech Mono" font-size="6" fill="#4a5568">PSI</text><rect x="185" y="280" width="140" height="5" rx="0" fill="#2a3a4a" opacity="0.6"/><rect x="185" y="320" width="140" height="5" rx="0" fill="#2a3a4a" opacity="0.6"/>
-            <rect x="430" y="120" width="110" height="130" rx="6" fill="url(#tankGrad)" filter="url(#softShadow)"/><rect x="436" y="126" width="98" height="118" rx="5" fill="url(#metalGrad2)" opacity="0.8"/><rect x="442" y="130" width="14" height="106" rx="3" fill="white" opacity="0.04"/><rect x="440" y="115" width="90" height="12" rx="4" fill="#3a4a5a"/><circle cx="485" cy="121" r="8" fill="#1a2530" stroke="#2a3a4a" stroke-width="1"/><rect x="474" y="250" width="18" height="20" rx="2" fill="#2a3a4a"/><circle cx="483" cy="274" r="5" fill="#1a2530" stroke="#3a4a5a" stroke-width="1.5"/>
-            <path d="M260 200 L260 160 L430 155" stroke="#4a5a6a" stroke-width="10" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M260 200 L260 160 L430 155" stroke="#2a3a4a" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path class="flow-line" d="M270 175 L400 168" stroke="var(--accent-cyan)" stroke-width="1" fill="none" opacity="0.5"/>
-            <path d="M185 340 L160 340 L160 360" stroke="#4a5a6a" stroke-width="8" fill="none" stroke-linecap="round"/><path d="M185 340 L160 340 L160 360" stroke="#2a3a4a" stroke-width="5" fill="none" stroke-linecap="round"/>
-            <path d="M485 250 L550 280 L570 360" stroke="#4a5a6a" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M485 250 L550 280 L570 360" stroke="#2a3a4a" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path class="flow-line" d="M490 255 L555 290" stroke="var(--accent-cyan)" stroke-width="1" fill="none" opacity="0.6"/>
-            <path d="M430 200 L395 200" stroke="#4a5a6a" stroke-width="8" fill="none" stroke-linecap="round"/><path d="M430 200 L395 200" stroke="#2a3a4a" stroke-width="5" fill="none" stroke-linecap="round"/><path class="flow-line" d="M425 200 L400 200" stroke="#3a8aaa" stroke-width="1.5" fill="none" opacity="0.7"/><circle cx="380" cy="200" r="7" fill="#2a3a4a" stroke="#4a5a6a" stroke-width="1.5"/><line x1="375" y1="196" x2="385" y2="204" stroke="#f0a500" stroke-width="2"/><line x1="375" y1="204" x2="385" y2="196" stroke="#f0a500" stroke-width="2"/>
-            <rect x="200" y="356" width="110" height="12" rx="2" fill="#1a2530" stroke="#2a3a4a" stroke-width="1"/><rect x="205" y="358" width="100" height="8" rx="1" fill="#0e1820"/><ellipse cx="220" cy="357" rx="4" ry="6" fill="#ff6600" opacity="0.7" filter="url(#glow)"/><ellipse cx="236" cy="355" rx="3" ry="8" fill="#ff4400" opacity="0.8" filter="url(#glow)"/><ellipse cx="252" cy="357" rx="4" ry="6" fill="#ff6600" opacity="0.7" filter="url(#glow)"/><ellipse cx="268" cy="355" rx="3" ry="7" fill="#ff5500" opacity="0.75" filter="url(#glow)"/><ellipse cx="284" cy="357" rx="4" ry="5" fill="#ff6600" opacity="0.65" filter="url(#glow)"/><ellipse cx="300" cy="355" rx="3" ry="7" fill="#ff4400" opacity="0.8" filter="url(#glow)"/>
-            <circle cx="165" cy="305" r="12" fill="#ff3b3b"/><circle cx="165" cy="305" r="8" fill="#ff6666" opacity="0.6"/>
-            <rect x="90" y="195" width="75" height="160" rx="4" fill="url(#panelGrad)" stroke="#2a3a4a" stroke-width="1.5" filter="url(#softShadow)"/><circle cx="112" cy="230" r="9" fill="#1a0a0a" stroke="#3a1a1a" stroke-width="1.5"/><circle cx="112" cy="230" r="6" fill="#cc2222"/><circle cx="133" cy="230" r="9" fill="#1a0a0a" stroke="#3a1a1a" stroke-width="1.5"/><circle cx="133" cy="230" r="6" fill="#cc2222"/><circle cx="112" cy="252" r="9" fill="#1a0a0a" stroke="#3a1a1a" stroke-width="1.5"/><circle cx="112" cy="252" r="6" fill="#cc2222"/><circle cx="133" cy="252" r="9" fill="#1a0a0a" stroke="#3a1a1a" stroke-width="1.5"/><circle cx="133" cy="252" r="6" fill="#cc2222"/><rect x="97" y="270" width="62" height="40" rx="2" fill="#001a10" stroke="#003320" stroke-width="1"/><text x="128" y="284" text-anchor="middle" font-family="Share Tech Mono" font-size="7" fill="#00ee66">T: OK</text><text x="128" y="296" text-anchor="middle" font-family="Share Tech Mono" font-size="6" fill="#00aa44">pH: OK</text><text x="128" y="306" text-anchor="middle" font-family="Share Tech Mono" font-size="6" fill="#00aa44">TDS: OK</text><text x="128" y="346" text-anchor="middle" font-family="Share Tech Mono" font-size="8" fill="#3a4a5a">CONTROL</text>
-            <rect x="545" y="340" width="60" height="60" rx="3" fill="url(#metalGrad2)" stroke="#3a4a5a" stroke-width="1.5"/><rect x="548" y="343" width="54" height="54" rx="2" fill="#0e1820"/><rect x="550" y="345" width="50" height="20" rx="1" fill="#001520" opacity="0.5"/><ellipse cx="575" cy="345" rx="27" ry="5" fill="#1a2a3a" stroke="#3a4a5a" stroke-width="1"/><text x="575" y="375" text-anchor="middle" font-family="Share Tech Mono" font-size="7" fill="#3a8aaa">OUTPUT</text>
-            <rect x="415" y="160" width="15" height="80" rx="3" fill="#2a3a4a"/><rect x="417" y="162" width="11" height="76" rx="2" fill="#1a2a3a"/><path class="flow-line" d="M422 165 L422 235" stroke="#3a8aaa" stroke-width="1.5" fill="none" opacity="0.7"/><polygon points="422,140 418,155 426,155" fill="#3a8aaa" opacity="0.7"/><text x="410" y="136" text-anchor="middle" font-family="Share Tech Mono" font-size="8" fill="#3a6a8a">AIR↑</text>
-            <line x1="255" y1="235" x2="220" y2="290" stroke="#f0a500" stroke-width="1" stroke-dasharray="2,2" opacity="0.4"/><circle cx="220" cy="290" r="3" fill="var(--accent-gold)" opacity="0.6"/><line x1="485" y1="180" x2="540" y2="210" stroke="#00d4ff" stroke-width="1" stroke-dasharray="2,2" opacity="0.4"/><circle cx="540" cy="210" r="3" fill="var(--accent-cyan)" opacity="0.6"/>
-            <polygon points="298,155 286,160 286,150" fill="var(--accent-cyan)" opacity="0.5"/><polygon points="360,153 348,158 348,148" fill="var(--accent-cyan)" opacity="0.5"/>
-            <text x="350" y="450" text-anchor="middle" font-family="Rajdhani" font-size="11" fill="#2a3a4a" letter-spacing="3">UNIT DISTILASI MINYAK ATSIRI</text>
-          </svg>
+          <img src="{{ url_for('static', filename='plant destilasi.png') }}" class="scada-image" alt="HMI Plant Destilasi" style="width: 100%; max-width: 750px; height: auto; display: block; opacity: 0.9;">
         </div>
 
         <div class="sensor-overlay">

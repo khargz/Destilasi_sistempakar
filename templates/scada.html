@@ -91,7 +91,7 @@
   .nav-item:hover { color: var(--text-secondary); }
   .nav-item.active { color: var(--accent-gold); border-bottom-color: var(--accent-gold); text-shadow: var(--glow-gold); }
   .nav-right { margin-left: auto; display: flex; gap: 6px; }
-  .nav-btn { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--text-secondary); background: transparent; border: 1px solid var(--border); padding: 4px 12px; cursor: pointer; transition: all 0.2s; border-radius: 2px; }
+  .nav-btn { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--text-secondary); background: transparent; border: 1px solid var(--border); padding: 4px 12px; cursor: pointer; transition: all 0.2s; border-radius: 3px; }
   .nav-btn:hover { color: var(--accent-cyan); border-color: var(--accent-cyan); }
   .nav-btn.danger { color: var(--red); border-color: rgba(248,81,73,.3); }
   .nav-btn.danger:hover { background: var(--red-dim); border-color: var(--red); }
@@ -139,10 +139,10 @@
   .sensor-bar-fill.danger { background: var(--accent-red); }
 
   /* KORDINAT POSISI KOTAK SENSOR - SILAKAN UBAH ANGKA INI JIKA KURANG PAS */
-  .card-sp { top: 12%; left: 12%; } 
-  .card-sc { top: 12%; right: 12%; } 
-  .card-ph { top: 50%; right: 12%; } 
-  .card-tds { bottom: 10%; right: 12%; }
+  .card-sp { top: 12%; left: 2%; } 
+  .card-sc { top: 12%; right: 2%; } 
+  .card-ph { top: 50%; right: 2%; } 
+  .card-tds { bottom: 10%; right: 2%; }
 
   .sidebar { display: flex; flex-direction: column; gap: 10px; }
   .panel { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 3px; overflow: hidden; display: flex; flex-direction: column;}
@@ -478,10 +478,11 @@
       <div class="log-panel">
         <div class="log-header">
           <div class="log-title">LOG DATA SENSOR</div>
-          <div style="display:flex;gap:8px;margin-left:auto" id="log-action-bar-inner">
+          <div style="display:flex;gap:8px;margin-left:auto">
             <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);display:flex;align-items:center;gap:4px">
               Menampilkan <span id="log-count" style="color:var(--accent-cyan)">0</span> data terbaru
             </div>
+            <div id="log-action-bar-inner" style="display:flex;gap:8px;margin-left:10px;"></div>
           </div>
         </div>
         <div class="log-table-wrap">
@@ -569,23 +570,25 @@ function applyRoleRestrictions() {
 }
 
 function renderLogActionBar() {
-  const bar = document.getElementById('nav-action-bar'); const innerBar = document.getElementById('log-action-bar-inner'); 
-  const perms = currentUser.perms; let topHtml = '', innerHtml = '';
+  const bar = document.getElementById('nav-action-bar'); 
+  const innerBar = document.getElementById('log-action-bar-inner'); 
+  const perms = currentUser.perms; 
+  let topHtml = '', innerHtml = '';
   
   if (perms.downloadExcel) {
-      topHtml += `<button class="nav-btn" onclick="downloadExcel()">⬇ Download XLS</button>`;
-      innerHtml += `<button class="nav-btn" onclick="downloadExcel()" style="color:var(--accent-green);border-color:var(--accent-green-dim)">⬇ XLS</button>`;
+      topHtml += `<button class="nav-btn" onclick="downloadExcel()">⬇ Download Excel</button>`;
+      innerHtml += `<button class="nav-btn" onclick="downloadExcel()" style="color:var(--accent-green);border-color:var(--accent-green-dim);background:rgba(0,230,118,0.1)">⬇ Download Excel</button>`;
   }
   if (perms.viewLog) {
-      topHtml += `<button class="nav-btn" onclick="refreshLog()">↺ Refresh</button>`;
-      innerHtml += `<button class="nav-btn" onclick="refreshLog()">↺ Refresh</button>`;
+      topHtml += `<button class="nav-btn" onclick="refreshLog()">↺ refresh</button>`;
+      innerHtml += `<button class="nav-btn" onclick="refreshLog()">↺ refresh</button>`;
   }
   if (perms.hapusLog) {
-      innerHtml += `<button class="nav-btn danger" onclick="hapusLog()">🗑 Hapus</button>`;
+      innerHtml += `<button class="nav-btn danger" onclick="hapusLog()">🗑 hapus log</button>`;
   }
   
   bar.innerHTML = topHtml;
-  innerBar.innerHTML += innerHtml;
+  innerBar.innerHTML = innerHtml; // PERBAIKAN: Menggunakan = (bukan +=) agar tidak numpuk
 }
 
 function doLogout() {

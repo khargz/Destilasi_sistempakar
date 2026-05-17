@@ -163,17 +163,20 @@
   .card-sp .connector-h { top: 50%; right: -100px; width: 100px; height: 1px; border-top: 2px solid; }
   .card-sp .connector-dot { top: calc(50% - 3px); right: -100px; }
 
-  .card-sc { top: 25%; right: 2%; } 
-  .card-sc .connector-h { top: 50%; left: -100px; width: 100px; height: 1px; border-top: 2px solid; }
-  .card-sc .connector-dot { top: calc(50% - 3px); left: -100px; }
+/* Kotak 2: Suhu Pendingin (Kanan Atas) - Menunjuk ke Kondensor */
+  .card-sc { top: 15%; right: 2%; } 
+  .card-sc .connector-h { top: 50%; left: -180px; width: 180px; height: 1px; border-top: 2px solid; }
+  .card-sc .connector-dot { top: calc(50% - 3px); left: -180px; }
 
-  .card-ph { top: 49%; right: 30%; } 
-  .card-ph .connector-v { bottom: -60px; left: 50%; width: 1px; height: 60px; border-left: 2px solid; }
-  .card-ph .connector-dot { bottom: -60px; left: calc(50% - 3px); }
+  /* Kotak 3: pH Hasil (Kanan Tengah) - Menunjuk ke Tabung Filter Bawah */
+  .card-ph { top: 50%; right: 2%; } 
+  .card-ph .connector-h { top: 50%; left: -240px; width: 240px; height: 1px; border-top: 2px solid; }
+  .card-ph .connector-dot { top: calc(50% - 3px); left: -240px; }
 
-  .card-tds { bottom: 40%; right: 33%; }
-  .card-tds .connector-h { top: 50%; left: -120px; width: 120px; height: 1px; border-top: 2px solid; }
-  .card-tds .connector-dot { top: calc(50% - 3px); left: -120px; }
+  /* Kotak 4: TDS Hasil (Kanan Bawah) - Menunjuk ke Ember/Output */
+  .card-tds { top: 80%; right: 2%; }
+  .card-tds .connector-h { top: 50%; left: -150px; width: 150px; height: 1px; border-top: 2px solid; }
+  .card-tds .connector-dot { top: calc(50% - 3px); left: -150px; }
 
   /* ═════════ SIDEBAR PANELS ═════════ */
   .sidebar { display: flex; flex-direction: column; gap: 10px; }
@@ -412,7 +415,7 @@
             <div class="sensor-bar"><div class="sensor-bar-fill" id="bar-sc" style="width:0%"></div></div>
           </div>
           <div class="sensor-card card-ph" id="tag-ph" onclick="openModal('ph')">
-            <div class="connector connector-v"></div><div class="connector-dot"></div>
+            <div class="connector connector-h"></div><div class="connector-dot"></div>
             <div class="sensor-card-header"><div class="sensor-label">pH HASIL <span id="trend-ph"></span></div><div class="ok-tag" id="status-txt-ph">NORMAL</div></div>
             <div><span class="sensor-value" id="val-ph">—</span></div>
             <div class="sensor-ideal">Ideal: 5.5 – 7.0</div>

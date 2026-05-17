@@ -174,9 +174,10 @@
   .card-ph .connector-dot { top: calc(50% - 3px); left: -240px; }
 
   /* Kotak 4: TDS Hasil (Kanan Bawah) - Menunjuk ke Ember/Output */
-  .card-tds { top: 70%; right: 2%; }
-  .card-tds .connector-h { top: 50%; left: -150px; width: 150px; height: 1px; border-top: 2px solid; }
-  .card-tds .connector-dot { top: calc(50% - 3px); left: -150px; }
+/* Kotak 4: TDS Hasil (Kanan Bawah) - Panah Vertikal ke Atas */
+  .card-tds { top: 50%; right: 2%; }
+  .card-tds .connector-v { top: -100px; left: 50%; width: 1px; height: 100px; border-left: 2px solid; }
+  .card-tds .connector-dot { top: -100px; left: calc(50% - 3px); }
 
   /* ═════════ SIDEBAR PANELS ═════════ */
   .sidebar { display: flex; flex-direction: column; gap: 10px; }

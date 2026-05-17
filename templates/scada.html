@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=1280">
 <title>EXPERT-SYS | HMI/SCADA Sistem Pakar Distilasi</title>
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;600;700;900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -26,7 +26,14 @@
     --red: #f85149; --red-dim: #3a1a1a; --teal: #39d0c4;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { background: var(--bg-primary); color: var(--text-primary); font-family: 'Rajdhani', sans-serif; min-height: 100vh; overflow-x: hidden; }
+  body { 
+    background: var(--bg-primary); 
+    color: var(--text-primary); 
+    font-family: 'Rajdhani', sans-serif; 
+    min-height: 100vh; 
+    min-width: 1280px; /* Mengunci lebar layar seukuran laptop */
+    overflow-x: auto; /* Mengizinkan geser kiri-kanan di HP */
+  }
 
   /* ═════════ LOGIN SCREEN ═════════ */
   #login-screen { position:fixed;inset:0;z-index:9999; background:var(--bg-secondary); display:flex;align-items:center;justify-content:center; flex-direction:column; }

@@ -1,6 +1,22 @@
 # app.py — Lapisan 2: Server Flask + MySQL (Railway)
 # Sistem Pakar Distilasi Minyak Kayu Putih
-# Mode: Dengan dukungan MySQL Database
+# Mode: MySQL + Load Cell HX711 (Monitoring) + 42 Rules Sistem Pakar
+#
+# ══════════════════════════════════════════════════════════
+#  STRUKTUR RULES (42 Total)
+#  ├── R01–R20  : Rules Individual per Sensor (20 rules)
+#  │    ├── R01–R06  : Suhu Produksi (6 rules)
+#  │    ├── R07–R11  : Suhu Pendingin (5 rules)
+#  │    ├── R12–R16  : pH Distilat (5 rules)
+#  │    └── R17–R20  : TDS (4 rules)
+#  └── R21–R42  : Rules Kombinasi Antar Sensor (22 rules)
+#       ├── R21–R26  : Suhu Produksi × Suhu Pendingin (6 rules)
+#       ├── R27–R31  : Suhu Produksi × pH (5 rules)
+#       ├── R32–R36  : Suhu Produksi × TDS (5 rules)
+#       ├── R37–R39  : Suhu Pendingin × TDS (3 rules)
+#       ├── R40–R41  : pH × TDS (2 rules)
+#       └── R42      : Kombinasi 3+ Sensor Bersamaan (1 rule)
+# ══════════════════════════════════════════════════════════
  
 from flask import Flask, request, jsonify, render_template
 import random, os
@@ -14,10 +30,8 @@ app = Flask(__name__)
 # DATABASE SETUP (KONEKSI MYSQL)
 # ─────────────────────────────────────────────
  
-# Mengambil Link dari Railway (otomatis lewat Environment Variable)
 DB_URL = os.environ.get('MYSQL_URL', 'mysql://root:@localhost:3306/railway')
  
-# Membersihkan format link agar mudah dibaca oleh Python
 if DB_URL.startswith('mysql+pymysql://'):
     DB_URL = DB_URL.replace('mysql+pymysql://', 'mysql://')
  
@@ -30,9 +44,9 @@ def get_db():
         user=parsed_url.username,
         password=parsed_url.password,
         port=parsed_url.port or 3306,
-        database=parsed_url.path[1:], # Menghilangkan garis miring '/' di awal nama database
-        cursorclass=pymysql.cursors.DictCursor, # Agar output berbentuk dictionary
-        autocommit=True # Otomatis menyimpan perubahan
+        database=parsed_url.path[1:],
+        cursorclass=pymysql.cursors.DictCursor,
+        autocommit=True
     )
  
 def init_db():
@@ -41,195 +55,531 @@ def init_db():
     with conn.cursor() as c:
         c.execute('''
             CREATE TABLE IF NOT EXISTS log_sensor (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                waktu DATETIME DEFAULT CURRENT_TIMESTAMP,
-                suhu_prod FLOAT,
-                suhu_cool FLOAT,
-                ph FLOAT,
-                tds FLOAT,
-                status VARCHAR(50),
-                rules_aktif TEXT,
-                sumber VARCHAR(50) DEFAULT 'manual'
+                id             INT AUTO_INCREMENT PRIMARY KEY,
+                waktu          DATETIME DEFAULT CURRENT_TIMESTAMP,
+                suhu_prod      FLOAT,
+                suhu_cool      FLOAT,
+                ph             FLOAT,
+                tds            FLOAT,
+                berat_distilat FLOAT DEFAULT 0,
+                status         VARCHAR(50),
+                rules_aktif    TEXT,
+                sumber         VARCHAR(50) DEFAULT 'manual'
             )
         ''')
+        # Migrasi aman untuk database lama
+        c.execute("SHOW COLUMNS FROM log_sensor LIKE 'berat_distilat'")
+        if not c.fetchone():
+            c.execute("ALTER TABLE log_sensor ADD COLUMN berat_distilat FLOAT DEFAULT 0 AFTER tds")
+            print("✅ Kolom berat_distilat ditambahkan ke tabel lama.")
     conn.close()
  
-# ─────────────────────────────────────────────
-# SISTEM PAKAR — FORWARD CHAINING
-# ─────────────────────────────────────────────
+# ══════════════════════════════════════════════════════════
+# KAMUS RULES — 42 Rules Sistem Pakar
+# ══════════════════════════════════════════════════════════
+#
+# RENTANG NILAI REFERENSI DISTILASI MINYAK KAYU PUTIH:
+#   Suhu Produksi : <80°C terlalu rendah | 80–90°C rendah | 90–105°C NORMAL
+#                   105–112°C tinggi     | >112°C KRITIS
+#   Suhu Pendingin: <15°C sangat rendah  | 15–20°C rendah  | 20–35°C NORMAL
+#                   35–42°C tinggi       | >42°C KRITIS
+#   pH Distilat   : <4.5 sangat asam     | 4.5–5.5 asam    | 5.5–7.0 NORMAL
+#                   7.0–8.0 basa         | >8.0 sangat basa
+#   TDS           : <50 sangat rendah    | 50–300 NORMAL    | 300–500 tinggi
+#                   >500 KRITIS
+# ══════════════════════════════════════════════════════════
  
 RULES = {
-    'R01': {'kondisi': 'Suhu produksi normal (88°C–98°C)',       'aksi': 'Lanjutkan proses'},
-    'R02': {'kondisi': 'Suhu produksi terlalu rendah (<80°C)',  'aksi': 'Naikkan suhu pemanas'},
-    'R03': {'kondisi': 'Suhu produksi tinggi (98°C–112°C)',      'aksi': 'Kurangi intensitas pemanas'},
-    'R04': {'kondisi': 'Suhu produksi kritis (>112°C)',         'aksi': 'MATIKAN PEMANAS SEGERA'},
-    'R05': {'kondisi': 'Suhu pendingin normal (20–35°C)',       'aksi': 'Pendinginan optimal'},
-    'R06': {'kondisi': 'Suhu pendingin terlalu rendah (<20°C)', 'aksi': 'Kurangi aliran air dingin'},
-    'R07': {'kondisi': 'Suhu pendingin tinggi (>35°C)',         'aksi': 'Tingkatkan aliran air pendingin'},
-    'R08': {'kondisi': 'pH normal (5.5–7.0)',                   'aksi': 'Kualitas distilat baik'},
-    'R09': {'kondisi': 'pH terlalu asam (<5.5)',                'aksi': 'Periksa kontaminasi asam'},
-    'R10': {'kondisi': 'pH terlalu basa (>7.0)',                'aksi': 'Periksa kontaminasi basa'},
-    'R11': {'kondisi': 'TDS normal (50–300 ppm)',               'aksi': 'Kemurnian distilat baik'},
-    'R12': {'kondisi': 'TDS sangat rendah (<50 ppm)',           'aksi': 'Distilat sangat murni / sensor error'},
-    'R13': {'kondisi': 'TDS tinggi (300–500 ppm)',              'aksi': 'Kemurnian menurun, periksa proses'},
-    'R14': {'kondisi': 'TDS kritis (>500 ppm)',                 'aksi': 'HENTIKAN — kemurnian sangat buruk'},
+ 
+    # ════════════════════════════════════════════
+    # BAGIAN A — RULES INDIVIDUAL PER SENSOR
+    # ════════════════════════════════════════════
+ 
+    # ── A1. Suhu Produksi (R01–R06) ─────────────
+    'R01': {
+        'kondisi': 'Suhu produksi optimal (85°C–90°C)',
+        'aksi'   : 'Proses distilasi berjalan optimal, lanjutkan',
+        'level'  : 'normal'
+    },
+    'R02': {
+        'kondisi': 'Suhu produksi rendah (80°C–84°C)',
+        'aksi'   : 'Naikkan suhu pemanas secara bertahap',
+        'level'  : 'anomali'
+    },
+    'R03': {
+        'kondisi': 'Suhu produksi sangat rendah (<80°C)',
+        'aksi'   : 'Proses belum mencapai titik didih, naikkan pemanas segera',
+        'level'  : 'anomali'
+    },
+    'R04': {
+        'kondisi': 'Suhu produksi tinggi (92°C–101°C)',
+        'aksi'   : 'Kurangi intensitas pemanas, pantau terus',
+        'level'  : 'anomali'
+    },
+    'R05': {
+        'kondisi': 'Suhu produksi kritis (>101°C)',
+        'aksi'   : 'BAHAYA — Matikan pemanas segera, risiko hangus',
+        'level'  : 'kritis'
+    },
+    'R06': {
+        'kondisi': 'Suhu produksi tidak stabil (fluktuasi cepat)',
+        'aksi'   : 'Periksa sumber panas, kemungkinan tekanan uap tidak stabil',
+        'level'  : 'anomali'
+    },
+ 
+    # ── A2. Suhu Pendingin (R07–R11) ────────────
+    'R07': {
+        'kondisi': 'Suhu pendingin optimal (20°C–35°C)',
+        'aksi'   : 'Pendinginan kondensor berjalan baik',
+        'level'  : 'normal'
+    },
+    'R08': {
+        'kondisi': 'Suhu pendingin rendah (15°C–20°C)',
+        'aksi'   : 'Kurangi aliran air dingin, hindari kondensasi berlebih',
+        'level'  : 'anomali'
+    },
+    'R09': {
+        'kondisi': 'Suhu pendingin sangat rendah (<15°C)',
+        'aksi'   : 'Matikan pompa air dingin sementara, suhu terlalu rendah',
+        'level'  : 'anomali'
+    },
+    'R10': {
+        'kondisi': 'Suhu pendingin tinggi (35°C–42°C)',
+        'aksi'   : 'Tingkatkan aliran air pendingin, efisiensi kondensor menurun',
+        'level'  : 'anomali'
+    },
+    'R11': {
+        'kondisi': 'Suhu pendingin kritis (>42°C)',
+        'aksi'   : 'BAHAYA — Kondensor hampir gagal, tingkatkan pendingin darurat',
+        'level'  : 'kritis'
+    },
+ 
+    # ── A3. pH Distilat (R12–R16) ───────────────
+    'R12': {
+        'kondisi': 'pH distilat normal (5.5–7.0)',
+        'aksi'   : 'Kualitas kimia distilat baik, lanjutkan proses',
+        'level'  : 'normal'
+    },
+    'R13': {
+        'kondisi': 'pH distilat asam ringan (4.5–5.5)',
+        'aksi'   : 'Keasaman meningkat, periksa kemungkinan kontaminasi asam organik',
+        'level'  : 'anomali'
+    },
+    'R14': {
+        'kondisi': 'pH distilat sangat asam (<4.5)',
+        'aksi'   : 'KRITIS — Kontaminasi asam berat, hentikan pengumpulan distilat',
+        'level'  : 'kritis'
+    },
+    'R15': {
+        'kondisi': 'pH distilat basa ringan (7.0–8.0)',
+        'aksi'   : 'Alkalinitas sedikit tinggi, periksa sumber air dan bahan baku',
+        'level'  : 'anomali'
+    },
+    'R16': {
+        'kondisi': 'pH distilat sangat basa (>8.0)',
+        'aksi'   : 'KRITIS — Kontaminasi basa berat, periksa kondensor dan pipa',
+        'level'  : 'kritis'
+    },
+ 
+    # ── A4. TDS / Kemurnian Distilat (R17–R20) ──
+    'R17': {
+        'kondisi': 'TDS normal (50–60 ppm)',
+        'aksi'   : 'Kemurnian distilat baik, proses berjalan optimal',
+        'level'  : 'normal'
+    },
+    'R18': {
+        'kondisi': 'TDS sangat rendah (<50 ppm)',
+        'aksi'   : 'Distilat sangat murni atau kemungkinan sensor TDS error',
+        'level'  : 'normal'
+    },
+    'R19': {
+        'kondisi': 'TDS tinggi (65–80 ppm)',
+        'aksi'   : 'Kemurnian menurun, periksa kebersihan kondensor dan pipa',
+        'level'  : 'anomali'
+    },
+    'R20': {
+        'kondisi': 'TDS kritis (>80 ppm)',
+        'aksi'   : 'HENTIKAN — Kemurnian sangat buruk, distilat tidak layak pakai',
+        'level'  : 'kritis'
+    },
+ 
+    # ════════════════════════════════════════════
+    # BAGIAN B — RULES KOMBINASI ANTAR SENSOR
+    # ════════════════════════════════════════════
+ 
+    # ── B1. Suhu Produksi × Suhu Pendingin (R21–R26) ──
+    'R21': {
+        'kondisi': 'Suhu produksi tinggi (>105°C) DAN suhu pendingin tinggi (>35°C)',
+        'aksi'   : 'KRITIS GANDA — Kurangi pemanas DAN tingkatkan pendingin bersamaan',
+        'level'  : 'kritis'
+    },
+    'R22': {
+        'kondisi': 'Suhu produksi normal DAN suhu pendingin tinggi (>35°C)',
+        'aksi'   : 'Efisiensi kondensasi menurun meski suhu produksi normal, tingkatkan pendingin',
+        'level'  : 'anomali'
+    },
+    'R23': {
+        'kondisi': 'Suhu produksi rendah (<90°C) DAN suhu pendingin sangat rendah (<15°C)',
+        'aksi'   : 'Proses belum optimal, kurangi pendingin dan naikkan pemanas',
+        'level'  : 'anomali'
+    },
+    'R24': {
+        'kondisi': 'Suhu produksi kritis (>112°C) DAN suhu pendingin kritis (>42°C)',
+        'aksi'   : 'DARURAT TOTAL — Matikan pemanas, aktifkan pendingin darurat, hentikan proses',
+        'level'  : 'kritis'
+    },
+    'R25': {
+        'kondisi': 'Suhu produksi normal DAN suhu pendingin rendah (<20°C)',
+        'aksi'   : 'Pendinginan berlebih meski suhu produksi normal, kurangi aliran air dingin',
+        'level'  : 'anomali'
+    },
+    'R26': {
+        'kondisi': 'Suhu produksi tinggi (105–112°C) DAN suhu pendingin normal',
+        'aksi'   : 'Kurangi pemanas, kondensor masih mampu menangani beban saat ini',
+        'level'  : 'anomali'
+    },
+ 
+    # ── B2. Suhu Produksi × pH (R27–R31) ──────
+    'R27': {
+        'kondisi': 'Suhu produksi kritis (>112°C) DAN pH sangat asam (<4.5)',
+        'aksi'   : 'KRITIS — Suhu tinggi memperparah dekomposisi asam, hentikan proses segera',
+        'level'  : 'kritis'
+    },
+    'R28': {
+        'kondisi': 'Suhu produksi tinggi (>105°C) DAN pH asam (4.5–5.5)',
+        'aksi'   : 'Suhu tinggi mempercepat hidrolisis, turunkan suhu dan periksa pH',
+        'level'  : 'kritis'
+    },
+    'R29': {
+        'kondisi': 'Suhu produksi rendah (<90°C) DAN pH basa (>7.0)',
+        'aksi'   : 'Suhu rendah dan pH basa, periksa kualitas bahan baku daun',
+        'level'  : 'anomali'
+    },
+    'R30': {
+        'kondisi': 'Suhu produksi normal DAN pH normal',
+        'aksi'   : 'Kondisi suhu dan kualitas kimia optimal, proses distilasi ideal',
+        'level'  : 'normal'
+    },
+    'R31': {
+        'kondisi': 'Suhu produksi sangat rendah (<80°C) DAN pH sangat asam (<4.5)',
+        'aksi'   : 'Proses tidak berjalan dan kualitas buruk, periksa bahan baku dan pemanas',
+        'level'  : 'kritis'
+    },
+ 
+    # ── B3. Suhu Produksi × TDS (R32–R36) ─────
+    'R32': {
+        'kondisi': 'Suhu produksi kritis (>112°C) DAN TDS kritis (>500 ppm)',
+        'aksi'   : 'DARURAT — Suhu berlebih melarutkan kontaminan, hentikan dan bersihkan sistem',
+        'level'  : 'kritis'
+    },
+    'R33': {
+        'kondisi': 'Suhu produksi tinggi (>105°C) DAN TDS tinggi (300–500 ppm)',
+        'aksi'   : 'Suhu tinggi meningkatkan kelarutan pengotor, turunkan suhu dan periksa kemurnian',
+        'level'  : 'kritis'
+    },
+    'R34': {
+        'kondisi': 'Suhu produksi normal DAN TDS tinggi (300–500 ppm)',
+        'aksi'   : 'Kemurnian menurun meski suhu normal, periksa kebersihan kondensor',
+        'level'  : 'anomali'
+    },
+    'R35': {
+        'kondisi': 'Suhu produksi rendah (<90°C) DAN TDS tinggi (>300 ppm)',
+        'aksi'   : 'Proses tidak optimal, distilat terkontaminasi, naikkan suhu dan periksa sistem',
+        'level'  : 'anomali'
+    },
+    'R36': {
+        'kondisi': 'Suhu produksi normal DAN TDS normal',
+        'aksi'   : 'Suhu dan kemurnian distilat dalam kondisi terbaik',
+        'level'  : 'normal'
+    },
+ 
+    # ── B4. Suhu Pendingin × TDS (R37–R39) ────
+    'R37': {
+        'kondisi': 'Suhu pendingin kritis (>42°C) DAN TDS kritis (>500 ppm)',
+        'aksi'   : 'DARURAT — Kondensor gagal dan distilat sangat kotor, hentikan semua proses',
+        'level'  : 'kritis'
+    },
+    'R38': {
+        'kondisi': 'Suhu pendingin tinggi (>35°C) DAN TDS tinggi (300–500 ppm)',
+        'aksi'   : 'Pendinginan tidak efisien menyebabkan kemurnian menurun, perbaiki sistem pendingin',
+        'level'  : 'kritis'
+    },
+    'R39': {
+        'kondisi': 'Suhu pendingin normal DAN TDS normal',
+        'aksi'   : 'Kondensor bekerja optimal, kemurnian distilat terjaga',
+        'level'  : 'normal'
+    },
+ 
+    # ── B5. pH × TDS (R40–R41) ─────────────────
+    'R40': {
+        'kondisi': 'pH sangat asam (<4.5) DAN TDS kritis (>500 ppm)',
+        'aksi'   : 'DARURAT KUALITAS — Distilat sangat asam dan sangat kotor, tidak dapat digunakan',
+        'level'  : 'kritis'
+    },
+    'R41': {
+        'kondisi': 'pH asam (4.5–5.5) DAN TDS tinggi (300–500 ppm)',
+        'aksi'   : 'Kualitas distilat buruk ganda (asam + kotor), periksa keseluruhan sistem',
+        'level'  : 'kritis'
+    },
+ 
+    # ── B6. Kombinasi 3+ Sensor (R42) ──────────
+    'R42': {
+        'kondisi': 'Suhu produksi kritis DAN suhu pendingin kritis DAN pH abnormal DAN TDS kritis',
+        'aksi'   : 'KEGAGALAN SISTEM TOTAL — Hentikan semua proses, lakukan pengecekan menyeluruh',
+        'level'  : 'kritis'
+    },
 }
+ 
+ 
+# ══════════════════════════════════════════════════════════
+# FORWARD CHAINING — Mesin Inferensi
+# ══════════════════════════════════════════════════════════
  
 def forward_chaining(d):
     sp  = float(d.get('suhu_prod', 0))
     sc  = float(d.get('suhu_cool', 0))
     ph  = float(d.get('ph', 7))
     tds = float(d.get('tds', 0))
+    # berat_distilat hanya dicatat, tidak digunakan untuk status
  
     rules_aktif = []
-    status = 'normal'
  
-    # Evaluasi suhu produksi
-    if sp < 90:
-        rules_aktif.append('R02'); status = 'anomali'
+    # ── Prioritas Status: kritis > anomali > normal ──
+    # Dikumpulkan dulu, baru ditentukan status akhir
+    status_set = set()
+ 
+    def tambah(kode):
+        rules_aktif.append(kode)
+        status_set.add(RULES[kode]['level'])
+ 
+    # ════════════════════════
+    # BAGIAN A — INDIVIDUAL
+    # ════════════════════════
+ 
+    # -- Suhu Produksi --
+    if sp >= 90 and sp <= 105:
+        tambah('R01')
+    elif sp >= 80 and sp < 90:
+        tambah('R02')
+    elif sp < 80:
+        tambah('R03')
+    elif sp > 105 and sp <= 112:
+        tambah('R04')
     elif sp > 112:
-        rules_aktif.append('R04'); status = 'kritis'
-    elif sp > 105:
-        rules_aktif.append('R03')
-        if status == 'normal': status = 'anomali'
-    else:
-        rules_aktif.append('R01')
+        tambah('R05')
  
-    # Evaluasi suhu pendingin
-    if sc < 20:
-        rules_aktif.append('R06')
-        if status == 'normal': status = 'anomali'
-    elif sc > 35:
-        rules_aktif.append('R07'); status = 'kritis'
-    else:
-        rules_aktif.append('R05')
+    # -- Suhu Pendingin --
+    if sc >= 20 and sc <= 35:
+        tambah('R07')
+    elif sc >= 15 and sc < 20:
+        tambah('R08')
+    elif sc < 15:
+        tambah('R09')
+    elif sc > 35 and sc <= 42:
+        tambah('R10')
+    elif sc > 42:
+        tambah('R11')
  
-    # Evaluasi pH
-    if ph < 5.5:
-        rules_aktif.append('R09')
-        if status == 'normal': status = 'anomali'
-    elif ph > 7.0:
-        rules_aktif.append('R10')
-        if status == 'normal': status = 'anomali'
-    else:
-        rules_aktif.append('R08')
+    # -- pH --
+    if ph >= 5.5 and ph <= 7.0:
+        tambah('R12')
+    elif ph >= 4.5 and ph < 5.5:
+        tambah('R13')
+    elif ph < 4.5:
+        tambah('R14')
+    elif ph > 7.0 and ph <= 8.0:
+        tambah('R15')
+    elif ph > 8.0:
+        tambah('R16')
  
-    # Evaluasi TDS
-    if tds < 50:
-        rules_aktif.append('R12')
+    # -- TDS --
+    if tds >= 50 and tds <= 300:
+        tambah('R17')
+    elif tds < 50:
+        tambah('R18')
+    elif tds > 300 and tds <= 500:
+        tambah('R19')
     elif tds > 500:
-        rules_aktif.append('R14'); status = 'kritis'
-    elif tds > 300:
-        rules_aktif.append('R13')
-        if status == 'normal': status = 'anomali'
+        tambah('R20')
+ 
+    # ════════════════════════════
+    # BAGIAN B — KOMBINASI
+    # ════════════════════════════
+ 
+    # -- B1: Suhu Produksi × Suhu Pendingin --
+    if sp > 112 and sc > 42:
+        tambah('R24')                               # Darurat total (lebih spesifik dari R21)
+    elif sp > 105 and sc > 35:
+        tambah('R21')
+    elif sp >= 90 and sp <= 105 and sc > 35:
+        tambah('R22')
+    elif sp < 90 and sc < 15:
+        tambah('R23')
+    elif sp >= 90 and sp <= 105 and sc < 20:
+        tambah('R25')
+    elif sp > 105 and sp <= 112 and sc >= 20 and sc <= 35:
+        tambah('R26')
+ 
+    # -- B2: Suhu Produksi × pH --
+    if sp > 112 and ph < 4.5:
+        tambah('R27')
+    elif sp > 105 and ph >= 4.5 and ph < 5.5:
+        tambah('R28')
+    elif sp < 90 and ph > 7.0:
+        tambah('R29')
+    elif sp >= 90 and sp <= 105 and ph >= 5.5 and ph <= 7.0:
+        tambah('R30')
+    elif sp < 80 and ph < 4.5:
+        tambah('R31')
+ 
+    # -- B3: Suhu Produksi × TDS --
+    if sp > 112 and tds > 500:
+        tambah('R32')
+    elif sp > 105 and tds > 300 and tds <= 500:
+        tambah('R33')
+    elif sp >= 90 and sp <= 105 and tds > 300 and tds <= 500:
+        tambah('R34')
+    elif sp < 90 and tds > 300:
+        tambah('R35')
+    elif sp >= 90 and sp <= 105 and tds >= 50 and tds <= 300:
+        tambah('R36')
+ 
+    # -- B4: Suhu Pendingin × TDS --
+    if sc > 42 and tds > 500:
+        tambah('R37')
+    elif sc > 35 and tds > 300 and tds <= 500:
+        tambah('R38')
+    elif sc >= 20 and sc <= 35 and tds >= 50 and tds <= 300:
+        tambah('R39')
+ 
+    # -- B5: pH × TDS --
+    if ph < 4.5 and tds > 500:
+        tambah('R40')
+    elif ph >= 4.5 and ph < 5.5 and tds > 300 and tds <= 500:
+        tambah('R41')
+ 
+    # -- B6: Kombinasi 4 Sensor Sekaligus --
+    if sp > 112 and sc > 42 and (ph < 4.5 or ph > 8.0) and tds > 500:
+        tambah('R42')
+ 
+    # ── Tentukan Status Akhir (prioritas: kritis > anomali > normal) ──
+    if 'kritis' in status_set:
+        status = 'kritis'
+    elif 'anomali' in status_set:
+        status = 'anomali'
     else:
-        rules_aktif.append('R11')
+        status = 'normal'
  
     rekomendasi = [RULES[r]['aksi'] for r in rules_aktif]
     return status, rules_aktif, rekomendasi
+ 
  
 # ─────────────────────────────────────────────
 # ROUTES
 # ─────────────────────────────────────────────
  
-# --- INI PINTU UTAMA (Dashboard Lama) ---
 @app.route('/')
 def index():
-    # Ini akan memanggil file dashboard Anda yang lama
-    return render_template('dashboard.html') 
-
-# --- INI PINTU BARU (Dashboard SCADA) ---
+    return render_template('dashboard.html')
+ 
 @app.route('/scada')
 def scada_view():
-    # Ini akan memanggil file scada.html yang baru kita buat
     return render_template('scada.html')
  
 @app.route('/api/sensor', methods=['GET', 'POST'])
 def terima_sensor():
-    """Terima data dari ESP32 dengan Sistem Kebal Error (Anti-Crash)"""
+    """Terima data dari ESP32 (berat_distilat = logging only, tidak mempengaruhi rules)"""
  
-    # ✅ FIX: Kalau request GET (misal dari browser/dashboard),
-    # langsung balas tanpa mencoba baca body JSON.
-    # Sebelumnya get_json() dipanggil untuk semua method,
-    # menyebabkan Gunicorn worker hang → timeout → crash terus-menerus.
     if request.method == 'GET':
         return jsonify({
-            'status': 'ok',
-            'message': 'Endpoint aktif. Gunakan POST untuk mengirim data sensor.'
+            'status' : 'ok',
+            'message': 'Endpoint aktif. Gunakan POST untuk mengirim data sensor.',
+            'total_rules': len(RULES),
+            'format_data': {
+                'suhu_prod'     : 'float — Suhu ruang produksi (°C)',
+                'suhu_cool'     : 'float — Suhu air pendingin (°C)',
+                'ph'            : 'float — Nilai pH distilat',
+                'tds'           : 'float — Total Dissolved Solids (ppm)',
+                'berat_distilat': 'float — Berat distilat HX711 (gram) [monitoring only]',
+                'sumber'        : 'string — Sumber data (opsional)'
+            }
         }), 200
  
     try:
-        # 1. Tambahkan force=True agar Flask tetap membaca JSON walau ESP32 lupa kirim header
         data = request.get_json(force=True)
         if not data:
             return jsonify({'error': 'Data tidak valid atau kosong'}), 400
  
-        # 2. Paksa semua nilai menjadi angka (float) agar forward_chaining aman dari crash
-        data['suhu_prod'] = float(data.get('suhu_prod', 0))
-        data['suhu_cool'] = float(data.get('suhu_cool', 0))
-        data['ph'] = float(data.get('ph', 0))
-        data['tds'] = float(data.get('tds', 0))
+        data['suhu_prod']      = float(data.get('suhu_prod', 0))
+        data['suhu_cool']      = float(data.get('suhu_cool', 0))
+        data['ph']             = float(data.get('ph', 7))
+        data['tds']            = float(data.get('tds', 0))
+        data['berat_distilat'] = max(0.0, float(data.get('berat_distilat', 0)))
  
-        # 3. Jalankan logika sistem pakar
         status, rules, rekomendasi = forward_chaining(data)
         sumber = data.get('sumber', 'manual')
  
-        # 4. Simpan ke database
         conn = get_db()
         with conn.cursor() as c:
-            # Menggunakan %s untuk mencegah SQL Injection di MySQL
             c.execute('''
-                INSERT INTO log_sensor (suhu_prod, suhu_cool, ph, tds, status, rules_aktif, sumber)
-                VALUES (%s, %s, %s, %s, %s, %s, %s)
-            ''', (data['suhu_prod'], data['suhu_cool'],
-                  data['ph'], data['tds'],
-                  status, ','.join(rules), sumber))
-            last_id = c.lastrowid # Ambil ID terakhir
+                INSERT INTO log_sensor
+                    (suhu_prod, suhu_cool, ph, tds, berat_distilat, status, rules_aktif, sumber)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            ''', (
+                data['suhu_prod'], data['suhu_cool'],
+                data['ph'],        data['tds'],
+                data['berat_distilat'],
+                status, ','.join(rules), sumber
+            ))
+            last_id = c.lastrowid
         conn.close()
  
         return jsonify({
-            'success': True,
-            'id': last_id,
-            'status': status,
-            'rules': rules,
-            'rekomendasi': rekomendasi
+            'success'        : True,
+            'id'             : last_id,
+            'status'         : status,
+            'rules'          : rules,
+            'jumlah_rules'   : len(rules),
+            'rekomendasi'    : rekomendasi,
+            'berat_distilat' : data['berat_distilat']
         }), 201
  
     except Exception as e:
-        # 5. X-RAY ERROR: Jika masih crash, server tidak akan mati,
-        # melainkan akan mengirimkan pesan error ASLINYA kembali ke ESP32!
         print(f"Error di terima_sensor: {e}")
         return jsonify({'error': f'Sistem Crash Karena: {str(e)}'}), 500
  
  
 @app.route('/api/simulate', methods=['POST'])
 def auto_simulate():
-    """Generate data sensor acak (realistis untuk distilasi kayu putih)"""
+    """Generate data sensor acak realistis untuk semua mode"""
     mode = request.json.get('mode', 'normal') if request.json else 'normal'
  
     if mode == 'normal':
         data = {
-            'suhu_prod': round(random.uniform(92, 104), 1),
-            'suhu_cool': round(random.uniform(22, 33), 1),
-            'ph':        round(random.uniform(5.8, 6.8), 2),
-            'tds':       round(random.uniform(80, 250), 1),
-            'sumber':    'simulator'
+            'suhu_prod'     : round(random.uniform(90,  105), 1),
+            'suhu_cool'     : round(random.uniform(20,  35),  1),
+            'ph'            : round(random.uniform(5.5, 7.0), 2),
+            'tds'           : round(random.uniform(50,  300), 1),
+            'berat_distilat': round(random.uniform(50,  200), 1),
+            'sumber'        : 'simulator'
         }
     elif mode == 'anomali':
         data = {
-            'suhu_prod': round(random.uniform(106, 111), 1),
-            'suhu_cool': round(random.uniform(33, 38), 1),
-            'ph':        round(random.uniform(4.8, 5.4), 2),
-            'tds':       round(random.uniform(310, 490), 1),
-            'sumber':    'simulator'
+            'suhu_prod'     : round(random.uniform(105, 112), 1),
+            'suhu_cool'     : round(random.uniform(35,  42),  1),
+            'ph'            : round(random.uniform(4.5, 5.5), 2),
+            'tds'           : round(random.uniform(300, 500), 1),
+            'berat_distilat': round(random.uniform(10,  50),  1),
+            'sumber'        : 'simulator'
         }
     else:  # kritis
         data = {
-            'suhu_prod': round(random.uniform(113, 120), 1),
-            'suhu_cool': round(random.uniform(38, 45), 1),
-            'ph':        round(random.uniform(3.5, 4.5), 2),
-            'tds':       round(random.uniform(510, 700), 1),
-            'sumber':    'simulator'
+            'suhu_prod'     : round(random.uniform(112, 125), 1),
+            'suhu_cool'     : round(random.uniform(42,  55),  1),
+            'ph'            : round(random.uniform(3.0, 4.5), 2),
+            'tds'           : round(random.uniform(500, 800), 1),
+            'berat_distilat': round(random.uniform(0,   10),  1),
+            'sumber'        : 'simulator'
         }
  
     status, rules, rekomendasi = forward_chaining(data)
@@ -237,20 +587,40 @@ def auto_simulate():
     conn = get_db()
     with conn.cursor() as c:
         c.execute('''
-            INSERT INTO log_sensor (suhu_prod, suhu_cool, ph, tds, status, rules_aktif, sumber)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
-        ''', (data['suhu_prod'], data['suhu_cool'],
-              data['ph'], data['tds'],
-              status, ','.join(rules), data['sumber']))
+            INSERT INTO log_sensor
+                (suhu_prod, suhu_cool, ph, tds, berat_distilat, status, rules_aktif, sumber)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        ''', (
+            data['suhu_prod'], data['suhu_cool'],
+            data['ph'],        data['tds'],
+            data['berat_distilat'],
+            status, ','.join(rules), data['sumber']
+        ))
     conn.close()
  
     return jsonify({
-        'success': True,
-        'data': data,
-        'status': status,
-        'rules': rules,
-        'rekomendasi': rekomendasi
+        'success'     : True,
+        'data'        : data,
+        'status'      : status,
+        'rules'       : rules,
+        'jumlah_rules': len(rules),
+        'rekomendasi' : rekomendasi
     })
+ 
+ 
+@app.route('/api/rules')
+def get_rules():
+    """Tampilkan seluruh daftar rules sistem pakar (42 rules)"""
+    kategori = {
+        'individual': {k: v for k, v in RULES.items() if int(k[1:]) <= 20},
+        'kombinasi' : {k: v for k, v in RULES.items() if int(k[1:]) > 20},
+    }
+    return jsonify({
+        'total_rules': len(RULES),
+        'rules'       : RULES,
+        'per_kategori': kategori
+    })
+ 
  
 @app.route('/api/log')
 def get_log():
@@ -261,13 +631,11 @@ def get_log():
         c.execute('SELECT * FROM log_sensor ORDER BY id DESC LIMIT %s', (limit,))
         rows = c.fetchall()
     conn.close()
- 
-    # Format datetime MySQL ke string agar bisa di-JSON-kan
     for r in rows:
         if r.get('waktu'):
             r['waktu'] = str(r['waktu'])
- 
     return jsonify(rows)
+ 
  
 @app.route('/api/latest')
 def get_latest():
@@ -277,30 +645,47 @@ def get_latest():
         c.execute('SELECT * FROM log_sensor ORDER BY id DESC LIMIT 1')
         row = c.fetchone()
     conn.close()
- 
     if row and row.get('waktu'):
         row['waktu'] = str(row['waktu'])
- 
     return jsonify(row if row else {})
+ 
  
 @app.route('/api/stats')
 def get_stats():
-    """Statistik ringkasan"""
+    """Statistik ringkasan + monitoring berat distilat"""
     conn = get_db()
     with conn.cursor() as c:
         c.execute('SELECT COUNT(*) as n FROM log_sensor')
         total = c.fetchone()['n']
- 
         c.execute("SELECT COUNT(*) as n FROM log_sensor WHERE status='normal'")
         normal = c.fetchone()['n']
- 
         c.execute("SELECT COUNT(*) as n FROM log_sensor WHERE status='anomali'")
         anomali = c.fetchone()['n']
- 
         c.execute("SELECT COUNT(*) as n FROM log_sensor WHERE status='kritis'")
         kritis = c.fetchone()['n']
+        c.execute('''
+            SELECT
+                ROUND(AVG(berat_distilat), 2) as avg_berat,
+                ROUND(MAX(berat_distilat), 2) as max_berat,
+                ROUND(MIN(berat_distilat), 2) as min_berat,
+                ROUND(SUM(berat_distilat), 2) as total_berat
+            FROM log_sensor WHERE berat_distilat > 0
+        ''')
+        bs = c.fetchone()
     conn.close()
-    return jsonify({'total': total, 'normal': normal, 'anomali': anomali, 'kritis': kritis})
+    return jsonify({
+        'total'  : total,
+        'normal' : normal,
+        'anomali': anomali,
+        'kritis' : kritis,
+        'monitoring_berat_distilat': {
+            'rata_rata_gram': bs['avg_berat']   or 0,
+            'tertinggi_gram': bs['max_berat']   or 0,
+            'terendah_gram' : bs['min_berat']   or 0,
+            'total_gram'    : bs['total_berat'] or 0,
+        }
+    })
+ 
  
 @app.route('/api/clear', methods=['DELETE'])
 def clear_log():
@@ -311,21 +696,22 @@ def clear_log():
     conn.close()
     return jsonify({'success': True, 'message': 'Semua log dihapus'})
  
+ 
 # ─────────────────────────────────────────────
-# MAIN & INISIALISASI (Disiapkan untuk Railway)
+# MAIN & INISIALISASI
 # ─────────────────────────────────────────────
  
-# Coba inisialisasi tabel database saat aplikasi dinyalakan
 try:
     init_db()
 except Exception as e:
     print(f"Gagal koneksi atau membuat tabel: {e}")
  
 if __name__ == '__main__':
-    # Membaca port yang diberikan oleh environment Railway, fallback ke 5000 jika dijalankan lokal
     port = int(os.environ.get("PORT", 5000))
-    print("=" * 50)
+    print("=" * 60)
     print("  SISTEM PAKAR DISTILASI MINYAK KAYU PUTIH (MYSQL)")
-    print("=" * 50)
-    # Debug wajib False untuk keamanan di server production
+    print("  42 Rules: 20 Individual + 22 Kombinasi Antar Sensor")
+    print("  + Load Cell HX711 (Monitoring & Logging Only)")
+    print("=" * 60)
     app.run(host='0.0.0.0', port=port, debug=False)
+ 

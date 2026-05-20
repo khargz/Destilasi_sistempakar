@@ -112,7 +112,7 @@ RULES = {
         'level'  : 'anomali'
     },
     'R04': {
-        'kondisi': 'Suhu produksi tinggi (92°C–101°C)',
+        'kondisi': 'Suhu produksi tinggi (91°C–101°C)',
         'aksi'   : 'Kurangi intensitas pemanas, pantau terus',
         'level'  : 'anomali'
     },

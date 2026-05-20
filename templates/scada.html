@@ -2,11 +2,9 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale-1.0"
 <title>EXPERT-SYS | HMI/SCADA Sistem Pakar Distilasi</title>
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;600;700;900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<!-- Pastikan Chart.js di-load agar grafik berfungsi -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
   :root {
     --bg-primary: #0a0c0f; --bg-secondary: #0d1117; --bg-panel: #111820; --bg-card: #141c26;
@@ -31,8 +29,8 @@
     color: var(--text-primary); 
     font-family: 'Rajdhani', sans-serif; 
     min-height: 100vh; 
-    min-width: 1280px;
-    overflow-x: auto;
+    min-width: 1280px; /* Mengunci lebar layar seukuran laptop */
+    overflow-x: auto; /* Mengizinkan geser kiri-kanan di HP */
   }
 
   /* ═════════ LOGIN SCREEN ═════════ */
@@ -152,37 +150,39 @@
   /* Warna Default (OK) */
   .sensor-card .connector { border-color: var(--accent-cyan); }
   .sensor-card .connector-dot { background: var(--accent-cyan); box-shadow: 0 0 8px var(--accent-cyan); }
+
   /* Warna Peringatan */
   .sensor-card.warn .connector { border-color: var(--accent-gold); }
   .sensor-card.warn .connector-dot { background: var(--accent-gold); box-shadow: 0 0 8px var(--accent-gold); }
+
   /* Warna Kritis */
   .sensor-card.danger .connector { border-color: var(--accent-red); }
   .sensor-card.danger .connector-dot { background: var(--accent-red); box-shadow: 0 0 8px var(--accent-red); }
 
-  /* Kotak 1: Suhu Pemanas */
+  /* =========================================================================
+     PENGATURAN KORDINAT DAN ARAH GARIS
+     - Ubah nilai "right", "left", "bottom" di bawah untuk mengatur panjang garis
+     - Ubah persentase "top" atau "left" di HTML untuk menggeser kotak secara utuh
+     ========================================================================= */
   .card-sp { top: 30%; left: 5%; } 
   .card-sp .connector-h { top: 50%; right: -100px; width: 100px; height: 1px; border-top: 2px solid; }
   .card-sp .connector-dot { top: calc(50% - 3px); right: -100px; }
 
-  /* Kotak 2: Suhu Pendingin */
+/* Kotak 2: Suhu Pendingin (Kanan Atas) - Menunjuk ke Kondensor */
   .card-sc { top: 35%; right: 8%; } 
   .card-sc .connector-h { top: 50%; left: -180px; width: 180px; height: 1px; border-top: 2px solid; }
   .card-sc .connector-dot { top: calc(50% - 3px); left: -180px; }
 
-  /* Kotak 3: pH Hasil */
+  /* Kotak 3: pH Hasil (Kanan Tengah) - Menunjuk ke Tabung Filter Bawah */
   .card-ph { top: 51%; right: 2%; } 
   .card-ph .connector-h { top: 50%; left: -180px; width: 180px; height: 1px; border-top: 2px solid; }
   .card-ph .connector-dot { top: calc(50% - 3px); left: -180px; }
 
-  /* Kotak 4: TDS Hasil */
+  /* Kotak 4: TDS Hasil (Kanan Bawah) - Menunjuk ke Ember/Output */
+/* Kotak 4: TDS Hasil (Kanan Bawah) - Panah Vertikal ke Atas */
   .card-tds { top: 76%; right: 33%; }
   .card-tds .connector-v { top: -100px; left: 50%; width: 1px; height: 100px; border-left: 2px solid; }
   .card-tds .connector-dot { top: -100px; left: calc(50% - 3px); }
-
-  /* Kotak 5: Tekanan Boiler (BARU) */
-  .card-press { top: 12%; left: 15%; } 
-  .card-press .connector-h { top: 50%; right: -150px; width: 150px; height: 1px; border-top: 2px solid; }
-  .card-press .connector-dot { top: calc(50% - 3px); right: -150px; }
 
   /* ═════════ SIDEBAR PANELS ═════════ */
   .sidebar { display: flex; flex-direction: column; gap: 10px; }
@@ -329,7 +329,7 @@
       </button>
     </div>
     <div class="login-footer">
-      <div class="login-footer-text">v2.4 · SCADA Edition</div>
+      <div class="login-footer-text">v2.3 · SCADA Edition</div>
       <div style="display:flex;align-items:center;gap:6px">
         <div class="status-dot"></div>
         <span class="login-footer-text">Server aktif</span>
@@ -398,15 +398,14 @@
         <div class="grid-bg"></div>
         <div class="corner-deco corner-tl">PLANT VIEW ● DISTILASI</div>
         <div class="corner-deco corner-tr" id="plant-time">--:--:--</div>
-        <div class="corner-deco corner-bl">UNIT: °C / ppm / bar</div>
-        <div class="corner-deco corner-br">REV 2.4</div>
+        <div class="corner-deco corner-bl">UNIT: °C / ppm</div>
+        <div class="corner-deco corner-br">REV 2.3</div>
 
         <div class="plant-container">
           <img src="{{ url_for('static', filename='plant destilasi.png') }}" class="scada-image" alt="HMI Plant Destilasi" style="width: 100%; max-width: 750px; height: auto; display: block; opacity: 0.9;">
         </div>
 
         <div class="sensor-overlay">
-          <!-- Sensor: Suhu Pemanas -->
           <div class="sensor-card card-sp" id="tag-sp" onclick="openModal('sp')">
             <div class="connector connector-h"></div><div class="connector-dot"></div>
             <div class="sensor-card-header"><div class="sensor-label">SUHU BOILER <span id="trend-sp"></span></div><div class="ok-tag" id="status-txt-sp">NORMAL</div></div>
@@ -414,7 +413,6 @@
             <div class="sensor-ideal">Ideal: 88 – 98 °C</div>
             <div class="sensor-bar"><div class="sensor-bar-fill" id="bar-sp" style="width:0%"></div></div>
           </div>
-          <!-- Sensor: Suhu Pendingin -->
           <div class="sensor-card card-sc" id="tag-sc" onclick="openModal('sc')">
             <div class="connector connector-h"></div><div class="connector-dot"></div>
             <div class="sensor-card-header"><div class="sensor-label">SUHU PENDINGIN <span id="trend-sc"></span></div><div class="ok-tag" id="status-txt-sc">NORMAL</div></div>
@@ -422,7 +420,6 @@
             <div class="sensor-ideal">Ideal: 20 – 35 °C</div>
             <div class="sensor-bar"><div class="sensor-bar-fill" id="bar-sc" style="width:0%"></div></div>
           </div>
-          <!-- Sensor: pH Hasil -->
           <div class="sensor-card card-ph" id="tag-ph" onclick="openModal('ph')">
             <div class="connector connector-h"></div><div class="connector-dot"></div>
             <div class="sensor-card-header"><div class="sensor-label">pH HASIL <span id="trend-ph"></span></div><div class="ok-tag" id="status-txt-ph">NORMAL</div></div>
@@ -430,24 +427,12 @@
             <div class="sensor-ideal">Ideal: 5.5 – 7.0</div>
             <div class="sensor-bar"><div class="sensor-bar-fill" id="bar-ph" style="width:0%"></div></div>
           </div>
-          <!-- Sensor: TDS Hasil -->
           <div class="sensor-card card-tds" id="tag-tds" onclick="openModal('tds')">
             <div class="connector connector-v"></div><div class="connector-dot"></div>
             <div class="sensor-card-header"><div class="sensor-label">TDS HASIL <span id="trend-tds"></span></div><div class="ok-tag" id="status-txt-tds">NORMAL</div></div>
             <div><span class="sensor-value" id="val-tds">—</span><span class="sensor-unit">ppm</span></div>
             <div class="sensor-ideal">Ideal: 50 – 300 ppm</div>
             <div class="sensor-bar"><div class="sensor-bar-fill" id="bar-tds" style="width:0%"></div></div>
-          </div>
-          <!-- TAMBAHAN: Sensor Tekanan -->
-          <div class="sensor-card card-press" id="tag-press" onclick="openModal('press')">
-            <div class="connector connector-h"></div><div class="connector-dot"></div>
-            <div class="sensor-card-header">
-              <div class="sensor-label">TEKANAN BOILER <span id="trend-press"></span></div>
-              <div class="ok-tag" id="status-txt-press">NORMAL</div>
-            </div>
-            <div><span class="sensor-value" id="val-press">—</span><span class="sensor-unit">bar</span></div>
-            <div class="sensor-ideal">Ideal: 1.0 – 2.5 bar</div>
-            <div class="sensor-bar"><div class="sensor-bar-fill" id="bar-press" style="width:0%"></div></div>
           </div>
         </div>
       </div>
@@ -536,8 +521,8 @@
       </div>
 
       <div class="log-panel">
-        <div class="log-header" style="display:flex; align-items:center; padding:10px 16px; background: rgba(255,255,255,0.02); border-bottom: 1px solid var(--border);">
-          <div class="log-title" style="font-family: 'Orbitron', monospace; font-size: 11px; font-weight: 600; color: var(--text-secondary); letter-spacing: 2px;">LOG DATA SENSOR</div>
+        <div class="log-header">
+          <div class="log-title">LOG DATA SENSOR</div>
           <div style="display:flex;gap:8px;margin-left:auto">
             <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);display:flex;align-items:center;gap:4px">
               Menampilkan <span id="log-count" style="color:var(--accent-cyan)">0</span> data terbaru
@@ -548,10 +533,9 @@
         <div class="log-table-wrap">
           <table class="log-table">
             <thead>
-              <!-- Header tabel diubah untuk menyertakan Tekanan -->
-              <tr><th>#</th><th>TIMESTAMP</th><th>SUHU PEMANAS (°C)</th><th>SUHU PENDINGIN (°C)</th><th>TEKANAN (bar)</th><th>pH HASIL</th><th>TDS (ppm)</th><th>STATUS SYSTEM</th><th>RULE AKTIF</th></tr>
+              <tr><th>#</th><th>TIMESTAMP</th><th>SUHU PEMANAS (°C)</th><th>SUHU PENDINGIN (°C)</th><th>pH HASIL</th><th>TDS (ppm)</th><th>STATUS SYSTEM</th><th>RULE AKTIF</th></tr>
             </thead>
-            <tbody id="log-body"><tr><td colspan="9" style="text-align:center;color:var(--text-dim);padding:20px">Memuat data dari database...</td></tr></tbody>
+            <tbody id="log-body"><tr><td colspan="8" style="text-align:center;color:var(--text-dim);padding:20px">Memuat data dari database...</td></tr></tbody>
           </table>
         </div>
       </div>
@@ -649,7 +633,7 @@ function renderLogActionBar() {
   }
   
   bar.innerHTML = topHtml;
-  innerBar.innerHTML = innerHtml; 
+  innerBar.innerHTML = innerHtml; // PERBAIKAN: Menggunakan '=' agar tombol tidak menumpuk saat di-klik berulang-ulang
 }
 
 function doLogout() {
@@ -669,14 +653,7 @@ function showToast(type, msg, duration=3500) {
 }
 
 // ════════ UI UPDATES SCADA ════════
-const SENSOR_META = { 
-  sp: { label:'SUHU PEMANAS', unit:'°C', min:88, max:98, maxScale:120 }, 
-  sc: { label:'SUHU PENDINGIN',unit:'°C', min:20, max:35, maxScale:60 }, 
-  ph: { label:'pH HASIL', unit:'', min:5.5, max:7.0, maxScale:14 }, 
-  tds: { label:'TDS HASIL', unit:'ppm', min:50, max:300, maxScale:600 },
-  // TAMBAHAN SENSOR BARU:
-  press: { label:'TEKANAN BOILER', unit:'bar', min:1.0, max:2.5, maxScale:5 }
-};
+const SENSOR_META = { sp: { label:'SUHU PEMANAS', unit:'°C', min:88, max:98, maxScale:120 }, sc: { label:'SUHU PENDINGIN',unit:'°C', min:20, max:35, maxScale:60 }, ph: { label:'pH HASIL', unit:'', min:5.5, max:7.0, maxScale:14 }, tds: { label:'TDS HASIL', unit:'ppm', min:50, max:300, maxScale:600 }, };
 let modalChart = null;
 
 function updCard(id,val,st,disp,prev){
@@ -784,11 +761,10 @@ function updateCharts(logs) {
 function renderLogTable(logs) {
   const tbody=document.getElementById('log-body');
   document.getElementById('log-count').textContent = logs.length;
-  if(!logs||!logs.length){ tbody.innerHTML='<tr><td colspan="9" style="text-align:center;padding:16px;color:var(--text-dim)">Belum ada log</td></tr>'; return; }
+  if(!logs||!logs.length){ tbody.innerHTML='<tr><td colspan="8" style="text-align:center;padding:16px;color:var(--text-dim)">Belum ada log</td></tr>'; return; }
   tbody.innerHTML=logs.map(r=> {
       let stColor = r.status==='normal'?'badge-ok':r.status==='anomali'?'badge-warn':'badge-danger';
-      // TAMBAHAN: Menampilkan nilai tekanan pada tabel
-      return `<tr> <td>${r.id}</td><td class="td-time">${r.waktu}</td> <td class="td-val">${r.suhu_prod}</td> <td class="td-val">${r.suhu_cool}</td> <td class="td-val">${r.tekanan || '-'}</td> <td class="td-val">${r.ph}</td><td class="td-val">${r.tds}</td> <td><span class="${stColor}">${r.status.toUpperCase()}</span></td> <td style="font-size:9px">${r.rules_aktif||'—'}</td> </tr>`;
+      return `<tr> <td>${r.id}</td><td class="td-time">${r.waktu}</td> <td class="td-val">${r.suhu_prod}</td> <td class="td-val">${r.suhu_cool}</td> <td class="td-val">${r.ph}</td><td class="td-val">${r.tds}</td> <td><span class="${stColor}">${r.status.toUpperCase()}</span></td> <td style="font-size:9px">${r.rules_aktif||'—'}</td> </tr>`;
   }).join('');
 }
 
@@ -809,17 +785,10 @@ const RULES = [
   {id:'R12',cond:d=>d.tds<50,param:'tds',status:'warn',label:'TDS rendah',rek:{cls:'warn',title:'Minyak terlalu encer',desc:'Cek bahan baku daun.'}},
   {id:'R13',cond:d=>d.tds>300&&d.tds<=500,param:'tds',status:'warn',label:'TDS tinggi',rek:{cls:'warn',title:'Periksa kontaminan mineral',desc:'Kualitas air buruk.'}},
   {id:'R14',cond:d=>d.tds>500,param:'tds',status:'danger',label:'KRITIS: TDS sangat tinggi',rek:{cls:'danger',title:'HENTIKAN PROSES',desc:'Indikasi kontaminasi serius.'}},
-  // TAMBAHAN RULE UNTUK TEKANAN
-  {id:'R15',cond:d=>d.press>=1.0&&d.press<=2.5,param:'press',status:'ok',label:'Tekanan normal',rek:null},
-  {id:'R16',cond:d=>d.press<1.0,param:'press',status:'warn',label:'Tekanan rendah',rek:{cls:'warn',title:'Periksa kebocoran',desc:'Tekanan kurang dari 1.0 bar, periksa seal.'}},
-  {id:'R17',cond:d=>d.press>2.5,param:'press',status:'danger',label:'KRITIS: Tekanan terlalu tinggi',rek:{cls:'danger',title:'BUKA KATUP PELEPAS (VALVE)',desc:'Bahaya ledakan, tekanan melebihi batas 2.5 bar.'}},
 ];
 
-// VARIABEL DI-UPDATE UNTUK TEKANAN (PRESS)
-let sp=0,sc=0,ph=0,tds=0, press=0, prevSp=0,prevSc=0,prevPh=0,prevTds=0, prevPress=0, totalPoints=0;
-const hist={sp:[],sc:[],ph:[],tds:[], press:[]}; 
-const MAX_H=20; let prevFired=[]; const localNotifs=[];
-
+let sp=0,sc=0,ph=0,tds=0, prevSp=0,prevSc=0,prevPh=0,prevTds=0, totalPoints=0;
+const hist={sp:[],sc:[],ph:[],tds:[]}; const MAX_H=20; let prevFired=[]; const localNotifs=[];
 setInterval(()=>{ 
     const t = new Date().toLocaleTimeString('id-ID');
     document.getElementById('topbar-time').textContent=t; 
@@ -853,29 +822,12 @@ async function fetchLatestData(){
     const res=await fetch(API+'/latest'); const data=await res.json();
     if(Object.keys(data).length>0){
       sp=data.suhu_prod; sc=data.suhu_cool; ph=data.ph; tds=data.tds;
-      press=data.tekanan || 0; // Mengambil nilai tekanan dari API (pastikan key-nya 'tekanan')
-
-      // Memasukkan ke history
-      ['sp','sc','ph','tds','press'].forEach(k=>{
-          hist[k].push(eval(k));
-          if(hist[k].length>MAX_H)hist[k].shift();
-      });
-
-      const fired=RULES.filter(r=>r.cond({sp,sc,ph,tds,press})); const ov=data.status;
-      
-      // Update UI Kartu
-      updCard('sp',sp,paramSt('sp',fired),sp.toFixed(1),prevSp); 
-      updCard('sc',sc,paramSt('sc',fired),sc.toFixed(1),prevSc); 
-      updCard('ph',ph,paramSt('ph',fired),ph.toFixed(2),prevPh); 
-      updCard('tds',tds,paramSt('tds',fired),Math.round(tds),prevTds);
-      updCard('press',press,paramSt('press',fired),press.toFixed(2),prevPress);
-
+      ['sp','sc','ph','tds'].forEach(k=>{hist[k].push(eval(k));if(hist[k].length>MAX_H)hist[k].shift();});
+      const fired=RULES.filter(r=>r.cond({sp,sc,ph,tds})); const ov=data.status;
+      updCard('sp',sp,paramSt('sp',fired),sp.toFixed(1),prevSp); updCard('sc',sc,paramSt('sc',fired),sc.toFixed(1),prevSc); updCard('ph',ph,paramSt('ph',fired),ph.toFixed(2),prevPh); updCard('tds',tds,paramSt('tds',fired),Math.round(tds),prevTds);
       updBanner(ov,fired); updFC(fired); updRek(fired); updNotif(fired);
       document.getElementById('banner-saved').textContent='✓ Terhubung ke DB'; document.getElementById('banner-saved').className='banner-conn';
-      
-      prevSp=sp; prevSc=sc; prevPh=ph; prevTds=tds; prevPress=press;
-      prevFired=fired;
-      
+      prevSp=sp; prevSc=sc; prevPh=ph; prevTds=tds; prevFired=fired;
       totalPoints++; document.getElementById('dp-count').textContent = totalPoints;
     }
   }catch(e){}
@@ -914,12 +866,8 @@ async function downloadExcel() {
   try {
     if (typeof XLSX === 'undefined') await loadSheetJS();
     let rows = cachedLogs.length > 0 ? cachedLogs : generateDemoLogs();
-    
-    // Header Excel Diperbarui
-    const wsData = [ ['ID', 'Waktu', 'Suhu Pemanas (°C)', 'Suhu Pendingin (°C)', 'Tekanan (bar)', 'pH', 'TDS (ppm)', 'Status', 'Rule Aktif'], 
-                     ...rows.map(r => [ r.id, r.waktu, r.suhu_prod, r.suhu_cool, (r.tekanan || '-'), r.ph, r.tds, r.status, r.rules_aktif || '—' ]) ];
-    const wb = XLSX.utils.book_new(); const ws = XLSX.utils.aoa_to_sheet(wsData); ws['!cols'] = [ {wch:6},{wch:22},{wch:20},{wch:22},{wch:16},{wch:8},{wch:10},{wch:12},{wch:30} ];
-    
+    const wsData = [ ['ID', 'Waktu', 'Suhu Pemanas (°C)', 'Suhu Pendingin (°C)', 'pH', 'TDS (ppm)', 'Status', 'Rule Aktif'], ...rows.map(r => [ r.id, r.waktu, r.suhu_prod, r.suhu_cool, r.ph, r.tds, r.status, r.rules_aktif || '—' ]) ];
+    const wb = XLSX.utils.book_new(); const ws = XLSX.utils.aoa_to_sheet(wsData); ws['!cols'] = [ {wch:6},{wch:22},{wch:20},{wch:22},{wch:8},{wch:10},{wch:12},{wch:30} ];
     XLSX.utils.book_append_sheet(wb, ws, 'Log Sensor');
     const infoData = [ ['LAPORAN SISTEM PAKAR DISTILASI MINYAK KAYU PUTIH'], [''], ['Diekspor oleh', currentUser.fullname + ' (' + currentUser.roleLabel + ')'], ['Waktu ekspor', new Date().toLocaleString('id-ID')], ['Total baris data', rows.length], ];
     const wsInfo = XLSX.utils.aoa_to_sheet(infoData); wsInfo['!cols'] = [{wch:22},{wch:40}]; XLSX.utils.book_append_sheet(wb, wsInfo, 'Info Ekspor');
@@ -934,7 +882,7 @@ function generateDemoLogs() {
   const statuses = ['normal','normal','normal','anomali','kritis'], now = Date.now();
   return Array.from({length:20}, (_,i) => {
     const st = statuses[Math.floor(Math.random()*statuses.length)];
-    return { id: 100-i, waktu: new Date(now - i*3000).toLocaleString('id-ID'), suhu_prod: (95 + Math.random()*15 - 5).toFixed(1), suhu_cool: (28 + Math.random()*10 - 5).toFixed(1), tekanan: (1.8 + Math.random()*1.0 - 0.5).toFixed(2), ph: (6.2 + Math.random()*1.2 - 0.4).toFixed(2), tds: Math.round(150 + Math.random()*200 - 50), status: st, rules_aktif: st==='normal' ? 'R01,R05,R08,R11,R15' : st==='anomali' ? 'R02,R09,R16' : 'R04,R14,R17', };
+    return { id: 100-i, waktu: new Date(now - i*3000).toLocaleString('id-ID'), suhu_prod: (95 + Math.random()*15 - 5).toFixed(1), suhu_cool: (28 + Math.random()*10 - 5).toFixed(1), ph: (6.2 + Math.random()*1.2 - 0.4).toFixed(2), tds: Math.round(150 + Math.random()*200 - 50), status: st, rules_aktif: st==='normal' ? 'R01,R05,R08,R11' : st==='anomali' ? 'R02,R09' : 'R04,R14', };
   });
 }
 
@@ -942,14 +890,14 @@ function openModal(param) {
   const meta = SENSOR_META[param]; const data = hist[param];
   if (!data || data.length < 2) { showToast('warn','⚠ Belum cukup data untuk ditampilkan'); return; }
   document.getElementById('modal-title').textContent = 'DETAIL — ' + meta.label;
-  const cur = data[data.length-1], mn = Math.min(...data), mx = Math.max(...data), fix = param==='tds' ? 0 : param==='ph' ? 2 : (param==='press' ? 2 : 1);
+  const cur = data[data.length-1], mn = Math.min(...data), mx = Math.max(...data), fix = param==='tds' ? 0 : param==='ph' ? 2 : 1;
   document.getElementById('modal-cur').textContent = cur.toFixed(fix) + meta.unit; document.getElementById('modal-min').textContent = mn.toFixed(fix) + meta.unit; document.getElementById('modal-max').textContent = mx.toFixed(fix) + meta.unit;
   const inRange = cur >= meta.min && cur <= meta.max;
   const statusTxt = inRange ? `✓ Nilai ${cur.toFixed(fix)}${meta.unit} — dalam rentang ideal [${meta.min}–${meta.max}${meta.unit}]` : `⚠ Nilai ${cur.toFixed(fix)}${meta.unit} — di luar rentang ideal [${meta.min}–${meta.max}${meta.unit}]`;
   const statusEl = document.getElementById('modal-status-line'); statusEl.textContent = statusTxt; statusEl.style.color = inRange ? 'var(--accent-green)' : 'var(--accent-gold)';
   document.getElementById('modal-overlay').classList.add('open');
   if (modalChart) { modalChart.destroy(); modalChart = null; }
-  const canvas = document.getElementById('modal-chart'), ctx = canvas.getContext('2d'), fired = RULES.filter(r => r.cond({sp,sc,ph,tds,press})), color = colOf(paramSt(param, fired));
+  const canvas = document.getElementById('modal-chart'), ctx = canvas.getContext('2d'), fired = RULES.filter(r => r.cond({sp,sc,ph,tds})), color = colOf(paramSt(param, fired));
   modalChart = new Chart(ctx, { type: 'line', data: { labels: data.map((_,i) => i===data.length-1 ? 'now' : -(data.length-1-i)+'s'), datasets: [{ data, borderColor: color, backgroundColor: color+'18', borderWidth: 1.5, pointRadius: 2, pointBackgroundColor: color, tension: 0.4, fill: true, }] }, options: { responsive:true, maintainAspectRatio:false, animation:{duration:400}, plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label: ctx => ctx.parsed.y.toFixed(fix)+meta.unit } } }, scales:{ x:{ grid:{color:'rgba(255,255,255,.04)'}, ticks:{color:'#4a5568',font:{size:9}} }, y:{ grid:{color:'rgba(255,255,255,.04)'}, ticks:{color:'#4a5568',font:{size:9}} } } } });
 }
 

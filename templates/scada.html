@@ -181,7 +181,7 @@
   .card-tds .connector-v { top: -100px; left: 50%; width: 1px; height: 100px; border-left: 2px solid; }
   .card-tds .connector-dot { top: -100px; left: calc(50% - 3px); }
 
-  /* PERBAIKAN: Kotak 5 diubah dari Tekanan ke Load Cell (Berat Produk) */
+  /* Kotak 5: Load Cell (Berat Produk) */
   .card-lc { top: 59%; left: 9%; } 
   .card-lc .connector-h { top: 50%; right: -240px; width: 240px; height: 1px; border-top: 2px solid; }
   .card-lc .connector-dot { top: calc(50% - 3px); right: -240px; }
@@ -670,7 +670,6 @@ const SENSOR_META = {
   sc: { label:'SUHU PENDINGIN',unit:'°C', min:20, max:35, maxScale:60 }, 
   ph: { label:'pH HASIL', unit:'', min:5.5, max:7.0, maxScale:14 }, 
   tds: { label:'TDS HASIL', unit:'ppm', min:50, max:300, maxScale:600 },
-  // PERBAIKAN METADATA LOAD CELL
   lc: { label:'BERAT PRODUK', unit:'gram', min:0, max:1800, maxScale:2000 }
 };
 let modalChart = null;
@@ -708,7 +707,7 @@ function updBanner(ov,fired){
   const b=document.getElementById('status-banner'); b.className='anomaly-banner '+(ov==='normal'?'normal':ov==='anomali'?'anomali':'kritis');
   const s=document.getElementById('banner-status'); s.textContent=ov==='normal'?'DISTILASI BERJALAN NORMAL':ov==='anomali'?'ANOMALI TERDETEKSI':'KONDISI KRITIS — TINDAKAN SEGERA';
   const issues=fired.filter(r=>r.status!=='ok'); document.getElementById('banner-desc').textContent=issues.length?issues.map(r=>r.label).join(' · '):'Semua parameter dalam batas ideal';
-  document.getElementById('banner-time').textContent='Update: '+new Date().toLocaleTimeString('id-ID');
+  document.getElementById('banner-time').textContent='Update: --:--:--';
   document.getElementById('anomali-count').textContent = issues.length;
 }
 
@@ -783,7 +782,6 @@ function renderLogTable(logs) {
   if(!logs||!logs.length){ tbody.innerHTML='<tr><td colspan="9" style="text-align:center;padding:16px;color:var(--text-dim)">Belum ada log</td></tr>'; return; }
   tbody.innerHTML=logs.map(r=> {
       let stColor = r.status==='normal'?'badge-ok':r.status==='anomali'?'badge-warn':'badge-danger';
-      // PERBAIKAN: Menampilkan berat hasil load cell (gram)
       return `<tr> <td>${r.id}</td><td class="td-time">${r.waktu}</td> <td class="td-val">${r.suhu_prod}</td> <td class="td-val">${r.suhu_cool}</td> <td class="td-val">${r.berat || '-'}</td> <td class="td-val">${r.ph}</td><td class="td-val">${r.tds}</td> <td><span class="${stColor}">${r.status.toUpperCase()}</span></td> <td style="font-size:9px">${r.rules_aktif||'—'}</td> </tr>`;
   }).join('');
 }
@@ -804,14 +802,9 @@ const RULES = [
   {id:'R11',cond:d=>d.tds>=50&&d.tds<=300,param:'tds',status:'ok',label:'TDS normal',rek:null},
   {id:'R12',cond:d=>d.tds<50,param:'tds',status:'warn',label:'TDS rendah',rek:{cls:'warn',title:'Minyak terlalu encer',desc:'Cek bahan baku daun.'}},
   {id:'R13',cond:d=>d.tds>300&&d.tds<=500,param:'tds',status:'warn',label:'TDS tinggi',rek:{cls:'warn',title:'Periksa kontaminan mineral',desc:'Kualitas air buruk.'}},
-  {id:'R14',cond:d=>d.tds>500,param:'tds',status:'danger',label:'KRITIS: TDS sangat tinggi',rek:{cls:'danger',title:'HENTIKAN PROSES',desc:'Indikasi kontaminasi serius.'}},
-  // PERBAIKAN RULES FOR FORWARD CHAINING LOAD CELL (BERAT TANGKI)
-  {id:'R15',cond:d=>d.lc>=0&&d.lc<=1800,param:'lc',status:'ok',label:'Kapasitas penampung aman',rek:null},
-  {id:'R16',cond:d=>d.lc>1800&&d.lc<=2000,param:'lc',status:'warn',label:'Tangki produk hampir penuh',rek:{cls:'warn',title:'Siapkan wadah baru',desc:'Berat produk mendekati batas penampung.'}},
-  {id:'R17',cond:d=>d.lc>2000,param:'lc',status:'danger',label:'KRITIS: Tangki penampung penuh/luber',rek:{cls:'danger',title:'GANTI WADAH SEGERA',desc:'Segera kosongkan tangki agar minyak kayu putih tidak meluap.'}},
+  {id:'R14',cond:d=>d.tds>500,param:'tds',status:'danger',label:'KRITIS: TDS sangat tinggi',rek:{cls:'danger',title:'HENTIKAN PROSES',desc:'Indikasi kontaminasi serius.'}}
 ];
 
-// VARIABEL DI-UPDATE UNTUK LOAD CELL (LC)
 let sp=0,sc=0,ph=0,tds=0, lc=0, prevSp=0,prevSc=0,prevPh=0,prevTds=0, prevLc=0, totalPoints=0;
 const hist={sp:[],sc:[],ph:[],tds:[], lc:[]}; 
 const MAX_H=20; let prevFired=[]; const localNotifs=[];
@@ -849,7 +842,7 @@ async function fetchLatestData(){
     const res=await fetch(API+'/latest'); const data=await res.json();
     if(Object.keys(data).length>0){
       sp=data.suhu_prod; sc=data.suhu_cool; ph=data.ph; tds=data.tds;
-      lc=data.berat || 0; // Menarik data dari API Flask/Python (Pastikan di backend namanya 'berat')
+      lc=data.berat_distilat || data.berat || 0; 
 
       // Memasukkan ke history
       ['sp','sc','ph','tds','lc'].forEach(k=>{
@@ -857,14 +850,17 @@ async function fetchLatestData(){
           if(hist[k].length>MAX_H)hist[k].shift();
       });
 
-      const fired=RULES.filter(r=>r.cond({sp,sc,ph,tds,lc})); const ov=data.status;
+      // HANYA MENGGUNAKAN SP, SC, PH, DAN TDS UNTUK SISTEM PAKAR
+      const fired=RULES.filter(r=>r.cond({sp,sc,ph,tds})); const ov=data.status;
       
       // Update Tampilan Kartu Dashboard
       updCard('sp',sp,paramSt('sp',fired),sp.toFixed(1),prevSp); 
       updCard('sc',sc,paramSt('sc',fired),sc.toFixed(1),prevSc); 
       updCard('ph',ph,paramSt('ph',fired),ph.toFixed(2),prevPh); 
       updCard('tds',tds,paramSt('tds',fired),Math.round(tds),prevTds);
-      updCard('lc',lc,paramSt('lc',fired),lc.toFixed(0),prevLc); // Membulatkan gram produk
+      
+      // LOAD CELL DI-SET SELALU 'OK' KARENA HANYA MONITORING
+      updCard('lc', lc, 'ok', lc.toFixed(0), prevLc); 
 
       updBanner(ov,fired); updFC(fired); updRek(fired); updNotif(fired);
       document.getElementById('banner-saved').textContent='✓ Terhubung ke DB'; document.getElementById('banner-saved').className='banner-conn';
@@ -911,9 +907,8 @@ async function downloadExcel() {
     if (typeof XLSX === 'undefined') await loadSheetJS();
     let rows = cachedLogs.length > 0 ? cachedLogs : generateDemoLogs();
     
-    // Header Kolom di Excel disesuaikan dengan gram hasil Load cell
     const wsData = [ ['ID', 'Waktu', 'Suhu Pemanas (°C)', 'Suhu Pendingin (°C)', 'Berat Produk (gram)', 'pH', 'TDS (ppm)', 'Status', 'Rule Aktif'], 
-                     ...rows.map(r => [ r.id, r.waktu, r.suhu_prod, r.suhu_cool, (r.berat || '-'), r.ph, r.tds, r.status, r.rules_aktif || '—' ]) ];
+                     ...rows.map(r => [ r.id, r.waktu, r.suhu_prod, r.suhu_cool, (r.berat_distilat || r.berat || '-'), r.ph, r.tds, r.status, r.rules_aktif || '—' ]) ];
     const wb = XLSX.utils.book_new(); const ws = XLSX.utils.aoa_to_sheet(wsData); ws['!cols'] = [ {wch:6},{wch:22},{wch:20},{wch:22},{wch:20},{wch:8},{wch:10},{wch:12},{wch:30} ];
     
     XLSX.utils.book_append_sheet(wb, ws, 'Log Sensor');
@@ -930,7 +925,7 @@ function generateDemoLogs() {
   const statuses = ['normal','normal','normal','anomali','kritis'], now = Date.now();
   return Array.from({length:20}, (_,i) => {
     const st = statuses[Math.floor(Math.random()*statuses.length)];
-    return { id: 100-i, waktu: new Date(now - i*3000).toLocaleString('id-ID'), suhu_prod: (95 + Math.random()*15 - 5).toFixed(1), suhu_cool: (28 + Math.random()*10 - 5).toFixed(1), berat: Math.round(400 + Math.random()*1500), ph: (6.2 + Math.random()*1.2 - 0.4).toFixed(2), tds: Math.round(150 + Math.random()*200 - 50), status: st, rules_aktif: st==='normal' ? 'R01,R05,R08,R11,R15' : st==='anomali' ? 'R02,R09,R16' : 'R04,R14,R17', };
+    return { id: 100-i, waktu: new Date(now - i*3000).toLocaleString('id-ID'), suhu_prod: (95 + Math.random()*15 - 5).toFixed(1), suhu_cool: (28 + Math.random()*10 - 5).toFixed(1), berat: Math.round(400 + Math.random()*1500), ph: (6.2 + Math.random()*1.2 - 0.4).toFixed(2), tds: Math.round(150 + Math.random()*200 - 50), status: st, rules_aktif: st==='normal' ? 'R01,R05,R08,R11' : st==='anomali' ? 'R02,R09' : 'R04,R14', };
   });
 }
 
@@ -945,7 +940,7 @@ function openModal(param) {
   const statusEl = document.getElementById('modal-status-line'); statusEl.textContent = statusTxt; statusEl.style.color = inRange ? 'var(--accent-green)' : 'var(--accent-gold)';
   document.getElementById('modal-overlay').classList.add('open');
   if (modalChart) { modalChart.destroy(); modalChart = null; }
-  const canvas = document.getElementById('modal-chart'), ctx = canvas.getContext('2d'), fired = RULES.filter(r => r.cond({sp,sc,ph,tds,lc})), color = colOf(paramSt(param, fired));
+  const canvas = document.getElementById('modal-chart'), ctx = canvas.getContext('2d'), fired = RULES.filter(r => r.cond({sp,sc,ph,tds})), color = colOf(paramSt(param, fired));
   modalChart = new Chart(ctx, { type: 'line', data: { labels: data.map((_,i) => i===data.length-1 ? 'now' : -(data.length-1-i)+'s'), datasets: [{ data, borderColor: color, backgroundColor: color+'18', borderWidth: 1.5, pointRadius: 2, pointBackgroundColor: color, tension: 0.4, fill: true, }] }, options: { responsive:true, maintainAspectRatio:false, animation:{duration:400}, plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label: ctx => ctx.parsed.y.toFixed(fix)+' '+meta.unit } } }, scales:{ x:{ grid:{color:'rgba(255,255,255,.04)'}, ticks:{color:'#4a5568',font:{size:9}} }, y:{ grid:{color:'rgba(255,255,255,.04)'}, ticks:{color:'#4a5568',font:{size:9}} } } } });
 }
 

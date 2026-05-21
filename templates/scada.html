@@ -657,10 +657,10 @@ function showToast(type, msg, duration=3500) {
 
 // ════════ UI UPDATES SCADA ════════
 const SENSOR_META = { 
-  sp: { label:'SUHU PEMANAS', unit:'°C', min:90, max:105, maxScale:120 }, 
+  sp: { label:'SUHU PEMANAS', unit:'°C', min:85, max:89, maxScale:120 }, 
   sc: { label:'SUHU PENDINGIN',unit:'°C', min:20, max:35, maxScale:60 }, 
   ph: { label:'pH HASIL', unit:'', min:5.5, max:7.0, maxScale:14 }, 
-  tds: { label:'TDS HASIL', unit:'ppm', min:50, max:300, maxScale:600 },
+  tds: { label:'TDS HASIL', unit:'ppm', min:50, max:60, maxScale:600 },
   lc: { label:'BERAT PRODUK', unit:'gram', min:0, max:1800, maxScale:2000 }
 };
 let modalChart = null;

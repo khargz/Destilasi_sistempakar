@@ -123,13 +123,17 @@
   .plant-container { width: 100%; height: 100%; min-height: 520px; display: flex; align-items: center; justify-content: center; padding: 20px; background: radial-gradient(ellipse at 40% 50%, #0e1820 0%, #060a0d 100%); }
   
   .sensor-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; }
+  
+  /* KARTU SENSOR - DIKUNCI MATI AGAR TIDAK BERGESER */
   .sensor-card { 
     position: absolute; 
     background: rgba(10,16,22,0.92); 
     border: 1px solid var(--border-bright); 
     border-radius: 3px; 
     padding: 8px 12px; 
-    width: 165px; 
+    width: 175px !important; /* Diperlebar dan dikunci pakai important */
+    min-width: 175px !important;
+    max-width: 175px !important;
     box-sizing: border-box;
     pointer-events: all; 
     backdrop-filter: blur(4px); 
@@ -146,10 +150,22 @@
     align-items: center; 
     margin-bottom: 4px; 
     width: 100%;
+    gap: 6px;
   }
-  .sensor-label { font-family: 'Share Tech Mono', monospace; font-size: 9px; color: var(--text-dim); letter-spacing: 1.5px; }
   
-  /* Aturan Tag Status Diperbarui */
+  /* LABEL NAMA SENSOR */
+  .sensor-label { 
+    font-family: 'Share Tech Mono', monospace; 
+    font-size: 9px; 
+    color: var(--text-dim); 
+    letter-spacing: 1px; 
+    white-space: nowrap; /* Teks tidak boleh turun baris */
+    overflow: hidden; 
+    text-overflow: ellipsis;
+    flex: 1; 
+  }
+  
+  /* ATURAN TAG STATUS */
   .warn-tag, .ok-tag, .danger-tag { 
     font-family: 'Share Tech Mono', monospace; 
     font-size: 8px; 
@@ -258,7 +274,9 @@
   .legend-item { display: flex; align-items: center; gap: 6px; font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--text-secondary); }
   .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
   .chart-body { padding: 16px; height: 280px; }
-  .chart-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  
+  /* GRID 3 KOLOM UNTUK GRAFIK BAWAH */
+  .chart-row-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
 
   .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
   .stat-card { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 3px; padding: 14px 16px; text-align:center; }
@@ -543,7 +561,7 @@
         <div class="chart-body"><canvas id="chart-temp"></canvas></div>
       </div>
 
-      <div class="chart-row-2">
+      <div class="chart-row-3">
         <div class="chart-panel">
           <div class="chart-header"><div class="chart-title">GRAFIK pH</div><div class="chart-legend"><div class="legend-item"><div class="legend-dot" style="background:#aa55ff"></div>pH Hasil</div></div></div>
           <div class="chart-body" style="height:200px"><canvas id="chart-ph"></canvas></div>
@@ -551,6 +569,10 @@
         <div class="chart-panel">
           <div class="chart-header"><div class="chart-title">GRAFIK TDS</div><div class="chart-legend"><div class="legend-item"><div class="legend-dot" style="background:var(--accent-green)"></div>TDS (ppm)</div></div></div>
           <div class="chart-body" style="height:200px"><canvas id="chart-tds"></canvas></div>
+        </div>
+        <div class="chart-panel">
+          <div class="chart-header"><div class="chart-title">GRAFIK BERAT</div><div class="chart-legend"><div class="legend-item"><div class="legend-dot" style="background:var(--accent-gold)"></div>Berat (g)</div></div></div>
+          <div class="chart-body" style="height:200px"><canvas id="chart-berat"></canvas></div>
         </div>
       </div>
 
@@ -778,12 +800,20 @@ function initCharts() {
   charts.temp = new Chart(document.getElementById('chart-temp'), { type: 'line', data: { labels: [], datasets: [ { label: 'Suhu Pemanas', data: [], borderColor: '#f0a500', backgroundColor: 'rgba(240,165,0,0.08)', borderWidth: 1.5, pointRadius: 0, fill: true, tension: 0.4 }, { label: 'Suhu Pendingin', data: [], borderColor: '#00d4ff', backgroundColor: 'rgba(0,212,255,0.06)', borderWidth: 1.5, pointRadius: 0, fill: true, tension: 0.4 } ] }, options: chartDefaults });
   charts.ph = new Chart(document.getElementById('chart-ph'), { type: 'line', data: { labels: [], datasets: [{ label: 'pH', data: [], borderColor: '#aa55ff', backgroundColor: 'rgba(170,85,255,0.08)', borderWidth: 1.5, pointRadius: 0, fill: true, tension: 0.4 }] }, options: chartDefaults });
   charts.tds = new Chart(document.getElementById('chart-tds'), { type: 'line', data: { labels: [], datasets: [{ label: 'TDS (ppm)', data: [], borderColor: '#00e676', backgroundColor: 'rgba(0,230,118,0.07)', borderWidth: 1.5, pointRadius: 0, fill: true, tension: 0.4 }] }, options: chartDefaults });
+  
+  // Chart baru untuk berat distilat
+  charts.berat = new Chart(document.getElementById('chart-berat'), { 
+    type: 'line', 
+    data: { labels: [], datasets: [{ label: 'Berat (gram)', data: [], borderColor: '#f0a500', backgroundColor: 'rgba(240,165,0,0.07)', borderWidth: 1.5, pointRadius: 0, fill: true, tension: 0.4 }] }, 
+    options: chartDefaults 
+  });
 }
 
 function updateCharts(logs) {
     if(!charts.temp || !logs.length) return;
     const rev = [...logs].reverse(); 
     const lbls = rev.map(r => r.waktu.split(' ')[1] || r.waktu);
+    
     charts.temp.data.labels = lbls;
     charts.temp.data.datasets[0].data = rev.map(r => r.suhu_prod);
     charts.temp.data.datasets[1].data = rev.map(r => r.suhu_cool);
@@ -796,15 +826,36 @@ function updateCharts(logs) {
     charts.tds.data.labels = lbls;
     charts.tds.data.datasets[0].data = rev.map(r => r.tds);
     charts.tds.update();
+    
+    charts.berat.data.labels = lbls;
+    charts.berat.data.datasets[0].data = rev.map(r => r.berat_distilat ?? r.berat ?? 0);
+    charts.berat.update();
 }
 
 function renderLogTable(logs) {
-  const tbody=document.getElementById('log-body');
+  const tbody = document.getElementById('log-body');
   document.getElementById('log-count').textContent = logs.length;
-  if(!logs||!logs.length){ tbody.innerHTML='<tr><td colspan="9" style="text-align:center;padding:16px;color:var(--text-dim)">Belum ada log</td></tr>'; return; }
-  tbody.innerHTML=logs.map(r=> {
-      let stColor = r.status==='normal'?'badge-ok':r.status==='anomali'?'badge-warn':'badge-danger';
-      return `<tr> <td>${r.id}</td><td class="td-time">${r.waktu}</td> <td class="td-val">${r.suhu_prod}</td> <td class="td-val">${r.suhu_cool}</td> <td class="td-val">${r.berat || '-'}</td> <td class="td-val">${r.ph}</td><td class="td-val">${r.tds}</td> <td><span class="${stColor}">${r.status.toUpperCase()}</span></td> <td style="font-size:9px">${r.rules_aktif||'—'}</td> </tr>`;
+  
+  if(!logs || !logs.length) { 
+    tbody.innerHTML='<tr><td colspan="9" style="text-align:center;padding:16px;color:var(--text-dim)">Belum ada log</td></tr>'; 
+    return; 
+  }
+  
+  tbody.innerHTML = logs.map(r => {
+      let stColor = r.status==='normal' ? 'badge-ok' : r.status==='anomali' ? 'badge-warn' : 'badge-danger';
+      
+      return `<tr> 
+        <td>${r.id}</td>
+        <td class="td-time">${r.waktu}</td> 
+        <td class="td-val">${r.suhu_prod}</td> 
+        <td class="td-val">${r.suhu_cool}</td> 
+        <td class="td-val">${r.berat_distilat ?? r.berat ?? '-'}</td> 
+        <td class="td-val">${r.ph}</td>
+        <td class="td-val">${r.tds}</td> 
+        <td><span class="${stColor}">${r.status.toUpperCase()}</span></td> 
+        <td style="font-size:9px">${r.rules_aktif||'—'}</td> 
+      </tr>`;
+      
   }).join('');
 }
 
@@ -812,7 +863,6 @@ function renderLogTable(logs) {
 const API = '/api'; let dbOk = false;
 
 // 1. Kamus 42 Rules murni untuk Teks & Visualisasi UI
-// Tidak perlu lagi menulis fungsi 'cond: d=>...' karena logika sudah dihitung 100% oleh Python backend.
 const RULES = [
   // A1. Suhu Produksi
   {id:'R01', param:'sp', status:'ok', label:'Suhu produksi optimal', rek:null},

@@ -357,50 +357,31 @@ def forward_chaining(d):
     # ════════════════════════
  
     # -- Suhu Produksi --
-    if sp >= 85 and sp <= 89:
-        tambah('R01')
-    elif sp >= 80 and sp < 84:
-        tambah('R02')
-    elif sp < 80:
-        tambah('R03')
-    elif sp > 90 and sp <= 95:
-        tambah('R04')
-    elif sp > 95:
-        tambah('R05')
+    if 85 <= sp <= 89: tambah('R01')
+    elif 80 <= sp < 84: tambah('R02')
+    elif sp < 80: tambah('R03')
+    elif 89 < sp <= 95: tambah('R04')
+    elif sp > 95: tambah('R05')
  
     # -- Suhu Pendingin --
-    if sc >= 20 and sc <= 35:
-        tambah('R07')
-    elif sc >= 15 and sc < 20:
-        tambah('R08')
-    elif sc < 15:
-        tambah('R09')
-    elif sc > 35 and sc <= 42:
-        tambah('R10')
-    elif sc > 42:
-        tambah('R11')
+    if 20 <= sc <= 35: tambah('R07')
+    elif 15 <= sc < 20: tambah('R08')
+    elif sc < 15: tambah('R09')
+    elif 35 < sc <= 42: tambah('R10')
+    elif sc > 42: tambah('R11')
  
     # -- pH --
-    if ph >= 5.5 and ph <= 7.0:
-        tambah('R12')
-    elif ph >= 4.5 and ph < 5.5:
-        tambah('R13')
-    elif ph < 4.5:
-        tambah('R14')
-    elif ph > 7.0 and ph <= 8.0:
-        tambah('R15')
-    elif ph > 8.0:
-        tambah('R16')
+    if 5.5 <= ph <= 7.0: tambah('R12')
+    elif 4.5 <= ph < 5.5: tambah('R13')
+    elif ph < 4.5: tambah('R14')
+    elif 7.0 < ph <= 8.0: tambah('R15')
+    elif ph > 8.0: tambah('R16')
  
     # -- TDS --
-    if tds >= 50 and tds <= 60:
-        tambah('R17')
-    elif tds < 60:
-        tambah('R18')
-    elif tds > 61 and tds <= 80:
-        tambah('R19')
-    elif tds > 80:
-        tambah('R20')
+    if 50 <= tds <= 60: tambah('R17')
+    elif tds < 50: tambah('R18')
+    elif 61 < tds <= 80: tambah('R19')
+    elif tds > 80: tambah('R20')
  
     # ════════════════════════════
     # BAGIAN B — KOMBINASI
@@ -408,34 +389,34 @@ def forward_chaining(d):
  
 # R21-R26 (Suhu Prod x Pendingin)
     if sp > 95 and sc > 42: tambah('R24')
-    elif sp > 90 and sp <= 95 and sc > 35 and sc <= 42: tambah('R21')
-    elif sp >= 85 and sp <= 89 and sc > 35 and sc <= 42: tambah('R22')
-    elif sp >= 80 and sp < 84 and sc < 15: tambah('R23')
-    elif sp >= 85 and sp <= 89 and sc > 15 and sc <= 20: tambah('R25')
-    elif sp > 90 and sp <= 95 and sc >= 20 and sc <= 35: tambah('R26')
+    elif 90 < sp <= 95 and 35 < sc <= 42: tambah('R21')
+    elif 85 <= sp <= 89 and 35 < sc <= 42: tambah('R22')
+    elif 80 <= sp < 84 and sc < 15: tambah('R23')
+    elif 85 <= sp <= 89 and 15 < sc <= 20: tambah('R25')
+    elif 90 < sp <= 95 and 20 <= sc <= 35: tambah('R26')
 
     # R27-R31 (Suhu Prod x pH)
     if sp > 95 and ph < 4.5: tambah('R27')
-    elif sp > 90 and sp <= 95 and ph >= 4.5 and ph < 5.5: tambah('R28')
-    elif sp >= 80 and sp < 84 and ph > 7.0 and ph <= 8.0: tambah('R29')
-    elif sp >= 85 and sp <= 89 and ph >= 5.5 and ph <= 7.0: tambah('R30')
+    elif 90 < sp <= 95 and 4.5 <= ph < 5.5: tambah('R28')
+    elif 80 <= sp < 84 and 7.0 < ph <= 8.0: tambah('R29')
+    elif 85 <= sp <= 89 and 5.5 <= ph <= 7.0: tambah('R30')
     elif sp < 80 and ph < 4.5: tambah('R31')
 
     # R32-R36 (Suhu Prod x TDS)
     if sp > 95 and tds > 80: tambah('R32')
-    elif sp > 90 and sp <= 95 and tds > 61 and tds <= 80: tambah('R33')
-    elif sp >= 85 and sp <= 89 and tds > 61 and tds <= 80: tambah('R34')
-    elif sp >= 80 and sp < 84 and tds > 60 and tds <= 80: tambah('R35')
-    elif sp >= 85 and sp <= 89 and tds >= 50 and tds <= 60: tambah('R36')
+    elif 90 < sp <= 95 and 61 < tds <= 80: tambah('R33')
+    elif 85 <= sp <= 89 and 61 < tds <= 80: tambah('R34')
+    elif 80 <= sp < 84 and 61 < tds <= 80: tambah('R35')
+    elif 85 <= sp <= 89 and 50 <= tds <= 60: tambah('R36')
 
     # R37-R39 (Pendingin x TDS)
     if sc > 42 and tds > 80: tambah('R37')
-    elif sc > 35 and sc <= 42 and tds > 61 and tds <= 80: tambah('R38')
-    elif sc >= 20 and sc <= 35 and tds >= 50 and tds <= 60: tambah('R39')
+    elif 35 < sc <= 42 and 61 < tds <= 80: tambah('R38')
+    elif 20 <= sc <= 35 and 50 <= tds <= 60: tambah('R39')
 
     # R40-R41 (pH x TDS)
     if ph < 4.5 and tds > 80: tambah('R40')
-    elif ph >= 4.5 and ph < 5.5 and tds > 61 and tds <= 80: tambah('R41')
+    elif 4.5 <= ph < 5.5 and 61 < tds <= 80: tambah('R41')
 
     # R42 (Kombinasi 3+ Sensor)
     if sp > 95 and sc > 42 and (ph < 4.5 or ph > 8.0) and tds > 80: tambah('R42')

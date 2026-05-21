@@ -97,12 +97,12 @@ RULES = {
  
     # ── A1. Suhu Produksi (R01–R06) ─────────────
     'R01': {
-        'kondisi': 'Suhu produksi optimal (90°C–105°C)',
+        'kondisi': 'Suhu produksi optimal (85°C–89°C)',
         'aksi'   : 'Proses distilasi berjalan optimal, lanjutkan',
         'level'  : 'normal'
     },
     'R02': {
-        'kondisi': 'Suhu produksi rendah (80°C–90°C)',
+        'kondisi': 'Suhu produksi rendah (80°C–84°C)',
         'aksi'   : 'Naikkan suhu pemanas secara bertahap',
         'level'  : 'anomali'
     },
@@ -112,12 +112,12 @@ RULES = {
         'level'  : 'anomali'
     },
     'R04': {
-        'kondisi': 'Suhu produksi tinggi (105°C–112°C)',
+        'kondisi': 'Suhu produksi tinggi (90°C–95°C)',
         'aksi'   : 'Kurangi intensitas pemanas, pantau terus',
         'level'  : 'anomali'
     },
     'R05': {
-        'kondisi': 'Suhu produksi kritis (>112°C)',
+        'kondisi': 'Suhu produksi kritis (>95°C)',
         'aksi'   : 'BAHAYA — Matikan pemanas segera, risiko hangus',
         'level'  : 'kritis'
     },
@@ -183,7 +183,7 @@ RULES = {
  
     # ── A4. TDS / Kemurnian Distilat (R17–R20) ──
     'R17': {
-        'kondisi': 'TDS normal (50–300 ppm)',
+        'kondisi': 'TDS normal (50–60 ppm)',
         'aksi'   : 'Kemurnian distilat baik, proses berjalan optimal',
         'level'  : 'normal'
     },
@@ -193,12 +193,12 @@ RULES = {
         'level'  : 'normal'
     },
     'R19': {
-        'kondisi': 'TDS tinggi (300–500 ppm)',
+        'kondisi': 'TDS tinggi (61–80 ppm)',
         'aksi'   : 'Kemurnian menurun, periksa kebersihan kondensor dan pipa',
         'level'  : 'anomali'
     },
     'R20': {
-        'kondisi': 'TDS kritis (>500 ppm)',
+        'kondisi': 'TDS kritis (>80 ppm)',
         'aksi'   : 'HENTIKAN — Kemurnian sangat buruk, distilat tidak layak pakai',
         'level'  : 'kritis'
     },
@@ -209,49 +209,49 @@ RULES = {
  
     # ── B1. Suhu Produksi × Suhu Pendingin (R21–R26) ──
     'R21': {
-        'kondisi': 'Suhu produksi tinggi (>105°C) DAN suhu pendingin tinggi (>35°C)',
+        'kondisi': 'Suhu produksi tinggi (90°C-95°C) DAN suhu pendingin tinggi (35°C-42°C)',
         'aksi'   : 'KRITIS GANDA — Kurangi pemanas DAN tingkatkan pendingin bersamaan',
         'level'  : 'kritis'
     },
     'R22': {
-        'kondisi': 'Suhu produksi normal DAN suhu pendingin tinggi (>35°C)',
+        'kondisi': 'Suhu produksi normal DAN suhu pendingin tinggi (35°C-42°C)',
         'aksi'   : 'Efisiensi kondensasi menurun meski suhu produksi normal, tingkatkan pendingin',
         'level'  : 'anomali'
     },
     'R23': {
-        'kondisi': 'Suhu produksi rendah (<90°C) DAN suhu pendingin sangat rendah (<15°C)',
+        'kondisi': 'Suhu produksi rendah (80°C-84°C) DAN suhu pendingin sangat rendah (<15°C)',
         'aksi'   : 'Proses belum optimal, kurangi pendingin dan naikkan pemanas',
         'level'  : 'anomali'
     },
     'R24': {
-        'kondisi': 'Suhu produksi kritis (>112°C) DAN suhu pendingin kritis (>42°C)',
+        'kondisi': 'Suhu produksi kritis (>95°C) DAN suhu pendingin kritis (>42°C)',
         'aksi'   : 'DARURAT TOTAL — Matikan pemanas, aktifkan pendingin darurat, hentikan proses',
         'level'  : 'kritis'
     },
     'R25': {
-        'kondisi': 'Suhu produksi normal DAN suhu pendingin rendah (<20°C)',
+        'kondisi': 'Suhu produksi normal DAN suhu pendingin rendah (15°C-20°C)',
         'aksi'   : 'Pendinginan berlebih meski suhu produksi normal, kurangi aliran air dingin',
         'level'  : 'anomali'
     },
     'R26': {
-        'kondisi': 'Suhu produksi tinggi (105–112°C) DAN suhu pendingin normal',
+        'kondisi': 'Suhu produksi tinggi (90°C–95°C) DAN suhu pendingin normal',
         'aksi'   : 'Kurangi pemanas, kondensor masih mampu menangani beban saat ini',
         'level'  : 'anomali'
     },
  
     # ── B2. Suhu Produksi × pH (R27–R31) ──────
     'R27': {
-        'kondisi': 'Suhu produksi kritis (>112°C) DAN pH sangat asam (<4.5)',
+        'kondisi': 'Suhu produksi kritis (>95°C) DAN pH sangat asam (<4.5)',
         'aksi'   : 'KRITIS — Suhu tinggi memperparah dekomposisi asam, hentikan proses segera',
         'level'  : 'kritis'
     },
     'R28': {
-        'kondisi': 'Suhu produksi tinggi (>105°C) DAN pH asam (4.5–5.5)',
+        'kondisi': 'Suhu produksi tinggi (90°C-95°C) DAN pH asam (4.5–5.5)',
         'aksi'   : 'Suhu tinggi mempercepat hidrolisis, turunkan suhu dan periksa pH',
         'level'  : 'kritis'
     },
     'R29': {
-        'kondisi': 'Suhu produksi rendah (<90°C) DAN pH basa (>7.0)',
+        'kondisi': 'Suhu produksi rendah (80°C-84°C) DAN pH basa (7.0-8.0)',
         'aksi'   : 'Suhu rendah dan pH basa, periksa kualitas bahan baku daun',
         'level'  : 'anomali'
     },
@@ -268,22 +268,22 @@ RULES = {
  
     # ── B3. Suhu Produksi × TDS (R32–R36) ─────
     'R32': {
-        'kondisi': 'Suhu produksi kritis (>112°C) DAN TDS kritis (>500 ppm)',
+        'kondisi': 'Suhu produksi kritis (>95°C) DAN TDS kritis (>80 ppm)',
         'aksi'   : 'DARURAT — Suhu berlebih melarutkan kontaminan, hentikan dan bersihkan sistem',
         'level'  : 'kritis'
     },
     'R33': {
-        'kondisi': 'Suhu produksi tinggi (>105°C) DAN TDS tinggi (300–500 ppm)',
+        'kondisi': 'Suhu produksi tinggi (90°C-95°C) DAN TDS tinggi (61-80 ppm)',
         'aksi'   : 'Suhu tinggi meningkatkan kelarutan pengotor, turunkan suhu dan periksa kemurnian',
         'level'  : 'kritis'
     },
     'R34': {
-        'kondisi': 'Suhu produksi normal DAN TDS tinggi (300–500 ppm)',
+        'kondisi': 'Suhu produksi normal DAN TDS tinggi (61–80 ppm)',
         'aksi'   : 'Kemurnian menurun meski suhu normal, periksa kebersihan kondensor',
         'level'  : 'anomali'
     },
     'R35': {
-        'kondisi': 'Suhu produksi rendah (<90°C) DAN TDS tinggi (>300 ppm)',
+        'kondisi': 'Suhu produksi rendah (80°C-84°C) DAN TDS tinggi (61-80 ppm)',
         'aksi'   : 'Proses tidak optimal, distilat terkontaminasi, naikkan suhu dan periksa sistem',
         'level'  : 'anomali'
     },
@@ -295,12 +295,12 @@ RULES = {
  
     # ── B4. Suhu Pendingin × TDS (R37–R39) ────
     'R37': {
-        'kondisi': 'Suhu pendingin kritis (>42°C) DAN TDS kritis (>500 ppm)',
+        'kondisi': 'Suhu pendingin kritis (>42°C) DAN TDS kritis (>80 ppm)',
         'aksi'   : 'DARURAT — Kondensor gagal dan distilat sangat kotor, hentikan semua proses',
         'level'  : 'kritis'
     },
     'R38': {
-        'kondisi': 'Suhu pendingin tinggi (>35°C) DAN TDS tinggi (300–500 ppm)',
+        'kondisi': 'Suhu pendingin tinggi (35°C-42°C) DAN TDS tinggi (61–80 ppm)',
         'aksi'   : 'Pendinginan tidak efisien menyebabkan kemurnian menurun, perbaiki sistem pendingin',
         'level'  : 'kritis'
     },
@@ -312,12 +312,12 @@ RULES = {
  
     # ── B5. pH × TDS (R40–R41) ─────────────────
     'R40': {
-        'kondisi': 'pH sangat asam (<4.5) DAN TDS kritis (>500 ppm)',
+        'kondisi': 'pH sangat asam (<4.5) DAN TDS kritis (>80 ppm)',
         'aksi'   : 'DARURAT KUALITAS — Distilat sangat asam dan sangat kotor, tidak dapat digunakan',
         'level'  : 'kritis'
     },
     'R41': {
-        'kondisi': 'pH asam (4.5–5.5) DAN TDS tinggi (300–500 ppm)',
+        'kondisi': 'pH asam (4.5–5.5) DAN TDS tinggi (61–80 ppm)',
         'aksi'   : 'Kualitas distilat buruk ganda (asam + kotor), periksa keseluruhan sistem',
         'level'  : 'kritis'
     },
@@ -357,15 +357,15 @@ def forward_chaining(d):
     # ════════════════════════
  
     # -- Suhu Produksi --
-    if sp >= 90 and sp <= 105:
+    if sp >= 85 and sp <= 89:
         tambah('R01')
-    elif sp >= 80 and sp < 90:
+    elif sp >= 80 and sp < 84:
         tambah('R02')
     elif sp < 80:
         tambah('R03')
-    elif sp > 105 and sp <= 112:
+    elif sp > 90 and sp <= 95:
         tambah('R04')
-    elif sp > 112:
+    elif sp > 95:
         tambah('R05')
  
     # -- Suhu Pendingin --
@@ -393,83 +393,58 @@ def forward_chaining(d):
         tambah('R16')
  
     # -- TDS --
-    if tds >= 50 and tds <= 300:
+    if tds >= 50 and tds <= 60:
         tambah('R17')
-    elif tds < 50:
+    elif tds < 60:
         tambah('R18')
-    elif tds > 300 and tds <= 500:
+    elif tds > 61 and tds <= 80:
         tambah('R19')
-    elif tds > 500:
+    elif tds > 80:
         tambah('R20')
  
     # ════════════════════════════
     # BAGIAN B — KOMBINASI
     # ════════════════════════════
  
-    # -- B1: Suhu Produksi × Suhu Pendingin --
-    if sp > 112 and sc > 42:
-        tambah('R24')                               # Darurat total (lebih spesifik dari R21)
-    elif sp > 105 and sc > 35:
-        tambah('R21')
-    elif sp >= 90 and sp <= 105 and sc > 35:
-        tambah('R22')
-    elif sp < 90 and sc < 15:
-        tambah('R23')
-    elif sp >= 90 and sp <= 105 and sc < 20:
-        tambah('R25')
-    elif sp > 105 and sp <= 112 and sc >= 20 and sc <= 35:
-        tambah('R26')
- 
-    # -- B2: Suhu Produksi × pH --
-    if sp > 112 and ph < 4.5:
-        tambah('R27')
-    elif sp > 105 and ph >= 4.5 and ph < 5.5:
-        tambah('R28')
-    elif sp < 90 and ph > 7.0:
-        tambah('R29')
-    elif sp >= 90 and sp <= 105 and ph >= 5.5 and ph <= 7.0:
-        tambah('R30')
-    elif sp < 80 and ph < 4.5:
-        tambah('R31')
- 
-    # -- B3: Suhu Produksi × TDS --
-    if sp > 112 and tds > 500:
-        tambah('R32')
-    elif sp > 105 and tds > 300 and tds <= 500:
-        tambah('R33')
-    elif sp >= 90 and sp <= 105 and tds > 300 and tds <= 500:
-        tambah('R34')
-    elif sp < 90 and tds > 300:
-        tambah('R35')
-    elif sp >= 90 and sp <= 105 and tds >= 50 and tds <= 300:
-        tambah('R36')
- 
-    # -- B4: Suhu Pendingin × TDS --
-    if sc > 42 and tds > 500:
-        tambah('R37')
-    elif sc > 35 and tds > 300 and tds <= 500:
-        tambah('R38')
-    elif sc >= 20 and sc <= 35 and tds >= 50 and tds <= 300:
-        tambah('R39')
- 
-    # -- B5: pH × TDS --
-    if ph < 4.5 and tds > 500:
-        tambah('R40')
-    elif ph >= 4.5 and ph < 5.5 and tds > 300 and tds <= 500:
-        tambah('R41')
- 
-    # -- B6: Kombinasi 4 Sensor Sekaligus --
-    if sp > 112 and sc > 42 and (ph < 4.5 or ph > 8.0) and tds > 500:
-        tambah('R42')
- 
-    # ── Tentukan Status Akhir (prioritas: kritis > anomali > normal) ──
-    if 'kritis' in status_set:
-        status = 'kritis'
-    elif 'anomali' in status_set:
-        status = 'anomali'
-    else:
-        status = 'normal'
- 
+# R21-R26 (Suhu Prod x Pendingin)
+    if sp > 95 and sc > 42: tambah('R24')
+    elif sp > 90 and sp <= 95 and sc > 35 and sc <= 42: tambah('R21')
+    elif sp >= 85 and sp <= 89 and sc > 35 and sc <= 42: tambah('R22')
+    elif sp >= 80 and sp < 84 and sc < 15: tambah('R23')
+    elif sp >= 85 and sp <= 89 and sc > 15 and sc <= 20: tambah('R25')
+    elif sp > 90 and sp <= 95 and sc >= 20 and sc <= 35: tambah('R26')
+
+    # R27-R31 (Suhu Prod x pH)
+    if sp > 95 and ph < 4.5: tambah('R27')
+    elif sp > 90 and sp <= 95 and ph >= 4.5 and ph < 5.5: tambah('R28')
+    elif sp >= 80 and sp < 84 and ph > 7.0 and ph <= 8.0: tambah('R29')
+    elif sp >= 85 and sp <= 89 and ph >= 5.5 and ph <= 7.0: tambah('R30')
+    elif sp < 80 and ph < 4.5: tambah('R31')
+
+    # R32-R36 (Suhu Prod x TDS)
+    if sp > 95 and tds > 80: tambah('R32')
+    elif sp > 90 and sp <= 95 and tds > 61 and tds <= 80: tambah('R33')
+    elif sp >= 85 and sp <= 89 and tds > 61 and tds <= 80: tambah('R34')
+    elif sp >= 80 and sp < 84 and tds > 60 and tds <= 80: tambah('R35')
+    elif sp >= 85 and sp <= 89 and tds >= 50 and tds <= 60: tambah('R36')
+
+    # R37-R39 (Pendingin x TDS)
+    if sc > 42 and tds > 80: tambah('R37')
+    elif sc > 35 and sc <= 42 and tds > 61 and tds <= 80: tambah('R38')
+    elif sc >= 20 and sc <= 35 and tds >= 50 and tds <= 60: tambah('R39')
+
+    # R40-R41 (pH x TDS)
+    if ph < 4.5 and tds > 80: tambah('R40')
+    elif ph >= 4.5 and ph < 5.5 and tds > 61 and tds <= 80: tambah('R41')
+
+    # R42 (Kombinasi 3+ Sensor)
+    if sp > 95 and sc > 42 and (ph < 4.5 or ph > 8.0) and tds > 80: tambah('R42')
+
+    # Tentukan status akhir berdasarkan level tertinggi
+    status = 'normal'
+    if 'kritis' in status_set: status = 'kritis'
+    elif 'anomali' in status_set: status = 'anomali'
+
     rekomendasi = [RULES[r]['aksi'] for r in rules_aktif]
     return status, rules_aktif, rekomendasi
  

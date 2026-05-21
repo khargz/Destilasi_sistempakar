@@ -30,8 +30,8 @@
     color: var(--text-primary); 
     font-family: 'Rajdhani', sans-serif; 
     min-height: 100vh; 
-    min-width: 1280px; /* Mengunci lebar layar seukuran laptop */
-    overflow-x: auto; /* Mengizinkan geser kiri-kanan di HP */
+    min-width: 1280px; 
+    overflow-x: auto; 
   }
 
   /* ═════════ LOGIN SCREEN ═════════ */
@@ -151,37 +151,28 @@
   /* Warna Default (OK) */
   .sensor-card .connector { border-color: var(--accent-cyan); }
   .sensor-card .connector-dot { background: var(--accent-cyan); box-shadow: 0 0 8px var(--accent-cyan); }
-
-  /* Warna Peringatan */
   .sensor-card.warn .connector { border-color: var(--accent-gold); }
   .sensor-card.warn .connector-dot { background: var(--accent-gold); box-shadow: 0 0 8px var(--accent-gold); }
-
-  /* Warna Kritis */
   .sensor-card.danger .connector { border-color: var(--accent-red); }
   .sensor-card.danger .connector-dot { background: var(--accent-red); box-shadow: 0 0 8px var(--accent-red); }
 
   /* Kordinat Garis & Peletakan Kotak */
-  /* Kotak 1: Suhu Boiler */
   .card-sp { top: 30%; left: 5%; } 
   .card-sp .connector-h { top: 50%; right: -100px; width: 100px; height: 1px; border-top: 2px solid; }
   .card-sp .connector-dot { top: calc(50% - 3px); right: -100px; }
 
-  /* Kotak 2: Suhu Pendingin */
   .card-sc { top: 35%; right: 8%; } 
   .card-sc .connector-h { top: 50%; left: -180px; width: 180px; height: 1px; border-top: 2px solid; }
   .card-sc .connector-dot { top: calc(50% - 3px); left: -180px; }
 
-  /* Kotak 3: pH Hasil */
   .card-ph { top: 51%; right: 2%; } 
   .card-ph .connector-h { top: 50%; left: -180px; width: 180px; height: 1px; border-top: 2px solid; }
   .card-ph .connector-dot { top: calc(50% - 3px); left: -180px; }
 
-  /* Kotak 4: TDS Hasil */
   .card-tds { top: 78%; right: 32%; }
   .card-tds .connector-v { top: -100px; left: 50%; width: 1px; height: 100px; border-left: 2px solid; }
   .card-tds .connector-dot { top: -100px; left: calc(50% - 3px); }
 
-  /* Kotak 5: Load Cell (Berat Produk) */
   .card-lc { top: 59%; left: 9%; } 
   .card-lc .connector-h { top: 50%; right: -240px; width: 240px; height: 1px; border-top: 2px solid; }
   .card-lc .connector-dot { top: calc(50% - 3px); right: -240px; }
@@ -195,7 +186,7 @@
   .panel-body { padding: 10px 12px; flex: 1; overflow-y: auto;}
 
   .rule-item { border: 1px solid var(--border); border-radius: 2px; padding: 7px 10px; margin-bottom: 6px; background: var(--bg-card); display: flex; gap: 10px; align-items: flex-start; animation: fadeIn .3s ease; }
-  .rule-num { font-family: 'Share Tech Mono', monospace; font-size: 9px; color: var(--accent-cyan); background: var(--accent-cyan-dim); padding: 1px 5px; border-radius: 1px; white-space: nowrap; margin-top: 1px; }
+  .rule-num { font-family: 'Share Tech Mono', monospace; font-size: 9px; color: var(--accent-cyan); background: var(--accent-cyan-dim); padding: 1px 5px; border-radius: 1px; white-space: nowrap; margin-top: 1px; font-weight: bold;}
   .rule-text { flex: 1; }
   .rule-condition { font-family: 'Share Tech Mono', monospace; font-size: 9px; color: var(--text-dim); margin-bottom: 2px; }
   .rule-result { font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 600; color: var(--accent-gold); }
@@ -331,7 +322,7 @@
       </button>
     </div>
     <div class="login-footer">
-      <div class="login-footer-text">v2.4 · SCADA Edition</div>
+      <div class="login-footer-text">v2.5 · SCADA Edition</div>
       <div style="display:flex;align-items:center;gap:6px">
         <div class="status-dot"></div>
         <span class="login-footer-text">Server aktif</span>
@@ -401,7 +392,7 @@
         <div class="corner-deco corner-tl">PLANT VIEW ● DISTILASI</div>
         <div class="corner-deco corner-tr" id="plant-time">--:--:--</div>
         <div class="corner-deco corner-bl">UNIT: °C / ppm / gram</div>
-        <div class="corner-deco corner-br">REV 2.4</div>
+        <div class="corner-deco corner-br">REV 2.5</div>
 
         <div class="plant-container">
           <img src="{{ url_for('static', filename='plant destilasi.png') }}" class="scada-image" alt="HMI Plant Destilasi" style="width: 100%; max-width: 750px; height: auto; display: block; opacity: 0.9;">
@@ -412,7 +403,7 @@
             <div class="connector connector-h"></div><div class="connector-dot"></div>
             <div class="sensor-card-header"><div class="sensor-label">SUHU BOILER <span id="trend-sp"></span></div><div class="ok-tag" id="status-txt-sp">NORMAL</div></div>
             <div><span class="sensor-value" id="val-sp">—</span><span class="sensor-unit">°C</span></div>
-            <div class="sensor-ideal">Ideal: 88 – 98 °C</div>
+            <div class="sensor-ideal">Ideal: 90 – 105 °C</div>
             <div class="sensor-bar"><div class="sensor-bar-fill" id="bar-sp" style="width:0%"></div></div>
           </div>
           <div class="sensor-card card-sc" id="tag-sc" onclick="openModal('sc')">
@@ -666,7 +657,7 @@ function showToast(type, msg, duration=3500) {
 
 // ════════ UI UPDATES SCADA ════════
 const SENSOR_META = { 
-  sp: { label:'SUHU PEMANAS', unit:'°C', min:88, max:98, maxScale:120 }, 
+  sp: { label:'SUHU PEMANAS', unit:'°C', min:90, max:105, maxScale:120 }, 
   sc: { label:'SUHU PENDINGIN',unit:'°C', min:20, max:35, maxScale:60 }, 
   ph: { label:'pH HASIL', unit:'', min:5.5, max:7.0, maxScale:14 }, 
   tds: { label:'TDS HASIL', unit:'ppm', min:50, max:300, maxScale:600 },
@@ -707,16 +698,16 @@ function updBanner(ov,fired){
   const b=document.getElementById('status-banner'); b.className='anomaly-banner '+(ov==='normal'?'normal':ov==='anomali'?'anomali':'kritis');
   const s=document.getElementById('banner-status'); s.textContent=ov==='normal'?'DISTILASI BERJALAN NORMAL':ov==='anomali'?'ANOMALI TERDETEKSI':'KONDISI KRITIS — TINDAKAN SEGERA';
   const issues=fired.filter(r=>r.status!=='ok'); document.getElementById('banner-desc').textContent=issues.length?issues.map(r=>r.label).join(' · '):'Semua parameter dalam batas ideal';
-  document.getElementById('banner-time').textContent='Update: --:--:--';
+  document.getElementById('banner-time').textContent='Update: '+new Date().toLocaleTimeString('id-ID');
   document.getElementById('anomali-count').textContent = issues.length;
 }
 
 function updFC(fired){
   document.getElementById('fc-trace').innerHTML=fired.map(r=> 
     `<div class="rule-item">
-        <div class="rule-num">${r.id.replace('R','')}</div>
+        <div class="rule-num">${r.id}</div>
         <div class="rule-text">
-            <div class="rule-condition">IF kondisi_${r.param} THEN</div>
+            <div class="rule-condition">Sistem Mendeteksi:</div>
             <div class="rule-result" style="color:${r.status==='ok'?'var(--accent-green)':r.status==='warn'?'var(--accent-gold)':'var(--accent-red)'}">${r.label}</div>
         </div>
     </div>`
@@ -786,28 +777,79 @@ function renderLogTable(logs) {
   }).join('');
 }
 
-// ════════ PYTHON DB INTEGRATION ════════
+// ════════ PYTHON DB INTEGRATION (42 RULES FULL SYNC) ════════
 const API = '/api'; let dbOk = false;
+
+// 1. Kamus 42 Rules murni untuk Teks & Visualisasi UI
+// Tidak perlu lagi menulis fungsi 'cond: d=>...' karena logika sudah dihitung 100% oleh Python backend.
 const RULES = [
-  {id:'R01',cond:d=>d.sp>=88&&d.sp<=98,param:'sp',status:'ok',label:'Suhu pemanas normal',rek:null},
-  {id:'R02',cond:d=>d.sp<88,param:'sp',status:'warn',label:'Suhu pemanas terlalu rendah',rek:{cls:'warn',title:'Naikkan suhu pemanas',desc:'Di bawah 88°C menyebabkan yield rendah.'}},
-  {id:'R03',cond:d=>d.sp>98&&d.sp<=112,param:'sp',status:'warn',label:'Suhu sedikit tinggi',rek:{cls:'warn',title:'Turunkan suhu pemanas',desc:'Di atas 98°C berisiko degradasi senyawa.'}},
-  {id:'R04',cond:d=>d.sp>112,param:'sp',status:'danger',label:'KRITIS: Suhu sangat tinggi',rek:{cls:'danger',title:'MATIKAN PEMANAS SEGERA',desc:'Melebihi 112°C. Bahaya.'}},
-  {id:'R05',cond:d=>d.sc>=20&&d.sc<=35,param:'sc',status:'ok',label:'Suhu pendingin normal',rek:null},
-  {id:'R06',cond:d=>d.sc<20,param:'sc',status:'warn',label:'Suhu pendingin rendah',rek:{cls:'warn',title:'Kurangi aliran air',desc:'Di bawah 20°C menyebabkan minyak bercampur air.'}},
-  {id:'R07',cond:d=>d.sc>35,param:'sc',status:'danger',label:'KRITIS: Suhu pendingin tinggi',rek:{cls:'danger',title:'Tingkatkan aliran air',desc:'Kondensasi gagal.'}},
-  {id:'R08',cond:d=>d.ph>=5.5&&d.ph<=7.0,param:'ph',status:'ok',label:'pH normal (SNI)',rek:null},
-  {id:'R09',cond:d=>d.ph<5.5,param:'ph',status:'warn',label:'pH terlalu asam',rek:{cls:'warn',title:'Periksa keasaman',desc:'Cek kebersihan tangki.'}},
-  {id:'R10',cond:d=>d.ph>7.0,param:'ph',status:'warn',label:'pH terlalu basa',rek:{cls:'warn',title:'Turunkan pemanas',desc:'Fraksi berat ikut terdestilasi.'}},
-  {id:'R11',cond:d=>d.tds>=50&&d.tds<=300,param:'tds',status:'ok',label:'TDS normal',rek:null},
-  {id:'R12',cond:d=>d.tds<50,param:'tds',status:'warn',label:'TDS rendah',rek:{cls:'warn',title:'Minyak terlalu encer',desc:'Cek bahan baku daun.'}},
-  {id:'R13',cond:d=>d.tds>300&&d.tds<=500,param:'tds',status:'warn',label:'TDS tinggi',rek:{cls:'warn',title:'Periksa kontaminan mineral',desc:'Kualitas air buruk.'}},
-  {id:'R14',cond:d=>d.tds>500,param:'tds',status:'danger',label:'KRITIS: TDS sangat tinggi',rek:{cls:'danger',title:'HENTIKAN PROSES',desc:'Indikasi kontaminasi serius.'}}
+  // A1. Suhu Produksi
+  {id:'R01', param:'sp', status:'ok', label:'Suhu produksi optimal', rek:null},
+  {id:'R02', param:'sp', status:'warn', label:'Suhu produksi rendah', rek:{cls:'warn',title:'Naikkan suhu pemanas',desc:'Naikkan suhu pemanas secara bertahap.'}},
+  {id:'R03', param:'sp', status:'warn', label:'Suhu produksi sangat rendah', rek:{cls:'warn',title:'Suhu Terlalu Rendah',desc:'Proses belum mendidih, naikkan pemanas segera.'}},
+  {id:'R04', param:'sp', status:'warn', label:'Suhu produksi tinggi', rek:{cls:'warn',title:'Kurangi Pemanas',desc:'Kurangi intensitas pemanas, pantau terus.'}},
+  {id:'R05', param:'sp', status:'danger', label:'Suhu produksi kritis', rek:{cls:'danger',title:'MATIKAN PEMANAS SEGERA',desc:'Risiko hangus, bahaya.'}},
+  {id:'R06', param:'sp', status:'warn', label:'Suhu produksi tidak stabil', rek:{cls:'warn',title:'Periksa Sumber Panas',desc:'Fluktuasi cepat pada tekanan uap.'}},
+
+  // A2. Suhu Pendingin
+  {id:'R07', param:'sc', status:'ok', label:'Suhu pendingin optimal', rek:null},
+  {id:'R08', param:'sc', status:'warn', label:'Suhu pendingin rendah', rek:{cls:'warn',title:'Kurangi Aliran Air',desc:'Hindari kondensasi berlebih.'}},
+  {id:'R09', param:'sc', status:'warn', label:'Suhu pendingin sangat rendah', rek:{cls:'warn',title:'Matikan Pompa Sementara',desc:'Suhu pendingin terlalu dingin.'}},
+  {id:'R10', param:'sc', status:'warn', label:'Suhu pendingin tinggi', rek:{cls:'warn',title:'Tingkatkan Aliran Air',desc:'Efisiensi kondensor menurun.'}},
+  {id:'R11', param:'sc', status:'danger', label:'Suhu pendingin kritis', rek:{cls:'danger',title:'BAHAYA KONDENSOR',desc:'Kondensor hampir gagal, tingkatkan pendingin darurat.'}},
+
+  // A3. pH Distilat
+  {id:'R12', param:'ph', status:'ok', label:'pH distilat normal', rek:null},
+  {id:'R13', param:'ph', status:'warn', label:'pH asam ringan', rek:{cls:'warn',title:'Periksa Keasaman',desc:'Periksa kemungkinan kontaminasi asam organik.'}},
+  {id:'R14', param:'ph', status:'danger', label:'pH sangat asam', rek:{cls:'danger',title:'HENTIKAN PENGUMPULAN',desc:'Kontaminasi asam berat.'}},
+  {id:'R15', param:'ph', status:'warn', label:'pH basa ringan', rek:{cls:'warn',title:'Periksa Bahan Baku',desc:'Alkalinitas sedikit tinggi.'}},
+  {id:'R16', param:'ph', status:'danger', label:'pH sangat basa', rek:{cls:'danger',title:'HENTIKAN PROSES',desc:'Kontaminasi basa berat, periksa kondensor dan pipa.'}},
+
+  // A4. TDS
+  {id:'R17', param:'tds', status:'ok', label:'TDS normal', rek:null},
+  {id:'R18', param:'tds', status:'ok', label:'TDS sangat rendah', rek:null},
+  {id:'R19', param:'tds', status:'warn', label:'TDS tinggi', rek:{cls:'warn',title:'Kemurnian Menurun',desc:'Periksa kebersihan kondensor dan pipa.'}},
+  {id:'R20', param:'tds', status:'danger', label:'TDS kritis', rek:{cls:'danger',title:'HENTIKAN PROSES',desc:'Kemurnian sangat buruk, tidak layak pakai.'}},
+
+  // B1. Kombinasi Suhu Produksi & Pendingin
+  {id:'R21', param:'combo', status:'danger', label:'Suhu Produksi & Pendingin Tinggi', rek:{cls:'danger',title:'KRITIS GANDA',desc:'Kurangi pemanas DAN tingkatkan pendingin.'}},
+  {id:'R22', param:'combo', status:'warn', label:'Suhu Normal, Pendingin Tinggi', rek:{cls:'warn',title:'Tingkatkan Pendingin',desc:'Efisiensi kondensasi menurun.'}},
+  {id:'R23', param:'combo', status:'warn', label:'Suhu Produksi & Pendingin Rendah', rek:{cls:'warn',title:'Naikkan Pemanas',desc:'Proses belum optimal, kurangi pendingin.'}},
+  {id:'R24', param:'combo', status:'danger', label:'Suhu Produksi & Pendingin Kritis', rek:{cls:'danger',title:'DARURAT TOTAL',desc:'Matikan pemanas, aktifkan pendingin darurat.'}},
+  {id:'R25', param:'combo', status:'warn', label:'Pendinginan Berlebih', rek:{cls:'warn',title:'Kurangi Aliran Air',desc:'Suhu produksi normal tapi pendingin terlalu dingin.'}},
+  {id:'R26', param:'combo', status:'warn', label:'Pemanas Tinggi, Pendingin Normal', rek:{cls:'warn',title:'Kurangi Pemanas',desc:'Kondensor masih mampu menangani beban.'}},
+
+  // B2. Kombinasi Suhu Produksi & pH
+  {id:'R27', param:'combo', status:'danger', label:'Suhu Kritis & Sangat Asam', rek:{cls:'danger',title:'HENTIKAN PROSES',desc:'Suhu tinggi memperparah dekomposisi asam.'}},
+  {id:'R28', param:'combo', status:'danger', label:'Suhu Tinggi & Asam', rek:{cls:'danger',title:'Turunkan Suhu',desc:'Suhu tinggi mempercepat hidrolisis.'}},
+  {id:'R29', param:'combo', status:'warn', label:'Suhu Rendah & Basa', rek:{cls:'warn',title:'Periksa Bahan Baku',desc:'Kualitas daun kayu putih menurun.'}},
+  {id:'R30', param:'combo', status:'ok', label:'Suhu & pH Ideal', rek:null},
+  {id:'R31', param:'combo', status:'danger', label:'Suhu Sangat Rendah & Sangat Asam', rek:{cls:'danger',title:'Periksa Total',desc:'Proses gagal, bahan baku buruk.'}},
+
+  // B3. Kombinasi Suhu Produksi & TDS
+  {id:'R32', param:'combo', status:'danger', label:'Suhu Kritis & TDS Kritis', rek:{cls:'danger',title:'DARURAT KONTAMINASI',desc:'Suhu berlebih melarutkan kontaminan, bersihkan sistem.'}},
+  {id:'R33', param:'combo', status:'danger', label:'Suhu Tinggi & TDS Tinggi', rek:{cls:'danger',title:'Turunkan Suhu',desc:'Suhu tinggi meningkatkan kelarutan pengotor.'}},
+  {id:'R34', param:'combo', status:'warn', label:'Suhu Normal, TDS Tinggi', rek:{cls:'warn',title:'Bersihkan Kondensor',desc:'Kemurnian menurun meski suhu normal.'}},
+  {id:'R35', param:'combo', status:'warn', label:'Suhu Rendah & TDS Tinggi', rek:{cls:'warn',title:'Naikkan Suhu',desc:'Proses tidak optimal, distilat terkontaminasi.'}},
+  {id:'R36', param:'combo', status:'ok', label:'Suhu & Kemurnian Ideal', rek:null},
+
+  // B4. Kombinasi Suhu Pendingin & TDS
+  {id:'R37', param:'combo', status:'danger', label:'Pendingin Kritis & TDS Kritis', rek:{cls:'danger',title:'HENTIKAN SEMUA',desc:'Kondensor gagal dan distilat sangat kotor.'}},
+  {id:'R38', param:'combo', status:'danger', label:'Pendingin Tinggi & TDS Tinggi', rek:{cls:'danger',title:'Perbaiki Pendingin',desc:'Pendinginan tak efisien menyebabkan kemurnian turun.'}},
+  {id:'R39', param:'combo', status:'ok', label:'Kondensor & Kemurnian Ideal', rek:null},
+
+  // B5. Kombinasi pH & TDS
+  {id:'R40', param:'combo', status:'danger', label:'Sangat Asam & TDS Kritis', rek:{cls:'danger',title:'BUANG DISTILAT',desc:'Kualitas hancur, tidak dapat digunakan.'}},
+  {id:'R41', param:'combo', status:'danger', label:'Asam & TDS Tinggi', rek:{cls:'danger',title:'Periksa Sistem Total',desc:'Kualitas distilat memburuk ganda.'}},
+
+  // B6. Kombinasi Sistem Gagal Total
+  {id:'R42', param:'combo', status:'danger', label:'KEGAGALAN SISTEM TOTAL', rek:{cls:'danger',title:'MATIKAN SEMUA ALAT',desc:'Semua sensor kritis, segera lakukan pengecekan menyeluruh.'}}
 ];
 
 let sp=0,sc=0,ph=0,tds=0, lc=0, prevSp=0,prevSc=0,prevPh=0,prevTds=0, prevLc=0, totalPoints=0;
 const hist={sp:[],sc:[],ph:[],tds:[], lc:[]}; 
 const MAX_H=20; let prevFired=[]; const localNotifs=[];
+let globalFired = []; // Menampung aturan yang menyala saat ini
 
 setInterval(()=>{ 
     const t = new Date().toLocaleTimeString('id-ID');
@@ -850,10 +892,13 @@ async function fetchLatestData(){
           if(hist[k].length>MAX_H)hist[k].shift();
       });
 
-      // HANYA MENGGUNAKAN SP, SC, PH, DAN TDS UNTUK SISTEM PAKAR
-      const fired=RULES.filter(r=>r.cond({sp,sc,ph,tds})); const ov=data.status;
+      // PENTING: Membaca rules_aktif langsung dari Python, bukan menghitung ulang!
+      let ruleIds = data.rules_aktif ? data.rules_aktif.split(',') : [];
+      const fired = RULES.filter(r => ruleIds.includes(r.id));
+      globalFired = fired; // Simpan untuk dipakai grafik modal
+      const ov=data.status;
       
-      // Update Tampilan Kartu Dashboard
+      // Update Tampilan Kartu Dashboard berdasarkan rules dari Python
       updCard('sp',sp,paramSt('sp',fired),sp.toFixed(1),prevSp); 
       updCard('sc',sc,paramSt('sc',fired),sc.toFixed(1),prevSc); 
       updCard('ph',ph,paramSt('ph',fired),ph.toFixed(2),prevPh); 
@@ -925,7 +970,7 @@ function generateDemoLogs() {
   const statuses = ['normal','normal','normal','anomali','kritis'], now = Date.now();
   return Array.from({length:20}, (_,i) => {
     const st = statuses[Math.floor(Math.random()*statuses.length)];
-    return { id: 100-i, waktu: new Date(now - i*3000).toLocaleString('id-ID'), suhu_prod: (95 + Math.random()*15 - 5).toFixed(1), suhu_cool: (28 + Math.random()*10 - 5).toFixed(1), berat: Math.round(400 + Math.random()*1500), ph: (6.2 + Math.random()*1.2 - 0.4).toFixed(2), tds: Math.round(150 + Math.random()*200 - 50), status: st, rules_aktif: st==='normal' ? 'R01,R05,R08,R11' : st==='anomali' ? 'R02,R09' : 'R04,R14', };
+    return { id: 100-i, waktu: new Date(now - i*3000).toLocaleString('id-ID'), suhu_prod: (95 + Math.random()*15 - 5).toFixed(1), suhu_cool: (28 + Math.random()*10 - 5).toFixed(1), berat: Math.round(400 + Math.random()*1500), ph: (6.2 + Math.random()*1.2 - 0.4).toFixed(2), tds: Math.round(150 + Math.random()*200 - 50), status: st, rules_aktif: st==='normal' ? 'R01,R07,R12,R17' : st==='anomali' ? 'R02,R08,R22' : 'R05,R11,R24', };
   });
 }
 
@@ -940,7 +985,12 @@ function openModal(param) {
   const statusEl = document.getElementById('modal-status-line'); statusEl.textContent = statusTxt; statusEl.style.color = inRange ? 'var(--accent-green)' : 'var(--accent-gold)';
   document.getElementById('modal-overlay').classList.add('open');
   if (modalChart) { modalChart.destroy(); modalChart = null; }
-  const canvas = document.getElementById('modal-chart'), ctx = canvas.getContext('2d'), fired = RULES.filter(r => r.cond({sp,sc,ph,tds})), color = colOf(paramSt(param, fired));
+  const canvas = document.getElementById('modal-chart');
+  const ctx = canvas.getContext('2d');
+  
+  // Menggunakan globalFired agar warna sesuai kalkulasi python
+  const color = colOf(paramSt(param, globalFired));
+  
   modalChart = new Chart(ctx, { type: 'line', data: { labels: data.map((_,i) => i===data.length-1 ? 'now' : -(data.length-1-i)+'s'), datasets: [{ data, borderColor: color, backgroundColor: color+'18', borderWidth: 1.5, pointRadius: 2, pointBackgroundColor: color, tension: 0.4, fill: true, }] }, options: { responsive:true, maintainAspectRatio:false, animation:{duration:400}, plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label: ctx => ctx.parsed.y.toFixed(fix)+' '+meta.unit } } }, scales:{ x:{ grid:{color:'rgba(255,255,255,.04)'}, ticks:{color:'#4a5568',font:{size:9}} }, y:{ grid:{color:'rgba(255,255,255,.04)'}, ticks:{color:'#4a5568',font:{size:9}} } } } });
 }
 

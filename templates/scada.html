@@ -131,7 +131,7 @@
     border: 1px solid var(--border-bright); 
     border-radius: 3px; 
     padding: 8px 12px; 
-    width: 175px !important; /* Diperlebar dan dikunci pakai important */
+    width: 175px !important; 
     min-width: 175px !important;
     max-width: 175px !important;
     box-sizing: border-box;
@@ -159,7 +159,7 @@
     font-size: 9px; 
     color: var(--text-dim); 
     letter-spacing: 1px; 
-    white-space: nowrap; /* Teks tidak boleh turun baris */
+    white-space: nowrap; 
     overflow: hidden; 
     text-overflow: ellipsis;
     flex: 1; 
@@ -203,26 +203,26 @@
   .sensor-card.danger .connector { border-color: var(--accent-red); }
   .sensor-card.danger .connector-dot { background: var(--accent-red); box-shadow: 0 0 8px var(--accent-red); }
 
-  /* Kordinat Garis & Peletakan Kotak */
-  .card-sp { top: 33%; left: 5%; } 
+  /* Kordinat Garis & Peletakan Kotak (Disesuaikan untuk Wrapper 750px) */
+  .card-sp { top: 30%; left: -20%; } 
   .card-sp .connector-h { top: 50%; right: -150px; width: 150px; height: 1px; border-top: 2px solid; }
   .card-sp .connector-dot { top: calc(50% - 3px); right: -150px; }
 
-  .card-sc { top: 33%; right: 8%; } 
-  .card-sc .connector-h { top: 50%; left: -220px; width: 220px; height: 1px; border-top: 2px solid; }
-  .card-sc .connector-dot { top: calc(50% - 3px); left: -220px; }
+  .card-sc { top: 30%; right: -25%; } 
+  .card-sc .connector-h { top: 50%; left: -160px; width: 160px; height: 1px; border-top: 2px solid; }
+  .card-sc .connector-dot { top: calc(50% - 3px); left: -160px; }
 
-  .card-ph { top: 51%; right: 2%; } 
-  .card-ph .connector-h { top: 50%; left: -180px; width: 180px; height: 1px; border-top: 2px solid; }
-  .card-ph .connector-dot { top: calc(50% - 3px); left: -180px; }
+  .card-ph { top: 52%; right: -15%; } 
+  .card-ph .connector-h { top: 50%; left: -120px; width: 120px; height: 1px; border-top: 2px solid; }
+  .card-ph .connector-dot { top: calc(50% - 3px); left: -120px; }
 
-  .card-tds { top: 81%; right: 32%; }
+  .card-tds { top: 80%; right: 15%; }
   .card-tds .connector-v { top: -110px; left: 50%; width: 1px; height: 110px; border-left: 2px solid; }
   .card-tds .connector-dot { top: -110px; left: calc(50% - 3px); }
 
-  .card-lc { top: 57%; left: 9%; } 
-  .card-lc .connector-h { top: 50%; right: -240px; width: 240px; height: 1px; border-top: 2px solid; }
-  .card-lc .connector-dot { top: calc(50% - 3px); right: -240px; }
+  .card-lc { top: 58%; left: -18%; } 
+  .card-lc .connector-h { top: 50%; right: -140px; width: 140px; height: 1px; border-top: 2px solid; }
+  .card-lc .connector-dot { top: calc(50% - 3px); right: -140px; }
 
   /* ═════════ SIDEBAR PANELS ═════════ */
   .sidebar { display: flex; flex-direction: column; gap: 10px; }
@@ -444,47 +444,49 @@
         <div class="corner-deco corner-br">REV 2.5</div>
 
         <div class="plant-container">
-          <img src="{{ url_for('static', filename='plant destilasi.png') }}" class="scada-image" alt="HMI Plant Destilasi" style="width: 100%; max-width: 750px; height: auto; display: block; opacity: 0.9;">
-        </div>
-
-        <div class="sensor-overlay">
-          <div class="sensor-card card-sp" id="tag-sp" onclick="openModal('sp')">
-            <div class="connector connector-h"></div><div class="connector-dot"></div>
-            <div class="sensor-card-header"><div class="sensor-label">SUHU BOILER <span id="trend-sp"></span></div><div class="ok-tag" id="status-txt-sp">NORMAL</div></div>
-            <div><span class="sensor-value" id="val-sp">—</span><span class="sensor-unit">°C</span></div>
-            <div class="sensor-ideal">Ideal: 85 – 89 °C</div>
-            <div class="sensor-bar"><div class="sensor-bar-fill" id="bar-sp" style="width:0%"></div></div>
-          </div>
-          <div class="sensor-card card-sc" id="tag-sc" onclick="openModal('sc')">
-            <div class="connector connector-h"></div><div class="connector-dot"></div>
-            <div class="sensor-card-header"><div class="sensor-label">SUHU PENDINGIN <span id="trend-sc"></span></div><div class="ok-tag" id="status-txt-sc">NORMAL</div></div>
-            <div><span class="sensor-value" id="val-sc">—</span><span class="sensor-unit">°C</span></div>
-            <div class="sensor-ideal">Ideal: 20 – 35 °C</div>
-            <div class="sensor-bar"><div class="sensor-bar-fill" id="bar-sc" style="width:0%"></div></div>
-          </div>
-          <div class="sensor-card card-ph" id="tag-ph" onclick="openModal('ph')">
-            <div class="connector connector-h"></div><div class="connector-dot"></div>
-            <div class="sensor-card-header"><div class="sensor-label">pH HASIL <span id="trend-ph"></span></div><div class="ok-tag" id="status-txt-ph">NORMAL</div></div>
-            <div><span class="sensor-value" id="val-ph">—</span></div>
-            <div class="sensor-ideal">Ideal: 5.5 – 7.0</div>
-            <div class="sensor-bar"><div class="sensor-bar-fill" id="bar-ph" style="width:0%"></div></div>
-          </div>
-          <div class="sensor-card card-tds" id="tag-tds" onclick="openModal('tds')">
-            <div class="connector connector-v"></div><div class="connector-dot"></div>
-            <div class="sensor-card-header"><div class="sensor-label">TDS HASIL <span id="trend-tds"></span></div><div class="ok-tag" id="status-txt-tds">NORMAL</div></div>
-            <div><span class="sensor-value" id="val-tds">—</span><span class="sensor-unit">ppm</span></div>
-            <div class="sensor-ideal">Ideal: 50 – 60 ppm</div>
-            <div class="sensor-bar"><div class="sensor-bar-fill" id="bar-tds" style="width:0%"></div></div>
-          </div>
-          <div class="sensor-card card-lc" id="tag-lc" onclick="openModal('lc')">
-            <div class="connector connector-h"></div><div class="connector-dot"></div>
-            <div class="sensor-card-header">
-              <div class="sensor-label">BERAT PRODUK <span id="trend-lc"></span></div>
-              <div class="ok-tag" id="status-txt-lc">NORMAL</div>
+          <div style="position: relative; width: 100%; max-width: 750px;">
+            <img src="{{ url_for('static', filename='plant destilasi.png') }}" class="scada-image" alt="HMI Plant Destilasi" style="width: 100%; height: auto; display: block; opacity: 0.9;">
+            
+            <div class="sensor-overlay">
+              <div class="sensor-card card-sp" id="tag-sp" onclick="openModal('sp')">
+                <div class="connector connector-h"></div><div class="connector-dot"></div>
+                <div class="sensor-card-header"><div class="sensor-label">SUHU BOILER <span id="trend-sp"></span></div><div class="ok-tag" id="status-txt-sp">NORMAL</div></div>
+                <div><span class="sensor-value" id="val-sp">—</span><span class="sensor-unit">°C</span></div>
+                <div class="sensor-ideal">Ideal: 85 – 89 °C</div>
+                <div class="sensor-bar"><div class="sensor-bar-fill" id="bar-sp" style="width:0%"></div></div>
+              </div>
+              <div class="sensor-card card-sc" id="tag-sc" onclick="openModal('sc')">
+                <div class="connector connector-h"></div><div class="connector-dot"></div>
+                <div class="sensor-card-header"><div class="sensor-label">SUHU PENDINGIN <span id="trend-sc"></span></div><div class="ok-tag" id="status-txt-sc">NORMAL</div></div>
+                <div><span class="sensor-value" id="val-sc">—</span><span class="sensor-unit">°C</span></div>
+                <div class="sensor-ideal">Ideal: 20 – 35 °C</div>
+                <div class="sensor-bar"><div class="sensor-bar-fill" id="bar-sc" style="width:0%"></div></div>
+              </div>
+              <div class="sensor-card card-ph" id="tag-ph" onclick="openModal('ph')">
+                <div class="connector connector-h"></div><div class="connector-dot"></div>
+                <div class="sensor-card-header"><div class="sensor-label">pH HASIL <span id="trend-ph"></span></div><div class="ok-tag" id="status-txt-ph">NORMAL</div></div>
+                <div><span class="sensor-value" id="val-ph">—</span></div>
+                <div class="sensor-ideal">Ideal: 5.5 – 7.0</div>
+                <div class="sensor-bar"><div class="sensor-bar-fill" id="bar-ph" style="width:0%"></div></div>
+              </div>
+              <div class="sensor-card card-tds" id="tag-tds" onclick="openModal('tds')">
+                <div class="connector connector-v"></div><div class="connector-dot"></div>
+                <div class="sensor-card-header"><div class="sensor-label">TDS HASIL <span id="trend-tds"></span></div><div class="ok-tag" id="status-txt-tds">NORMAL</div></div>
+                <div><span class="sensor-value" id="val-tds">—</span><span class="sensor-unit">ppm</span></div>
+                <div class="sensor-ideal">Ideal: 50 – 60 ppm</div>
+                <div class="sensor-bar"><div class="sensor-bar-fill" id="bar-tds" style="width:0%"></div></div>
+              </div>
+              <div class="sensor-card card-lc" id="tag-lc" onclick="openModal('lc')">
+                <div class="connector connector-h"></div><div class="connector-dot"></div>
+                <div class="sensor-card-header">
+                  <div class="sensor-label">BERAT PRODUK <span id="trend-lc"></span></div>
+                  <div class="ok-tag" id="status-txt-lc">NORMAL</div>
+                </div>
+                <div><span class="sensor-value" id="val-lc">—</span><span class="sensor-unit">gram</span></div>
+                <div class="sensor-ideal">Kapasitas: 0 – 2000 g</div>
+                <div class="sensor-bar"><div class="sensor-bar-fill" id="bar-lc" style="width:0%"></div></div>
+              </div>
             </div>
-            <div><span class="sensor-value" id="val-lc">—</span><span class="sensor-unit">gram</span></div>
-            <div class="sensor-ideal">Kapasitas: 0 – 2000 g</div>
-            <div class="sensor-bar"><div class="sensor-bar-fill" id="bar-lc" style="width:0%"></div></div>
           </div>
         </div>
       </div>

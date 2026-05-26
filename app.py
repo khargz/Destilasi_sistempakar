@@ -296,7 +296,7 @@ RULES = {
     # ── B4. Suhu Pendingin × TDS (R37–R39) ────
     'R37': {
         'kondisi': 'Suhu pendingin kritis (>42°C) DAN TDS kritis (>80 ppm)',
-        'aksi'   : 'DARURAT — Kondensor gagal dan distilat sangat kotor, hentikan semua proses',
+        'aksi'   : 'DARURAT — Kondensor gagal and distilat sangat kotor, hentikan semua proses',
         'level'  : 'kritis'
     },
     'R38': {
@@ -340,12 +340,8 @@ def forward_chaining(d):
     sc  = float(d.get('suhu_cool', 0))
     ph  = float(d.get('ph', 7))
     tds = float(d.get('tds', 0))
-    # berat_distilat hanya dicatat, tidak digunakan untuk status
  
     rules_aktif = []
- 
-    # ── Prioritas Status: kritis > anomali > normal ──
-    # Dikumpulkan dulu, baru ditentukan status akhir
     status_set = set()
  
     def tambah(kode):
@@ -387,7 +383,7 @@ def forward_chaining(d):
     # BAGIAN B — KOMBINASI
     # ════════════════════════════
  
-# R21-R26 (Suhu Prod x Pendingin)
+    # R21-R26 (Suhu Prod x Pendingin)
     if sp > 95 and sc > 42: tambah('R24')
     elif 90 < sp <= 95 and 35 < sc <= 42: tambah('R21')
     elif 85 <= sp <= 89 and 35 < sc <= 42: tambah('R22')
@@ -421,14 +417,12 @@ def forward_chaining(d):
     # R42 (Kombinasi 3+ Sensor)
     if sp > 95 and sc > 42 and (ph < 4.5 or ph > 8.0) and tds > 80: tambah('R42')
 
-    # Tentukan status akhir berdasarkan level tertinggi
     status = 'normal'
     if 'kritis' in status_set: status = 'kritis'
     elif 'anomali' in status_set: status = 'anomali'
 
     rekomendasi = [RULES[r]['aksi'] for r in rules_aktif]
     return status, rules_aktif, rekomendasi
- 
  
 # ─────────────────────────────────────────────
 # ROUTES
@@ -444,8 +438,6 @@ def scada_view():
  
 @app.route('/api/sensor', methods=['GET', 'POST'])
 def terima_sensor():
-    """Terima data dari ESP32 (berat_distilat = logging only, tidak mempengaruhi rules)"""
- 
     if request.method == 'GET':
         return jsonify({
             'status' : 'ok',
@@ -504,10 +496,8 @@ def terima_sensor():
         print(f"Error di terima_sensor: {e}")
         return jsonify({'error': f'Sistem Crash Karena: {str(e)}'}), 500
  
- 
 @app.route('/api/simulate', methods=['POST'])
 def auto_simulate():
-    """Generate data sensor acak realistis untuk semua mode"""
     mode = request.json.get('mode', 'normal') if request.json else 'normal'
  
     if mode == 'normal':
@@ -563,10 +553,8 @@ def auto_simulate():
         'rekomendasi' : rekomendasi
     })
  
- 
 @app.route('/api/rules')
 def get_rules():
-    """Tampilkan seluruh daftar rules sistem pakar (42 rules)"""
     kategori = {
         'individual': {k: v for k, v in RULES.items() if int(k[1:]) <= 20},
         'kombinasi' : {k: v for k, v in RULES.items() if int(k[1:]) > 20},
@@ -577,25 +565,39 @@ def get_rules():
         'per_kategori': kategori
     })
  
- 
 @app.route('/api/log')
 def get_log():
-    """Ambil data log terbaru"""
+    """Ambil data log berdasarkan rentang waktu (filter) atau data terbaru (live)"""
     limit = request.args.get('limit', 50, type=int)
+    start_time = request.args.get('start')
+    end_time = request.args.get('end')
+ 
     conn = get_db()
     with conn.cursor() as c:
-        c.execute('SELECT * FROM log_sensor ORDER BY id DESC LIMIT %s', (limit,))
-        rows = c.fetchall()
+        if start_time and end_time:
+            # Mengambil data berdasarkan rentang waktu filter
+            max_history_limit = request.args.get('max_limit', 1000, type=int)
+            c.execute('''
+                SELECT * FROM log_sensor 
+                WHERE waktu BETWEEN %s AND %s 
+                ORDER BY waktu ASC 
+                LIMIT %s
+            ''', (start_time, end_time, max_history_limit))
+            rows = c.fetchall()
+        else:
+            # Mengambil data realtime default
+            c.execute('SELECT * FROM log_sensor ORDER BY id DESC LIMIT %s', (limit,))
+            rows = c.fetchall()
+            rows.reverse()  # Membalik urutan agar grafik bergerak dari kiri ke kanan
     conn.close()
+ 
     for r in rows:
         if r.get('waktu'):
             r['waktu'] = str(r['waktu'])
     return jsonify(rows)
  
- 
 @app.route('/api/latest')
 def get_latest():
-    """Ambil 1 data terbaru untuk gauge realtime"""
     conn = get_db()
     with conn.cursor() as c:
         c.execute('SELECT * FROM log_sensor ORDER BY id DESC LIMIT 1')
@@ -605,10 +607,8 @@ def get_latest():
         row['waktu'] = str(row['waktu'])
     return jsonify(row if row else {})
  
- 
 @app.route('/api/stats')
 def get_stats():
-    """Statistik ringkasan + monitoring berat distilat"""
     conn = get_db()
     with conn.cursor() as c:
         c.execute('SELECT COUNT(*) as n FROM log_sensor')
@@ -642,16 +642,13 @@ def get_stats():
         }
     })
  
- 
 @app.route('/api/clear', methods=['DELETE'])
 def clear_log():
-    """Hapus semua log (untuk testing)"""
     conn = get_db()
     with conn.cursor() as c:
         c.execute('DELETE FROM log_sensor')
     conn.close()
     return jsonify({'success': True, 'message': 'Semua log dihapus'})
- 
  
 # ─────────────────────────────────────────────
 # MAIN & INISIALISASI

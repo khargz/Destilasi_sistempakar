@@ -30,7 +30,6 @@
     color: var(--text-primary); 
     font-family: 'Rajdhani', sans-serif; 
     min-height: 100vh; 
-    /* Dihapus min-width di sini agar login bisa menyesuaikan layar HP */
     overflow-x: auto; 
   }
 
@@ -67,7 +66,6 @@
   .role-pill:hover { border-color:var(--accent-cyan);color:var(--accent-cyan);background:rgba(0,212,255,.05); }
 
   /* ═════════ TOPBAR & NAV ═════════ */
-  /* MIN WIDTH 1280px DIPINDAHKAN KE SINI AGAR DASHBOARD TETAP BESAR */
   #dashboard-screen { display:none; min-width: 1280px; }
   .topbar { background: #080b0f; border-bottom: 1px solid var(--border); height: 44px; display: flex; align-items: center; padding: 0 16px; gap: 12px; position: sticky; top: 0; z-index: 100; }
   .topbar-logo { font-family: 'Orbitron', monospace; font-size: 13px; font-weight: 900; color: var(--accent-gold); letter-spacing: 2px; text-shadow: var(--glow-gold); }
@@ -125,7 +123,6 @@
   
   .sensor-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; }
   
-  /* KARTU SENSOR - DIKUNCI MATI AGAR TIDAK BERGESER */
   .sensor-card { 
     position: absolute; 
     background: rgba(10,16,22,0.92); 
@@ -154,7 +151,6 @@
     gap: 6px;
   }
   
-  /* LABEL NAMA SENSOR */
   .sensor-label { 
     font-family: 'Share Tech Mono', monospace; 
     font-size: 9px; 
@@ -166,7 +162,6 @@
     flex: 1; 
   }
   
-  /* ATURAN TAG STATUS */
   .warn-tag, .ok-tag, .danger-tag { 
     font-family: 'Share Tech Mono', monospace; 
     font-size: 8px; 
@@ -196,7 +191,6 @@
   .connector { position: absolute; pointer-events: none; transition: all 0.3s ease; opacity: 0.8; z-index: -1; }
   .connector-dot { position: absolute; width: 6px; height: 6px; border-radius: 50%; transition: all 0.3s ease; z-index: 0; }
 
-  /* Warna Default (OK) */
   .sensor-card .connector { border-color: var(--accent-cyan); }
   .sensor-card .connector-dot { background: var(--accent-cyan); box-shadow: 0 0 8px var(--accent-cyan); }
   .sensor-card.warn .connector { border-color: var(--accent-gold); }
@@ -204,7 +198,6 @@
   .sensor-card.danger .connector { border-color: var(--accent-red); }
   .sensor-card.danger .connector-dot { background: var(--accent-red); box-shadow: 0 0 8px var(--accent-red); }
 
-  /* Kordinat Garis & Peletakan Kotak */
   .card-sp { top: 26%; left: -5%; } 
   .card-sp .connector-h { top: 50%; right: -150px; width: 150px; height: 1px; border-top: 2px solid; }
   .card-sp .connector-dot { top: calc(50% - 3px); right: -150px; }
@@ -276,7 +269,6 @@
   .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
   .chart-body { padding: 16px; height: 280px; }
   
-  /* GRID 3 KOLOM UNTUK GRAFIK BAWAH */
   .chart-row-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
 
   .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
@@ -331,7 +323,6 @@
   ::-webkit-scrollbar-track { background: var(--bg-secondary); }
   ::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 3px; }
 
-  /* ═════════ KHUSUS AGAR LOGIN PAS DI HP ═════════ */
   @media (max-width: 600px) {
     .login-box { width: 90%; max-width: 420px; }
   }
@@ -417,8 +408,7 @@
   <div class="nav-bar">
     <div class="nav-item active" onclick="switchPage('dashboard')" id="nav-dashboard"><span class="nav-icon">⬡</span> DASHBOARD UTAMA</div>
     <div class="nav-item" onclick="switchPage('statistik')" id="nav-statistik"><span class="nav-icon">◈</span> STATISTIK &amp; LOG</div>
-    <div class="nav-right" id="nav-action-bar">
-      </div>
+    <div class="nav-right" id="nav-action-bar"></div>
   </div>
 
   <div class="page active" id="page-dashboard">
@@ -556,6 +546,15 @@
           <div><span class="stat-card-value" style="color:var(--accent-red)" id="st-kritis">0</span></div>
           <div class="stat-card-sub">Tindakan darurat</div>
         </div>
+      </div>
+
+      <div class="filter-bar" style="background: var(--bg-panel); border: 1px solid var(--border); border-radius: 3px; padding: 10px 16px; display: flex; align-items: center; gap: 12px;">
+        <div style="font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--text-secondary);">FILTER WAKTU:</div>
+        <input type="datetime-local" id="filter-start" style="background: var(--bg-card); border: 1px solid var(--border); color: var(--text-primary); padding: 5px 10px; border-radius: 3px; font-family: var(--mono); font-size: 11px; outline: none; color-scheme: dark;">
+        <div style="color: var(--text-dim);">-</div>
+        <input type="datetime-local" id="filter-end" style="background: var(--bg-card); border: 1px solid var(--border); color: var(--text-primary); padding: 5px 10px; border-radius: 3px; font-family: var(--mono); font-size: 11px; outline: none; color-scheme: dark;">
+        <button class="nav-btn" onclick="applyTimeFilter()" style="color: var(--accent-cyan); border-color: var(--accent-cyan); background: rgba(0,212,255,0.1); margin-left: 8px;">◷ Tampilkan Riwayat</button>
+        <button class="nav-btn" onclick="resetTimeFilter()">↺ Reset (Live)</button>
       </div>
 
       <div class="chart-panel">
@@ -808,18 +807,12 @@ function initCharts() {
   charts.temp = new Chart(document.getElementById('chart-temp'), { type: 'line', data: { labels: [], datasets: [ { label: 'Suhu Pemanas', data: [], borderColor: '#f0a500', backgroundColor: 'rgba(240,165,0,0.08)', borderWidth: 1.5, pointRadius: 0, fill: true, tension: 0.4 }, { label: 'Suhu Pendingin', data: [], borderColor: '#00d4ff', backgroundColor: 'rgba(0,212,255,0.06)', borderWidth: 1.5, pointRadius: 0, fill: true, tension: 0.4 } ] }, options: chartDefaults });
   charts.ph = new Chart(document.getElementById('chart-ph'), { type: 'line', data: { labels: [], datasets: [{ label: 'pH', data: [], borderColor: '#aa55ff', backgroundColor: 'rgba(170,85,255,0.08)', borderWidth: 1.5, pointRadius: 0, fill: true, tension: 0.4 }] }, options: chartDefaults });
   charts.tds = new Chart(document.getElementById('chart-tds'), { type: 'line', data: { labels: [], datasets: [{ label: 'TDS (ppm)', data: [], borderColor: '#00e676', backgroundColor: 'rgba(0,230,118,0.07)', borderWidth: 1.5, pointRadius: 0, fill: true, tension: 0.4 }] }, options: chartDefaults });
-  
-  // Chart baru untuk berat distilat
-  charts.berat = new Chart(document.getElementById('chart-berat'), { 
-    type: 'line', 
-    data: { labels: [], datasets: [{ label: 'Berat (gram)', data: [], borderColor: '#f0a500', backgroundColor: 'rgba(240,165,0,0.07)', borderWidth: 1.5, pointRadius: 0, fill: true, tension: 0.4 }] }, 
-    options: chartDefaults 
-  });
+  charts.berat = new Chart(document.getElementById('chart-berat'), { type: 'line', data: { labels: [], datasets: [{ label: 'Berat (gram)', data: [], borderColor: '#f0a500', backgroundColor: 'rgba(240,165,0,0.07)', borderWidth: 1.5, pointRadius: 0, fill: true, tension: 0.4 }] }, options: chartDefaults });
 }
 
 function updateCharts(logs) {
     if(!charts.temp || !logs.length) return;
-    const rev = [...logs].reverse(); 
+    const rev = [...logs]; // Backend sudah membalikkan urutan array untuk kenyamanan grafik
     const lbls = rev.map(r => r.waktu.split(' ')[1] || r.waktu);
     
     charts.temp.data.labels = lbls;
@@ -849,7 +842,10 @@ function renderLogTable(logs) {
     return; 
   }
   
-  tbody.innerHTML = logs.map(r => {
+  // Karena tabel log biasanya lebih intuitif jika data TERBARU berada di PALING ATAS, kita balik urutannya khusus untuk tabel
+  const tableRows = [...logs].reverse();
+
+  tbody.innerHTML = tableRows.map(r => {
       let stColor = r.status==='normal' ? 'badge-ok' : r.status==='anomali' ? 'badge-warn' : 'badge-danger';
       
       return `<tr> 
@@ -863,82 +859,61 @@ function renderLogTable(logs) {
         <td><span class="${stColor}">${r.status.toUpperCase()}</span></td> 
         <td style="font-size:9px">${r.rules_aktif||'—'}</td> 
       </tr>`;
-      
   }).join('');
 }
 
 // ════════ PYTHON DB INTEGRATION (42 RULES FULL SYNC) ════════
 const API = '/api'; let dbOk = false;
 
-// 1. Kamus 42 Rules murni untuk Teks & Visualisasi UI
 const RULES = [
-  // A1. Suhu Produksi
   {id:'R01', param:'sp', status:'ok', label:'Suhu produksi optimal', rek:null},
   {id:'R02', param:'sp', status:'warn', label:'Suhu produksi rendah', rek:{cls:'warn',title:'Naikkan suhu pemanas',desc:'Naikkan suhu pemanas secara bertahap.'}},
   {id:'R03', param:'sp', status:'warn', label:'Suhu produksi sangat rendah', rek:{cls:'warn',title:'Suhu Terlalu Rendah',desc:'Proses belum mendidih, naikkan pemanas segera.'}},
   {id:'R04', param:'sp', status:'warn', label:'Suhu produksi tinggi', rek:{cls:'warn',title:'Kurangi Pemanas',desc:'Kurangi intensitas pemanas, pantau terus.'}},
   {id:'R05', param:'sp', status:'danger', label:'Suhu produksi kritis', rek:{cls:'danger',title:'MATIKAN PEMANAS SEGERA',desc:'Risiko hangus, bahaya.'}},
   {id:'R06', param:'sp', status:'warn', label:'Suhu produksi tidak stabil', rek:{cls:'warn',title:'Periksa Sumber Panas',desc:'Fluktuasi cepat pada tekanan uap.'}},
-
-  // A2. Suhu Pendingin
   {id:'R07', param:'sc', status:'ok', label:'Suhu pendingin optimal', rek:null},
   {id:'R08', param:'sc', status:'warn', label:'Suhu pendingin rendah', rek:{cls:'warn',title:'Kurangi Aliran Air',desc:'Hindari kondensasi berlebih.'}},
   {id:'R09', param:'sc', status:'warn', label:'Suhu pendingin sangat rendah', rek:{cls:'warn',title:'Matikan Pompa Sementara',desc:'Suhu pendingin terlalu dingin.'}},
   {id:'R10', param:'sc', status:'warn', label:'Suhu pendingin tinggi', rek:{cls:'warn',title:'Tingkatkan Aliran Air',desc:'Efisiensi kondensor menurun.'}},
   {id:'R11', param:'sc', status:'danger', label:'Suhu pendingin kritis', rek:{cls:'danger',title:'BAHAYA KONDENSOR',desc:'Kondensor hampir gagal, tingkatkan pendingin darurat.'}},
-
-  // A3. pH Distilat
   {id:'R12', param:'ph', status:'ok', label:'pH distilat normal', rek:null},
   {id:'R13', param:'ph', status:'warn', label:'pH asam ringan', rek:{cls:'warn',title:'Periksa Keasaman',desc:'Periksa kemungkinan kontaminasi asam organik.'}},
   {id:'R14', param:'ph', status:'danger', label:'pH sangat asam', rek:{cls:'danger',title:'HENTIKAN PENGUMPULAN',desc:'Kontaminasi asam berat.'}},
   {id:'R15', param:'ph', status:'warn', label:'pH basa ringan', rek:{cls:'warn',title:'Periksa Bahan Baku',desc:'Alkalinitas sedikit tinggi.'}},
   {id:'R16', param:'ph', status:'danger', label:'pH sangat basa', rek:{cls:'danger',title:'HENTIKAN PROSES',desc:'Kontaminasi basa berat, periksa kondensor dan pipa.'}},
-
-  // A4. TDS
   {id:'R17', param:'tds', status:'ok', label:'TDS normal', rek:null},
   {id:'R18', param:'tds', status:'ok', label:'TDS sangat rendah', rek:null},
   {id:'R19', param:'tds', status:'warn', label:'TDS tinggi', rek:{cls:'warn',title:'Kemurnian Menurun',desc:'Periksa kebersihan kondensor dan pipa.'}},
   {id:'R20', param:'tds', status:'danger', label:'TDS kritis', rek:{cls:'danger',title:'HENTIKAN PROSES',desc:'Kemurnian sangat buruk, tidak layak pakai.'}},
-
-  // B1. Kombinasi Suhu Produksi & Pendingin
   {id:'R21', param:'combo', status:'danger', label:'Suhu Produksi & Pendingin Tinggi', rek:{cls:'danger',title:'KRITIS GANDA',desc:'Kurangi pemanas DAN tingkatkan pendingin.'}},
   {id:'R22', param:'combo', status:'warn', label:'Suhu Normal, Pendingin Tinggi', rek:{cls:'warn',title:'Tingkatkan Pendingin',desc:'Efisiensi kondensasi menurun.'}},
   {id:'R23', param:'combo', status:'warn', label:'Suhu Produksi & Pendingin Rendah', rek:{cls:'warn',title:'Naikkan Pemanas',desc:'Proses belum optimal, kurangi pendingin.'}},
   {id:'R24', param:'combo', status:'danger', label:'Suhu Produksi & Pendingin Kritis', rek:{cls:'danger',title:'DARURAT TOTAL',desc:'Matikan pemanas, aktifkan pendingin darurat.'}},
   {id:'R25', param:'combo', status:'warn', label:'Pendinginan Berlebih', rek:{cls:'warn',title:'Kurangi Aliran Air',desc:'Suhu produksi normal tapi pendingin terlalu dingin.'}},
   {id:'R26', param:'combo', status:'warn', label:'Pemanas Tinggi, Pendingin Normal', rek:{cls:'warn',title:'Kurangi Pemanas',desc:'Kondensor masih mampu menangani beban.'}},
-
-  // B2. Kombinasi Suhu Produksi & pH
   {id:'R27', param:'combo', status:'danger', label:'Suhu Kritis & Sangat Asam', rek:{cls:'danger',title:'HENTIKAN PROSES',desc:'Suhu tinggi memperparah dekomposisi asam.'}},
   {id:'R28', param:'combo', status:'danger', label:'Suhu Tinggi & Asam', rek:{cls:'danger',title:'Turunkan Suhu',desc:'Suhu tinggi mempercepat hidrolisis.'}},
   {id:'R29', param:'combo', status:'warn', label:'Suhu Rendah & Basa', rek:{cls:'warn',title:'Periksa Bahan Baku',desc:'Kualitas daun kayu putih menurun.'}},
   {id:'R30', param:'combo', status:'ok', label:'Suhu & pH Ideal', rek:null},
   {id:'R31', param:'combo', status:'danger', label:'Suhu Sangat Rendah & Sangat Asam', rek:{cls:'danger',title:'Periksa Total',desc:'Proses gagal, bahan baku buruk.'}},
-
-  // B3. Kombinasi Suhu Produksi & TDS
   {id:'R32', param:'combo', status:'danger', label:'Suhu Kritis & TDS Kritis', rek:{cls:'danger',title:'DARURAT KONTAMINASI',desc:'Suhu berlebih melarutkan kontaminan, bersihkan sistem.'}},
   {id:'R33', param:'combo', status:'danger', label:'Suhu Tinggi & TDS Tinggi', rek:{cls:'danger',title:'Turunkan Suhu',desc:'Suhu tinggi meningkatkan kelarutan pengotor.'}},
   {id:'R34', param:'combo', status:'warn', label:'Suhu Normal, TDS Tinggi', rek:{cls:'warn',title:'Bersihkan Kondensor',desc:'Kemurnian menurun meski suhu normal.'}},
   {id:'R35', param:'combo', status:'warn', label:'Suhu Rendah & TDS Tinggi', rek:{cls:'warn',title:'Naikkan Suhu',desc:'Proses tidak optimal, distilat terkontaminasi.'}},
   {id:'R36', param:'combo', status:'ok', label:'Suhu & Kemurnian Ideal', rek:null},
-
-  // B4. Kombinasi Suhu Pendingin & TDS
   {id:'R37', param:'combo', status:'danger', label:'Pendingin Kritis & TDS Kritis', rek:{cls:'danger',title:'HENTIKAN SEMUA',desc:'Kondensor gagal dan distilat sangat kotor.'}},
   {id:'R38', param:'combo', status:'danger', label:'Pendingin Tinggi & TDS Tinggi', rek:{cls:'danger',title:'Perbaiki Pendingin',desc:'Pendinginan tak efisien menyebabkan kemurnian turun.'}},
   {id:'R39', param:'combo', status:'ok', label:'Kondensor & Kemurnian Ideal', rek:null},
-
-  // B5. Kombinasi pH & TDS
   {id:'R40', param:'combo', status:'danger', label:'Sangat Asam & TDS Kritis', rek:{cls:'danger',title:'BUANG DISTILAT',desc:'Kualitas hancur, tidak dapat digunakan.'}},
   {id:'R41', param:'combo', status:'danger', label:'Asam & TDS Tinggi', rek:{cls:'danger',title:'Periksa Sistem Total',desc:'Kualitas distilat memburuk ganda.'}},
-
-  // B6. Kombinasi Sistem Gagal Total
   {id:'R42', param:'combo', status:'danger', label:'KEGAGALAN SISTEM TOTAL', rek:{cls:'danger',title:'MATIKAN SEMUA ALAT',desc:'Semua sensor kritis, segera lakukan pengecekan menyeluruh.'}}
 ];
 
 let sp=0,sc=0,ph=0,tds=0, lc=0, prevSp=0,prevSc=0,prevPh=0,prevTds=0, prevLc=0, totalPoints=0;
 const hist={sp:[],sc:[],ph:[],tds:[], lc:[]}; 
 const MAX_H=20; let prevFired=[]; const localNotifs=[];
-let globalFired = []; // Menampung aturan yang menyala saat ini
+let globalFired = [];
 
 setInterval(()=>{ 
     const t = new Date().toLocaleTimeString('id-ID');
@@ -975,25 +950,20 @@ async function fetchLatestData(){
       sp=data.suhu_prod; sc=data.suhu_cool; ph=data.ph; tds=data.tds;
       lc=data.berat_distilat || data.berat || 0; 
 
-      // Memasukkan ke history
       ['sp','sc','ph','tds','lc'].forEach(k=>{
           hist[k].push(eval(k));
           if(hist[k].length>MAX_H)hist[k].shift();
       });
 
-      // PENTING: Membaca rules_aktif langsung dari Python, bukan menghitung ulang!
       let ruleIds = data.rules_aktif ? data.rules_aktif.split(',') : [];
       const fired = RULES.filter(r => ruleIds.includes(r.id));
-      globalFired = fired; // Simpan untuk dipakai grafik modal
+      globalFired = fired; 
       const ov=data.status;
       
-      // Update Tampilan Kartu Dashboard berdasarkan rules dari Python
       updCard('sp',sp,paramSt('sp',fired),sp.toFixed(1),prevSp); 
       updCard('sc',sc,paramSt('sc',fired),sc.toFixed(1),prevSc); 
       updCard('ph',ph,paramSt('ph',fired),ph.toFixed(2),prevPh); 
       updCard('tds',tds,paramSt('tds',fired),Math.round(tds),prevTds);
-      
-      // LOAD CELL DI-SET SELALU 'OK' KARENA HANYA MONITORING
       updCard('lc', lc, 'ok', lc.toFixed(0), prevLc); 
 
       updBanner(ov,fired); updFC(fired); updRek(fired); updNotif(fired);
@@ -1077,7 +1047,6 @@ function openModal(param) {
   const canvas = document.getElementById('modal-chart');
   const ctx = canvas.getContext('2d');
   
-  // Menggunakan globalFired agar warna sesuai kalkulasi python
   const color = colOf(paramSt(param, globalFired));
   
   modalChart = new Chart(ctx, { type: 'line', data: { labels: data.map((_,i) => i===data.length-1 ? 'now' : -(data.length-1-i)+'s'), datasets: [{ data, borderColor: color, backgroundColor: color+'18', borderWidth: 1.5, pointRadius: 2, pointBackgroundColor: color, tension: 0.4, fill: true, }] }, options: { responsive:true, maintainAspectRatio:false, animation:{duration:400}, plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label: ctx => ctx.parsed.y.toFixed(fix)+' '+meta.unit } } }, scales:{ x:{ grid:{color:'rgba(255,255,255,.04)'}, ticks:{color:'#4a5568',font:{size:9}} }, y:{ grid:{color:'rgba(255,255,255,.04)'}, ticks:{color:'#4a5568',font:{size:9}} } } } });
@@ -1085,6 +1054,54 @@ function openModal(param) {
 
 function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); }
 document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); });
+
+// 👇 FUNGSI BARU UNTUK MENANGANI FILTER PARAMETER WAKTU 👇
+async function applyTimeFilter() {
+  if(!currentUser || !currentUser.perms.viewLog) { 
+      showToast('err', '✗ Akses ditolak — tidak ada izin melihat riwayat log'); 
+      return; 
+  }
+  
+  const startInput = document.getElementById('filter-start').value;
+  const endInput = document.getElementById('filter-end').value;
+
+  if(!startInput || !endInput) {
+      showToast('warn', '⚠ Harap tentukan rentang waktu mulai dan selesai');
+      return;
+  }
+
+  // Konversi format datetime HTML 'YYYY-MM-DDTHH:MM' menjadi format MySQL 'YYYY-MM-DD HH:MM:SS'
+  const startTime = startInput.replace('T', ' ') + ':00';
+  const endTime = endInput.replace('T', ' ') + ':59';
+
+  try {
+      showToast('ok', 'Mengambil arsip data log dari database...');
+      
+      const url = `${API}/log?start=${encodeURIComponent(startTime)}&end=${encodeURIComponent(endTime)}&max_limit=1000`;
+      const res = await fetch(url);
+      const logs = await res.json();
+      
+      cachedLogs = logs || [];
+      renderLogTable(cachedLogs);
+      updateCharts(cachedLogs);
+      
+      document.querySelector('.chart-title').textContent = `GRAFIK SUHU (RIWAYAT: ${logs.length} DATA)`;
+      showToast('ok', `✓ Berhasil memuat ${logs.length} data riwayat`);
+      
+  } catch(e) {
+      showToast('err', '✗ Terjadi kesalahan koneksi server saat memuat data');
+      console.error(e);
+  }
+}
+
+function resetTimeFilter() {
+  document.getElementById('filter-start').value = '';
+  document.getElementById('filter-end').value = '';
+  document.querySelector('.chart-title').textContent = 'GRAFIK SUHU (TERBARU)';
+  
+  refreshLog(); 
+  showToast('ok', '✓ Kembali ke visualisasi Live monitoring');
+}
 
 setInterval(checkDB, 15000); setInterval(fetchLatestData, 3000);
 </script>

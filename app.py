@@ -650,6 +650,23 @@ def clear_log():
     conn.close()
     return jsonify({'success': True, 'message': 'Semua log dihapus'})
  
+@app.route('/api/fix-waktu')
+def fix_waktu_wib():
+    """Rute sementara untuk memperbaiki jam (Tambah 7 Jam ke data lama)"""
+    try:
+        conn = get_db()
+        with conn.cursor() as c:
+            # Query MySQL untuk menambahkan 7 jam ke kolom 'waktu'
+            c.execute("UPDATE log_sensor SET waktu = DATE_ADD(waktu, INTERVAL 7 HOUR)")
+            baris_berubah = c.rowcount
+        conn.close()
+        
+        return jsonify({
+            'success': True, 
+            'message': f'Selesai! Berhasil menyesuaikan zona waktu ke WIB untuk {baris_berubah} data.'
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 # ─────────────────────────────────────────────
 # MAIN & INISIALISASI
 # ─────────────────────────────────────────────
